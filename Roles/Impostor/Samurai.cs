@@ -76,7 +76,7 @@ public sealed class Samurai : RoleBase, IImpostor, IUsePhantomButton
         AURoleOptions.PhantomCooldown = AbilityCooldown;
     }
 
-    bool IUsePhantomButton.IsPhantomRole => true;
+    bool IUsePhantomButton.IsPhantomRole => CanUse;
     bool IUsePhantomButton.IsresetAfterKill => false;
 
     void IUsePhantomButton.OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
@@ -84,7 +84,7 @@ public sealed class Samurai : RoleBase, IImpostor, IUsePhantomButton
         if (CanUse)
         {
             AdjustKillCooldown = true;
-            ResetCooldown = false;
+            ResetCooldown = true;
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Player.IsAlive()) return;

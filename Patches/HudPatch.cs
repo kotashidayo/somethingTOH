@@ -1,16 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using HarmonyLib;
-using UnityEngine;
 using AmongUs.GameOptions;
-
+using HarmonyLib;
 using TownOfHost.Roles;
+using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Neutral;
+using UnityEngine;
+using UnityEngine.XR;
 using static TownOfHost.Translator;
 
 namespace TownOfHost
@@ -625,6 +626,12 @@ namespace TownOfHost
     class TaskPanelBehaviourPatch
     {
         // タスク表示の文章が更新・適用された後に実行される
+        public static List<CustomRoles> TwoIntroRoles = new List<CustomRoles>
+        {
+            CustomRoles.Camouflager,
+            CustomRoles.Balancer,
+            CustomRoles.Samurai,
+        };
         public static void Postfix(TaskPanelBehaviour __instance)
         {
             if (CustomSpawnEditor.ActiveEditMode && GameStates.IsFreePlay)
@@ -643,6 +650,18 @@ namespace TownOfHost
 
                 if (inforoleinfo?.Desc is not null)
                 {
+                    /*if (TwoIntroRoles.Contains(inforole))
+                    {
+                        int value = UnityEngine.Random.Range(1, 3);
+                        if (value is 2)
+                        {
+                            text += $"<size=100%>{GetString($"{inforole}Info2")}" + "\n\n</size>";
+                        }
+                        else
+                        {
+                            text += $"<size=100%>{GetString($"{inforole}Info")}" + "\n\n</size>";
+                        }
+                    }*/
                     text += $"<size=100%>{GetString($"{inforole}Info")}" + "\n\n</size>";
                     desc += $"<size=70%>{inforoleinfo?.Desc()}";
                 }

@@ -32,6 +32,11 @@ namespace TownOfHost
     }
     class SetUpRoleTextPatch
     {
+        public static void Prefix(IntroCutscene __instance)
+        {
+            if (!GameStates.IsModHost) return;
+            ExtendedPlayerControl.UseTwoIntroPlayers.Clear();
+        }
         public static void Postfix(IntroCutscene __instance)
         {
             if (!GameStates.IsModHost) return;
@@ -47,8 +52,7 @@ namespace TownOfHost
                     __instance.RoleText.text = UtilsRoleText.GetRoleName(role);
                     __instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
                     __instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
-
-                    __instance.RoleBlurbText.text = PlayerControl.LocalPlayer.GetRoleDesc();
+                    __instance.RoleBlurbText.text = PlayerControl.LocalPlayer.GetRoleDesc(Intro: true);
                     if (role == CustomRoles.Vanity)
                     {
                         __instance.RoleText.text =  UtilsRoleText.GetRoleName(CustomRoles.Sheriff);

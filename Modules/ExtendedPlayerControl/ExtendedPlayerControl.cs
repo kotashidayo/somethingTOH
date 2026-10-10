@@ -463,6 +463,11 @@ namespace TownOfHost
                 CustomRoles.Huntman or                
                 CustomRoles.Eater;
         }
+        public static List<PlayerControl> UseTwoIntroPlayers = new()
+        {
+            null
+        };
+
         public static bool IsNeutralKiller(this PlayerControl player)
         {
             if (player.GetRoleClass() is BakeCat bakeCat) return bakeCat.Team is not ISchrodingerCatOwner.TeamType.None;
@@ -506,7 +511,7 @@ namespace TownOfHost
             return check     
             || (seer.Is(CustomRoles.Autopsy) && (!Utils.IsActive(SystemTypes.Comms) || Autopsy.CanUseActiveComms.GetBool()));
         }
-        public static string GetRoleDesc(this PlayerControl player, bool InfoLong = false)
+        public static string GetRoleDesc(this PlayerControl player, bool InfoLong = false, bool Intro = false)
         {
             var roleClass = player.GetRoleClass();
             var role = player.GetCustomRole();
@@ -525,11 +530,11 @@ namespace TownOfHost
             if (!InfoLong)
                 switch (role)
                 {
-                    case CustomRoles.Mafia:
+                    /*case CustomRoles.Mafia:
                         if (roleClass is not Mafia mafia) break;
 
                         Prefix = mafia.CanUseKillButton() ? "After" : "Before";
-                        break;
+                        break;*/
                     case CustomRoles.MadSnitch:
                     case CustomRoles.MadGuardian:
                         text = CustomRoles.Madmate.ToString();
@@ -555,7 +560,26 @@ namespace TownOfHost
                     text = CustomRoles.Sheriff.ToString();
                 }
             }
-            var Info = (role.IsVanilla() ? "Blurb" : "Info") + (InfoLong ? "Long" : "");
+            bool Usetwo = false;
+
+            if (TaskPanelBehaviourPatch.TwoIntroRoles.Contains(role) && Intro)
+            {
+                int value = UnityEngine.Random.Range(1, 3);
+                if (value == 1)
+                {
+                    Usetwo = true;
+                    UseTwoIntroPlayers.Add(player);
+                }
+            }
+            if (!Intro)
+            {
+                Usetwo = UseTwoIntroPlayers.Contains(player);
+            }
+            var Info = role.IsVanilla() ? "Blurb" : Usetwo ? "Info2" : "Info";
+            if (InfoLong)
+            {
+                Info = "InfoLong";
+            }
             if (player.IsGhostRole())
             {
                 var state = PlayerState.GetByPlayerId(player.PlayerId);
