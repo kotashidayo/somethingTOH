@@ -51,6 +51,10 @@ public sealed class Merlin : RoleBase, IRoomTasker
 
     public override void Add()
     {
+        TryChangeNameColor();
+    }
+    void TryChangeNameColor()
+    {
         foreach (var impostor in PlayerCatch.AllPlayerControls.Where(player => player.Is(CustomRoleTypes.Impostor) || player.GetCustomRole() is CustomRoles.Egoist))
         {
             NameColorManager.Add(Player.PlayerId, impostor.PlayerId, "#ff1919");
@@ -63,7 +67,16 @@ public sealed class Merlin : RoleBase, IRoomTasker
                     NameColorManager.Add(Player.PlayerId, neutral.PlayerId, IsGlayColor ? "#555555" : neutral.GetRoleColorCode());
             }
         }
-        Assassin.MarlinIds.Add(Player.PlayerId);
+        if (!Assassin.MarlinIds.Contains(Player.PlayerId))
+        {
+            Assassin.MarlinIds.Add(Player.PlayerId);
+        }
+    }
+    public override void ChengeRoleAdd()
+    {
+        _ = new LateTask(() => {
+            TryChangeNameColor();
+        }, 0.2f, "", true);
     }
     int? IRoomTasker.GetMaxTaskCount() => worktask;
     bool IRoomTasker.IsAssignRoomTask() => completeroom != worktask;

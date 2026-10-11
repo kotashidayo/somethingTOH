@@ -1828,7 +1828,8 @@ namespace TownOfHost
                         canceled = true;
                         if (GameStates.IsLobby) break;
                         if (args.Length < 2 || !int.TryParse(args[1], out int id2)) break;
-                        GetPlayerById(id2)?.RpcMurderPlayer(GetPlayerById(id2), true);
+                        var targ = GetPlayerById(id2);
+                        targ.RpcMurderPlayerV2(targ);
                         break;
 
                     case "/allplayertp":

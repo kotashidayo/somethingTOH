@@ -38,8 +38,13 @@ namespace TownOfHost
             return false;
         }
 
-        // 不正キル防止チェック
-        public static bool CheckForInvalidMurdering(MurderInfo info, bool force = false)
+        /// <summary>
+        /// 不正キル防止チェック
+        /// </summary>
+        /// <param name="info">MurderInfo</param>
+        /// <param name="bypass">キルが可能なプレイヤーかを無視する</param>
+        /// <returns></returns>
+        public static bool CheckForInvalidMurdering(MurderInfo info, bool force = false, bool bypass = false)
         {
             (var killer, var target) = info.AttemptTuple;
             // Killerが既に死んでいないかどうか
@@ -103,8 +108,8 @@ namespace TownOfHost
                 Logger.Info(killer.GetNameWithRole().RemoveHtmlTags() + "が強制会議前にキルしようとしたから弾いたぞ！", "CheckMurder");
                 return false;
             }
-            // キルが可能なプレイヤーか(遠隔は除く)
-            if (!info.IsFakeSuicide && !killer.CanUseKillButton() && !killer.Is(CustomRoles.UltraStar) && !killer.Is(CustomRoles.Huntman))
+            // キルが可能なプレイヤーか(遠隔は除く)←いらないかなあ。って思ってるけど....
+            if (!bypass && !info.IsFakeSuicide && !killer.CanUseKillButton() && !killer.Is(CustomRoles.UltraStar) && !killer.Is(CustomRoles.Huntman))
             {
                 Logger.Info(killer.GetNameWithRole().RemoveHtmlTags() + "はKillできないので、キルはキャンセルされました。", "CheckMurder");
                 return false;

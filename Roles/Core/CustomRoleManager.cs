@@ -68,7 +68,7 @@ public static class CustomRoleManager
     /// <param name="PlayKillSound">キル時キル音を鳴らすか(能力キル用)</param>
     /// <returns></returns>
     public static bool OnCheckMurder(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearanceTarget, bool? force = false, bool? DontRoleAbility = false, int Killpower = 1,
-    CustomDeathReason deathReason = CustomDeathReason.Kill, bool PlayKillSound = false, bool IsSubKill = false)
+    CustomDeathReason deathReason = CustomDeathReason.Kill, bool PlayKillSound = false, bool IsSubKill = false, bool BypasscantUseKillCheck = false)
     {
         Logger.Info($"Attempt  :{attemptKiller.GetNameWithRole().RemoveHtmlTags()} => {attemptTarget.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
         if (appearanceKiller != attemptKiller || appearanceTarget != attemptTarget)
@@ -82,9 +82,9 @@ public static class CustomRoleManager
         {
             appearanceKiller.ResetKillCooldown(IsSubKill);
         }
-
+        
         // 無効なキルをブロックする処理 必ず最初に実行する
-        if (!CheckMurderPatch.CheckForInvalidMurdering(info, force == true))
+        if (!CheckMurderPatch.CheckForInvalidMurdering(info, force == true, bypass: BypasscantUseKillCheck))
         {
             return false;
         }

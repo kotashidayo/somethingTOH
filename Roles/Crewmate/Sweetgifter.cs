@@ -1,13 +1,26 @@
+using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-
+using MS.Internal.Xml.XPath;
+using TownOfHost.Patches;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using UnityEngine;
 
 namespace TownOfHost.Roles.Crewmate;
+
+public struct OkasiState
+{
+    public int Count { get; set; }
+    public int Turn { get; set; }
+
+    public OkasiState(int count, int turn)
+    {
+        Count = count;
+        Turn = turn;
+    }
+}
 
 public sealed class Sweetgifter : RoleBase, IKiller
 {
@@ -31,30 +44,38 @@ public sealed class Sweetgifter : RoleBase, IKiller
     )
     {
         count = OptionCount.GetInt();
-        cooldown = OptionCooldown.GetInt();
         IsGiveMode = false;
+        Kaisyu = OptionKaisyuCount.GetInt();
         NowKillCool = OptionCooldown.GetFloat();
         OkasiPlayers.Clear();
         OkasiRooms.Clear();
+        PetActionManager.Register(Player.PlayerId, OnPet);
     }
-
+    public override void OnDestroy()
+    {
+        PetActionManager.Unregister(Player.PlayerId);
+    }
     private static OptionItem OptionCount;
     private static OptionItem OptionCooldown;
-    static int cooldown;
+    private static OptionItem OptionKaisyuCount;
     int count;
     bool IsGiveMode;
     float NowKillCool;
+    int Kaisyu;
     enum OptionName
     {
-
+        SweetgifterGiveCount,
+        SweetgifterKaisyuCount,
     }
 
     private static void SetupOptionItem()
     {
-        OptionCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, OptionBaseCoolTime, 30f, false)
+        OptionCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, OptionBaseCoolTime, 15f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionCount = IntegerOptionItem.Create(RoleInfo, 11, GeneralOption.OptionCount, new(0, 99, 1), 2, false)
-            .SetValueFormat(OptionFormat.Times).SetZeroNotation(OptionZeroNotation.Infinity);
+        OptionCount = IntegerOptionItem.Create(RoleInfo, 11, OptionName.SweetgifterGiveCount, new(0, 14, 1), 2, false)
+            .SetValueFormat(OptionFormat.Players);
+        OptionKaisyuCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.SweetgifterKaisyuCount, new(0, 14, 1), 3, false)
+            .SetValueFormat(OptionFormat.Times);
     }
     public bool CanUseSabotageButton() => false;
     public float CalculateKillCooldown() => NowKillCool;
@@ -63,7 +84,7 @@ public sealed class Sweetgifter : RoleBase, IKiller
     public bool CanUseKillButton() => IsGiveMode;
     public bool IsKiller => false;
     List<byte> OkasiPlayers = new();
-    static List<PlainShipRoom> OkasiRooms = new();
+    static Dictionary<SystemTypes, List<OkasiState>> OkasiRooms = new();
     public void OnCheckMurderAsKiller(MurderInfo info)
     {
         info.DoKill = false;
@@ -79,14 +100,59 @@ public sealed class Sweetgifter : RoleBase, IKiller
             ModeSwitching(RoleTypes.Crewmate);
         }
     }
-    public override void OnDead(PlayerControl player)
+    void OnPet()
     {
-        if (OkasiPlayers.Contains(player.PlayerId))
+        var pr = Player.GetPlainShipRoom().RoomId;
+        if (Player.GetPlainShipRoom() is null) return;
+        Utils.SendMessage($"[Debug] {pr} にはお菓子データが登録されていません。");
+
+        if (OkasiRooms.TryGetValue(pr, out var current))
         {
-            Utils.KillFlash(Player);
-            OkasiPlayers.Remove(player.PlayerId);
+            count = count + current.Sum(okasi => okasi.Count);
+
+            if (IsGiveMode)
+            {
+                Player.SetKillCooldown(NowKillCool);
+            }
+            else
+            {
+                Player.RpcProtectedMurderPlayer();
+            }
+
+            OkasiRooms.Remove(pr);
         }
     }
+
+    public override void AfterMeetingTasks()
+    {
+        foreach (var room in OkasiRooms.Keys.ToList())
+        {
+            var okasiList = OkasiRooms[room];
+
+            var updatedList = new List<OkasiState>();
+
+            foreach (var current in okasiList)
+            {
+                var nextTurn = current.Turn + 1;
+
+                if (nextTurn < 2)
+                {
+                    updatedList.Add(new OkasiState(current.Count, nextTurn));
+                }
+            }
+
+            if (updatedList.Count == 0)
+            {
+                OkasiRooms.Remove(room);
+            }
+            else
+            {
+                OkasiRooms[room] = updatedList;
+            }
+        }
+    }
+
+
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         if (OkasiPlayers == null) return "";
@@ -107,6 +173,21 @@ public sealed class Sweetgifter : RoleBase, IKiller
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
+        foreach (var id in OkasiPlayers.ToList())
+        {
+            var target = PlayerCatch.GetPlayerById(id);
+            if (target == null || target.IsAlive()) continue;
+
+            OkasiPlayers.Remove(id);
+            var room = target.GetPlainShipRoom();
+            if (room == null) continue;
+
+            Utils.KillFlash(Player);
+            if (!OkasiRooms.ContainsKey(room.RoomId))
+                OkasiRooms[room.RoomId] = new List<OkasiState>();
+            OkasiRooms[room.RoomId].Add(new OkasiState(1, 0));
+        }
+
         if (NowKillCool <= 0f)
         {
             NowKillCool = 0f;
@@ -165,11 +246,13 @@ public sealed class Sweetgifter : RoleBase, IKiller
         using var sender = CreateSender();
         sender.Writer.Write(count);
         sender.Writer.Write(IsGiveMode);
+        sender.Writer.Write(Kaisyu);
     }
     public override void ReceiveRPC(MessageReader reader)
     {
         count = reader.ReadInt32();
         IsGiveMode = reader.ReadBoolean();
+        Kaisyu = reader.ReadInt32();
     }
     public override bool CanVentMoving(PlayerPhysics physics, int ventId) => false;
     public override bool CanClickUseVentButton => count > 0;

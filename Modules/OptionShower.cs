@@ -67,10 +67,9 @@ namespace TownOfHost
                     var otherrole = Options.CustomRoleSpawnChances.Where(r => !r.Key.IsImpostor() && !r.Key.IsCrewmate() && !r.Key.IsMadmate() && !r.Key.IsNeutral()).ToArray();
                     var addoncheck = false;
                     foreach (var kvp in impostorrole.AddRangeToArray(madmaterole).AddRangeToArray(crewmaterole).AddRangeToArray(neutralrole).AddRangeToArray(otherrole))
-                        if (kvp.Value.Tag is CustomOptionTags.Role or CustomOptionTags.All && Options.GetRoleChance(kvp.Key) > 0) //スタンダードか全てのゲームモードで表示する役職
+                        if (kvp.Value.Tag is CustomOptionTags.Role or CustomOptionTags.All && kvp.Value.GetBool()) //スタンダードか全てのゲームモードで表示する役職
                         {
                             var role = kvp.Key;
-                            if (!Event.CheckRole(role)) continue;
                             if (role.IsCombinationRole() || SlotRoleAssign.IsSeted(role)) continue;
                             if (farst && role.IsImpostor())
                             {
@@ -138,7 +137,7 @@ namespace TownOfHost
                             }
                         }
                     count = -1;
-                    foreach (var role in CustomRolesHelper.AllStandardRoles.Where(role => role.IsCombinationRole() && role.IsEnable() && Event.CheckRole(role)))
+                    foreach (var role in CustomRolesHelper.AllStandardRoles.Where(role => role.IsCombinationRole() && role.IsEnable()))
                     {
                         if (count is -1)
                             sb.Append($"<#f7c114>\n<u>☆Combinations</u>\n</color>");
@@ -187,13 +186,11 @@ namespace TownOfHost
                 nameAndValue(Options.EnableGM);
                 //いっくらなんでもこれが重すぎる！
                 //30役職を上回ったらこの処理をスキップ
-                if (Options.CustomRoleSpawnChances.Count(op => Options.GetRoleChance(op.Key) > 0 && Event.CheckRole(op.Key)) < 30)
+                if (Options.CustomRoleSpawnChances.Count(op => op.Value.GetBool()) < 30)
                 {
                     foreach (var kvp in Options.CustomRoleSpawnChances)
                     {
                         if (AddRoleOption(kvp) is false) continue;
-
-                        if (!kvp.Key.IsEnable()) continue;
 
                         var addrole = kvp.Key.GetRoleInfo()?.AddHaveRole?.Invoke();
                         if (addrole is not null and not CustomRoles.NotAssigned)
@@ -305,11 +302,7 @@ namespace TownOfHost
                         case "GiveGuarding": continue;
                         case "GiveClumsy": continue;
                         case "GiveSlacker": continue;
-                        case "GiveStamina": continue;
-                        case "GiveJumbo": continue;
                         case "GiveSunglasses": continue;
-                        case "GiveSecurer": continue;
-                        case "GiveSealer": continue;
                         case "GivePowerful": continue;
                     }
                 }
@@ -404,12 +397,9 @@ namespace TownOfHost
                     case "GiveGuarding": return false;
                     case "GiveClumsy": return false;
                     case "GiveSlacker": return false;
-                    case "GiveStamina": return false;
-                    case "GiveJumbo": return false;
                     case "GiveSunglasses": return false;
-                    case "GiveSecurer": return false;
-                    case "GiveSealer": return false;
                     case "GivePowerful": return false;
+                    case "GiveSilverBuzzer": return false;
                 }
             }
             if (!Options.IsActiveSkeld)
