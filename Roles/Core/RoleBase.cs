@@ -97,6 +97,8 @@ public abstract class RoleBase : IDisposable
         public MessageWriter Writer;
         public RoleRPCSender(RoleBase role, SendOption sendOption = SendOption.None)
         {
+            //MOD入れてても不正RPCは追い出されるから遅らせない。
+            if (PlayerControl.LocalPlayer.PlayerId != 0) return;
             Writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.CustomRoleSync, sendOption, -1);
             Writer.Write(role.Player.PlayerId);
         }
