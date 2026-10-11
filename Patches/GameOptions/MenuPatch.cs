@@ -33,7 +33,6 @@ namespace TownOfHost
         }
         public static void Postfix()
         {
-            NumericOptionInput.Close(false);
             if (ShowFilter.CallEsc()) return;
             if (ShowRandomSpawnOption.CallEsc()) return;
             ModSettingsButton = null;
@@ -113,8 +112,6 @@ namespace TownOfHost
         public static StringOption BaseOption;
         public static float roletaby;
         public static HashSet<TabGroup> tabGenerated;
-        static bool IsStrayGroup(CustomRoles r) =>
-            r is CustomRoles.Stray or CustomRoles.Hero or CustomRoles.Sinner or CustomRoles.Mourner;
 
         public static void Postfix(GameSettingMenu __instance)
         {
@@ -219,7 +216,7 @@ namespace TownOfHost
 
                         prisettext = Object.Instantiate(HudManager.Instance.TaskPanel.taskText, priset.transform);
                         prisettext.text = $"<size=120%><#cccccc><b>{GetString("SetPresetName")}</b></color></size>";
-                        prisettext.transform.localPosition = new Vector3(-2, -1.1f);
+                        prisettext.transform.localPosition = new Vector3(-2f, -1.1f);
                         searchtext = Object.Instantiate(HudManager.Instance.TaskPanel.taskText, priset.transform);
                         searchtext.text = $"<size=120%><#ffa826><b>{GetString("Search")}</b></color></size>";
                         searchtext.transform.localPosition = new Vector3(-2f, -0.3f);
@@ -235,7 +232,7 @@ namespace TownOfHost
                 ErrorNumber = 3;
                 if (priset)
                 {
-                    priset.transform.localPosition = new Vector3(0.3f, 3.2f);
+                    priset.transform.localPosition = new Vector3(0f, 3.2f);
                     priset.transform.localScale = new Vector3(0.4f, 0.4f, 0f);
                     priset?.gameObject?.SetActive(true);
                     priset.submitButton.OnPressed = (Action)(() =>
@@ -243,7 +240,16 @@ namespace TownOfHost
                         if (priset.textArea.text != "")
                         {
                             var pr = OptionItem.AllOptions.Where(op => op.Id == 0).FirstOrDefault();
-                            Main.SetPresetName(pr.CurrentValue, priset.textArea.text);
+                            switch (pr.CurrentValue)
+                            {
+                                case 0: Main.Preset1.Value = priset.textArea.text; break;
+                                case 1: Main.Preset2.Value = priset.textArea.text; break;
+                                case 2: Main.Preset3.Value = priset.textArea.text; break;
+                                case 3: Main.Preset4.Value = priset.textArea.text; break;
+                                case 4: Main.Preset5.Value = priset.textArea.text; break;
+                                case 5: Main.Preset6.Value = priset.textArea.text; break;
+                                case 6: Main.Preset7.Value = priset.textArea.text; break;
+                            }
                             priset.textArea.Clear();
                         }
                     });
@@ -378,48 +384,53 @@ namespace TownOfHost
                 ErrorNumber = 10;
                 if (search)
                 {
-                    search.transform.localPosition = new Vector3(0.3f, 3.5f);
+                    search.transform.localPosition = new Vector3(0f, 3.5f);
                     search.transform.localScale = new Vector3(0.4f, 0.4f, 0f);
                     search?.gameObject?.SetActive(true);
                     search.submitButton.OnPressed = (Action)(() =>
                     {
-                        var text = search.textArea.text;
-                        if (string.IsNullOrEmpty(text)) return;
-
-                        OptionItem best = null;
-                        int bestScore = int.MaxValue;
-
-                        foreach (var op in OptionItem.AllOptions)
+                        bool ch = false;
+                        List<OptionItem> subopt = new();
+                        foreach (var op in OptionItem.AllOptions.Where(o => (o as ObjectOptionitem)?.IsHedderObject is not true))
                         {
-                            if ((op as ObjectOptionitem)?.IsHedderObject is true) continue;
-
                             var name = op.GetName().RemoveHtmlTags();
-                            int score;
-                            if (name == text) score = 0;
-                            else if (name.StartsWith(text, StringComparison.Ordinal)) score = 10;
-                            else if (name.Contains(text)) score = 20;
-                            else continue;
 
-                            // 役職ページ内の個別設定(シェリフのキル対象設定など)は後回し
-                            if (op.ParentRole is not CustomRoles.NotAssigned && op.CustomRole is CustomRoles.NotAssigned)
-                                score += 100;
-
-                            if (score < bestScore)
+                            if (name == search.textArea.text)
                             {
-                                best = op;
-                                bestScore = score;
-                                if (score == 0) break; // 完全一致なら確定
+                                scroll(op);
+                                ch = true;
+                                break;
+                            }
+
+                            if (name.Contains(search.textArea.text))
+                            {
+                                subopt.Add(op);
+                                break;
                             }
                         }
 
-                        if (best != null) scroll(best);
+                        //不必要なループをなくしてみる
+                        if (!ch)
+                        {
+                            foreach (var op in subopt)
+                            {
+                                scroll(op);
+                                break;
+                            }
+                        }
                         search.textArea.Clear();
 
                         //スクロール処理
                         void scroll(OptionItem op)
                         {
-                            // 先にタブを開いて生成させる(roleopts が埋まる)
-                            int tabIndex = (int)op.Tab;
+                            var opt = op;
+                            while (opt.Parent != null && (!opt.GetBool() || roleopts.Contains(opt)))
+                            {
+                                opt = opt.Parent;
+                            }
+
+                            int tabIndex = (int)opt.Tab;
+
                             if (tabIndex >= 0 && tabIndex < tabButtons.Count && tabButtons[tabIndex] != null)
                             {
                                 tabButtons[tabIndex].OnClick.Invoke();
@@ -428,20 +439,10 @@ namespace TownOfHost
                             _ = new LateTask(() =>
                             {
                                 if (!(ModSettingsTab?.gameObject?.active ?? false)) return;
-
-                                // 生成後に親を辿る(役職個別設定 → 役職ヘッダ)
-                                var opt = op;
-                                while (opt.Parent != null && (!opt.GetBool() || roleopts.Contains(opt)))
-                                {
-                                    opt = opt.Parent;
-                                }
-                                if (opt.OptionBehaviour == null) return;
-
                                 ModSettingsTab.scrollBar.velocity = Vector2.zero;
-                                var relativePosition = ModSettingsTab.scrollBar.transform.InverseTransformPoint(
-                                    opt.OptionBehaviour.transform.FindChild("Title Text").transform.position);
+                                var relativePosition = ModSettingsTab.scrollBar.transform.InverseTransformPoint(opt.OptionBehaviour.transform.FindChild("Title Text").transform.position);// Scrollerのローカル空間における座標に変換
                                 var scrollAmount = 1 - relativePosition.y;
-                                ModSettingsTab.scrollBar.Inner.localPosition += Vector3.up * scrollAmount;
+                                ModSettingsTab.scrollBar.Inner.localPosition = ModSettingsTab.scrollBar.Inner.localPosition + Vector3.up * scrollAmount;  // 強制スクロール
                                 ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
                             }, 0.1f, "", true);
                         }
@@ -476,7 +477,16 @@ namespace TownOfHost
                 {
                     OptionItem.AllOptions.ToArray().Where(x => x.Id > 0 && x.Id is not 2 and not 3 && 1_000_000 > x.Id && x.CurrentValue != x.DefaultValue).Do(x => x.SetValue(x.DefaultValue, false, false));
                     var pr = OptionItem.AllOptions.Where(op => op.Id == 0).FirstOrDefault();
-                    Main.ResetPresetName(pr.CurrentValue);
+                    switch (pr.CurrentValue)
+                    {
+                        case 0: Main.Preset1.Value = GetString("Preset_1"); break;
+                        case 1: Main.Preset2.Value = GetString("Preset_2"); break;
+                        case 2: Main.Preset3.Value = GetString("Preset_3"); break;
+                        case 3: Main.Preset4.Value = GetString("Preset_4"); break;
+                        case 4: Main.Preset5.Value = GetString("Preset_5"); break;
+                        case 5: Main.Preset6.Value = GetString("Preset_6"); break;
+                        case 6: Main.Preset7.Value = GetString("Preset_7"); break;
+                    }
                     GameSettingMenuChangeTabPatch.meg = GetString("OptionResetMeg");
                     timer = 3;
                     VanillaOptionHolder.ResetVanilla();
@@ -558,6 +568,7 @@ namespace TownOfHost
                 InfoCount = count.transform.GetComponentInChildren<TMPro.TextMeshPro>();
             }
         }
+
         public static void CreateOptions(TabGroup tab, Dictionary<TabGroup, GameObject> menus, Dictionary<CustomRoles, GameObject> crmenus, Transform tabtransfrom, bool forceAllTabs = false)
         {
             if (!forceAllTabs && tabGenerated.Contains(tab)) return;
@@ -671,7 +682,6 @@ namespace TownOfHost
                         var transform = stringOption.ValueText.transform;
                         var pos = transform.localPosition;
                         transform.localPosition = new Vector3(pos.x + 0.7322f, pos.y, pos.z);
-                        NumericOptionInput.Attach(option, stringOption);
                         stringOption.SetClickMask(optionsMenu.ButtonClickMask);
                         option.OptionBehaviour = stringOption;
                     }
@@ -841,18 +851,7 @@ namespace TownOfHost
                                     {
                                         var oldinfo = Nowinfo;
                                         Nowinfo = option.CustomRole;
-                                        switch (oldinfo)
-                                        {
-                                            case CustomRoles.PavlovDog: if (Nowinfo is CustomRoles.PavlovDog) Nowinfo = CustomRoles.PavlovOwner; break;
-                                            case CustomRoles.PavlovOwner: if (Nowinfo is CustomRoles.PavlovOwner) Nowinfo = CustomRoles.PavlovDog; break;
-                                            case CustomRoles.Soulbinder: if (Nowinfo is CustomRoles.Soulbinder) Nowinfo = CustomRoles.SoulSlave; break;
-                                            case CustomRoles.SoulSlave: if (Nowinfo is CustomRoles.SoulSlave) Nowinfo = CustomRoles.Soulbinder; break;
-                                            case CustomRoles.Stray: if (IsStrayGroup(Nowinfo)) Nowinfo = CustomRoles.Hero; break;
-                                            case CustomRoles.Hero: if (IsStrayGroup(Nowinfo)) Nowinfo = CustomRoles.Sinner; break;
-                                            case CustomRoles.Sinner: if (IsStrayGroup(Nowinfo)) Nowinfo = CustomRoles.Mourner; break;
-                                            case CustomRoles.Mourner: if (IsStrayGroup(Nowinfo)) Nowinfo = CustomRoles.Stray; break;
-                                        }
-                                        if (HudManager.Instance.TaskPanel.open && oldinfo.IsAssassinStylePair() && Nowinfo.IsAssassinStylePair())
+                                        if (HudManager.Instance.TaskPanel.open && oldinfo.IsCombinationRole() && Nowinfo.IsCombinationRole())
                                         {
                                             switch (oldinfo)
                                             {
@@ -864,16 +863,6 @@ namespace TownOfHost
                                                 case CustomRoles.Altair: if (Nowinfo is CustomRoles.Vega) Nowinfo = CustomRoles.Vega; break;
                                                 case CustomRoles.Fool: if (Nowinfo is CustomRoles.Nue) Nowinfo = CustomRoles.Nue; break;
                                                 case CustomRoles.Nue: if (Nowinfo is CustomRoles.Nue) Nowinfo = CustomRoles.Fool; break;
-                                                case CustomRoles.Abuser: if (Nowinfo is CustomRoles.Abuser) Nowinfo = CustomRoles.Victim; break;
-                                                case CustomRoles.Victim: if (Nowinfo is CustomRoles.Victim) Nowinfo = CustomRoles.Abuser; break;
-                                                case CustomRoles.PavlovDog: if (Nowinfo is CustomRoles.PavlovDog) Nowinfo = CustomRoles.PavlovOwner; break;
-                                                case CustomRoles.PavlovOwner: if (Nowinfo is CustomRoles.PavlovOwner) Nowinfo = CustomRoles.PavlovDog; break;
-                                                case CustomRoles.Soulbinder: if (Nowinfo is CustomRoles.Soulbinder) Nowinfo = CustomRoles.SoulSlave; break;
-                                                case CustomRoles.SoulSlave: if (Nowinfo is CustomRoles.SoulSlave) Nowinfo = CustomRoles.Soulbinder; break;
-                                                case CustomRoles.Stray: if (IsStrayGroup(Nowinfo)) Nowinfo = CustomRoles.Hero; break;
-                                                case CustomRoles.Hero: if (IsStrayGroup(Nowinfo)) Nowinfo = CustomRoles.Sinner; break;
-                                                case CustomRoles.Sinner: if (IsStrayGroup(Nowinfo)) Nowinfo = CustomRoles.Mourner; break;
-                                                case CustomRoles.Mourner: if (IsStrayGroup(Nowinfo)) Nowinfo = CustomRoles.Stray; break;
                                             }
                                             return;
                                         }
@@ -928,7 +917,6 @@ namespace TownOfHost
                         var transform = stringOption.ValueText.transform;
                         var pos = transform.localPosition;
                         transform.localPosition = new Vector3((pos.x + 0.7322f), pos.y, pos.z);
-                        NumericOptionInput.Attach(option, stringOption);
                         stringOption.SetClickMask(optionsMenu.ButtonClickMask);
                         option.OptionBehaviour = stringOption;
                     }

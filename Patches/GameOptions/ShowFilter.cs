@@ -84,11 +84,11 @@ class ShowFilter
                             var tabbuttonPassiveButton = tabbutton.GetComponent<PassiveButton>();
                             tabbuttonPassiveButton.OnClick = new();
                             tabbuttonPassiveButton.OnClick.AddListener(new System.Action(() =>
-                                {
-                                    pilldown.Text.text = "Now:" + (tab is TabGroup.MainSettings ? "All Roles" : GetString($"TabGroup.{tab}"));
-                                    NowTab = tab;
-                                    tabbuttons.Do(button => button.gameObject.SetActive(false));
-                                }));
+                            {
+                                pilldown.Text.text = "Now:" + (tab is TabGroup.MainSettings ? "All Roles" : GetString($"TabGroup.{tab}"));
+                                NowTab = tab;
+                                tabbuttons.Do(button => button.gameObject.SetActive(false));
+                            }));
                             tabbutton.gameObject.SetActive(false);
                             tabbuttons.Add(tabbuttonPassiveButton);
                         }

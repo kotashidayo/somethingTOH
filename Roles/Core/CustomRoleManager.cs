@@ -1341,6 +1341,7 @@ public enum CustomRoles
     Sinner,
     Mourner,
     Sentry,
+    Sweetgifter,
     //DEBUG only Crewmate
     Analyzer,
     //Neutral

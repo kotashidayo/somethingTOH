@@ -182,34 +182,35 @@ namespace TownOfHost.Roles.Neutral
                 {
                     if (CustomRoleManager.OnCheckMurder(Player, target, Player, target, false, false, 2, CustomDeathReason.Kill, PlayKillSound: true))
                     {
+                        Player.MarkDirtySettings();
+                        PublicRoleColor = true;
+                        ApplySpeedEffect(Player, SpeedBoost);
+
+                        var DarkenRange = OptionDarkenRange.GetFloat();
+                        var playersToDarken = PlayerCatch.AllAlivePlayerControls
+                            .Where(targetdark => !targetdark.Is(CustomRoles.Huntman))
+                            .Where(targetdark => targetdark.PlayerId != Player.PlayerId)
+                            .Where(targetdark => Ballooner.IsInExplosionRange(Player, targetdark, DarkenRange))
+                            .ToArray();
+
+                        if (playersToDarken.Length > 0)
+                        {
+                            DarkenPlayers(playersToDarken);
+                        }
+                        Player.RpcResetAbilityCooldown();
+                        SendRPC();
+                        _ = new LateTask(() =>
+                        {
+                            targeted = false;
+                            PublicRoleColor = false;
+                            Player.RpcResetAbilityCooldown();
+                            SendRPC();
+                        }, changetimer, "", true);
                         UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                     }
                 }
                 KillWaitPlayer = null;
                 target = null;
-                Player.MarkDirtySettings();
-                PublicRoleColor = true;
-                ApplySpeedEffect(Player, SpeedBoost);
-
-                var DarkenRange = OptionDarkenRange.GetFloat();
-                var playersToDarken = PlayerCatch.AllAlivePlayerControls
-                    .Where(targetdark => !targetdark.Is(CustomRoles.Huntman))
-                    .Where(targetdark => targetdark.PlayerId != Player.PlayerId)
-                    .Where(targetdark => Ballooner.IsInExplosionRange(Player, targetdark, DarkenRange))
-                    .ToArray();
-
-                if (playersToDarken.Length > 0)
-                {
-                    DarkenPlayers(playersToDarken);
-                }
-                SendRPC();
-                _ = new LateTask(() =>
-                {
-                    targeted = false;
-                    PublicRoleColor = false;
-                    Player.RpcResetAbilityCooldown();
-                    SendRPC();
-                }, changetimer, "", true);
             }
         }
 
@@ -268,15 +269,8 @@ namespace TownOfHost.Roles.Neutral
                 {
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public override bool CheckShapeshift(PlayerControl target, ref bool animate)
@@ -316,22 +310,20 @@ namespace TownOfHost.Roles.Neutral
         public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
         {
             seen ??= seer;
+            var mes = "";
             if (targetDied)
             {
-                var mes = $"<color={RoleInfo.RoleColorCode}>ターゲットが死亡しています。ターゲットを選びなおしてください</color>";
-                return isForHud ? mes : $"<size=40%>{mes}</size>";
-
+                mes = $"<color={RoleInfo.RoleColorCode}>ターゲットが死亡しています</color>";
             }
             if (!targeted)
             {
-                var mes = $"<color={RoleInfo.RoleColorCode}>シェイプシフトでターゲット指定</color>";
-                return isForHud ? mes : $"<size=40%>{mes}</size>";
+                mes = $"<color={RoleInfo.RoleColorCode}>シェイプシフトでターゲット指定</color>";
             }
             else
             {
-                var mes = $"<color={RoleInfo.RoleColorCode}>ターゲットに近づいてキル!</color>";
-                return isForHud ? mes : $"<size=40%>{mes}</size>";
+                mes = $"<color={RoleInfo.RoleColorCode}>ターゲットに近づいてキル!</color>";
             }
+            return isForHud ? mes : $"<size=40%>{mes}</size>";
         }
         public override void AfterMeetingTasks()
         {
