@@ -123,8 +123,8 @@ static class Event
         */
         {CustomRoles.Cakeshop , () => Birthday12 || Birthday},
 
-        {CustomRoles.MadPukupuku,() => Birthday12 || Birthday || Mpkjyousetu}
-        //{CustomRoles.MadPukupuku,() => false}
+        {CustomRoles.MadPukupuku,() => Birthday12 || Birthday || Mpkjyousetu},
+        {CustomRoles.Sweetgifter,() => false},
     };
 
     public static Dictionary<(CustomRoles role, bool isApiData), bool> cachedEventFlags = new(EventRoles.Count);
