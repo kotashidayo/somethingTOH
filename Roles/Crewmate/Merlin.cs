@@ -52,6 +52,7 @@ public sealed class Merlin : RoleBase, IRoomTasker
     public override void Add()
     {
         TryChangeNameColor();
+        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
     }
     void TryChangeNameColor()
     {
@@ -72,12 +73,7 @@ public sealed class Merlin : RoleBase, IRoomTasker
             Assassin.MarlinIds.Add(Player.PlayerId);
         }
     }
-    public override void ChengeRoleAdd()
-    {
-        _ = new LateTask(() => {
-            TryChangeNameColor();
-        }, 0.2f, "", true);
-    }
+    public override void OnStartMeeting() => TryChangeNameColor();
     int? IRoomTasker.GetMaxTaskCount() => worktask;
     bool IRoomTasker.IsAssignRoomTask() => completeroom != worktask;
     void CheckFin()

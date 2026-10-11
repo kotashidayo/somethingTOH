@@ -161,10 +161,9 @@ public sealed class Sentry : RoleBase
     public override CustomRoles Misidentify() => Awakened ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override void OnFixedUpdate(PlayerControl player)
     {
-        Logger.Info($"X:{Player.transform.position.x}, Y:{Player.transform.position.y}", "Sentry.Pos.Ugoitenaika");
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Player.IsAlive()) return;
-        if (cooldownLeft <= 0f) return;
+        if (cooldownLeft <= 0f || !Player.Is(CustomRoles.Sentry)) return;
 
         float prev = cooldownLeft;
         cooldownLeft -= Time.fixedDeltaTime;

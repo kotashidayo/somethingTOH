@@ -69,7 +69,7 @@ namespace TownOfHost
                 if (log == true) UtilsGameLog.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
                 else if (log == null) UtilsGameLog.LastLogRole[player.PlayerId] = $"<size=40%>{UtilsGameLog.LastLogRole[player.PlayerId].RemoveSizeTags()}</size><b>=> " + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
 
-                if (!SuddenDeathMode.NowSuddenDeathMode) NameColorManager.RemoveAll(player.PlayerId);
+                if (!SuddenDeathMode.NowSuddenDeathMode && role != CustomRoles.Merlin) NameColorManager.RemoveAll(player.PlayerId);
                 //マッドメイトの最初からの内通
                 if (role.IsMadmate() && Options.MadCanSeeImpostor.GetBool())
                 {
