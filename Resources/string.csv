@@ -234,6 +234,7 @@
 "Hero","Hero","英雄"
 "Sinner","Sinner","罪人"
 "Mourner","Mourner","弔人"
+"Sentry","Sentry","セントリー"
 "#CrewmateName"
 
 "# ニュートラル役職"
@@ -663,6 +664,7 @@
 "HeroInfo","To Uphold Justice","正義を果たす為に"
 "SinnerInfo","To Bear the Guilt","罪を背負う為に"
 "MournerInfo","To Mourn a Life","命を悼む為に"
+"SentryInfo","You can't escape these eyes","この眼からは逃れられない"
 "#CrewmateInfo"
 
 "# ニュートラル役職"
@@ -1187,6 +1189,7 @@
 "HeroDesc2","If the match ends before the hero has completed their task, the hero cannot win as part of the Crewmates' faction. \nThe hero's task is not included in the Crewmates' tasks. \nUpon death, a kill flash visible to everyone appears, and the hero's role is revealed to all players.","タスクを終えていない状態で試合が終了した場合、英雄はクルーメイト陣営として勝利することができない。\n英雄のタスクはクルーメイトのタスクには含まれない。\n死亡時全員が視認できるキルフラッシュが発生し、全員に自身の役職が公開される。"
 "SinnerDesc","Unless you are <b>{0}ed</b>, you cannot win even if your crew wins.","<b>{0}</b>されないと、クルーが勝利しても自身は勝利できない。"
 "SinnerDesc2","An ordinary crewmate with no special abilities.\n There are no tasks.","特に能力を持たない通常のクルーメイト。\nタスクはない。"
+"SentryDesc","You can select a location to monitor by petting your pet. \nIf you pet your pet again, you will teleport to that location <b>only from your own viewpoint</b>. From other viewpoints, it will appear as though you are still at your original location. \nAdditionally, you will be unable to move after teleporting. \nAfter <b>{0}</b> seconds have passed, you will return to your original location and be able to move again.","ペットを撫でると監視する場所を決めることができる。\nもう一度ペットを撫でるとその場所に<b>自視点でのみ</b>テレポートする。他視点ではテレポート前の場所にいるように見える。\nまた、テレポート後動けなくなる。\n<b>{0}</b>秒経過すると元の場所に戻り、再び動けるようになる。"
 
 "# NeutralDescInfos"
 "VultureDesc","By pressing the report button, you can eat on a dead body. {1}{0}\n\nBy completing tasks, you can see kill flashes and receive arrows pointing to bodies.\nBodies that were ate on that turn will be marked with <#6f4204>×</color> during meetings. {2}","通報ボタンを押すことで死体をつまみぐいする事ができる。{1}{0}\n\nタスクを行うことでキルフラッシュが見えたり、\n死体への矢印を受け取ることができる\nそのターンにつまみぐいされた死体は会議で<#6f4204>×</color>がつく。{2}"
@@ -1660,7 +1663,7 @@
 "CanCreateSideKick","Can Make SideKick","サイドキックを作成できる","可以指名叛徒","可以招募叛徒","Он может назначить Безумцев","Pode Criar Tripulante Louco Ajudante",""
 "DoubleTriggerThreashould","Double Trigger Threashould","ダブルトリガー閾値"
 "KillAnimation","Teleport on kill","キル時にテレポートする"
-"Duration","Duration","シェイプ持続時間"
+"Duration","Duration","持続時間"
 "PlayShapeAnimate","play animate","アニメーションを再生する"
 "cantaskcount","TaskCount","能力を発揮するタスク数"
 "MeetingMaxTime","One meeting Times","1会議での能力使用可能回数"
@@ -2136,6 +2139,8 @@
 "MadPukuPukuSaihaifuCount","Max Task Redistributions","再配布する回数"
 
 "## CrewMate RoleSetting"
+"SetryBasyoCool","Location Decision Cooldown","場所決定クールタイム"
+"SentryCooldown","Teleport CoolDown","テレポートクールタイム"
 "BaitReportDelay","report delay","通報までの遅延"
 "BaitMaxDelay","random report delay","ランダムでの追加遅延"
 "LighterStartVision","Start Vision","最初の視界","","","",""
@@ -3792,7 +3797,7 @@
 "TabGroup.Addons","<#028760><b>Add-Ons</color>","<#028760><b>Add-Ons</color>","<#028760>附加效果</color>","<#028760>副職業設定</color>","Атрибуты","Atributos",""
 "TabGroup.Combinations","<#f7c114><b>Combinations</color>","<#f7c114><b>Combinations</color>"
 "TabGroup.GhostRoles","<#8989d9><b>Ghost Roles</color>","<#8989d9><b>Ghost Roles</color>"
-"Experimental","<#9a8adb><b>Experimental Roles</color>","<#9a8adb><b>試験的な役職</color>"
+"Experimental","<#9a8adb><b>Experimental Roles</color>","<#9a8adb><b>試験的役職</color>"
 "NormalRole","<#8cbf26><b>Vanira Roles</color>","<#8cbf26><b>バニラ役職</color>"
 "ModRole","<#bd987b><b>Modified Roles</color>","<#bd987b><b>MOD役職</color>"
 

@@ -76,7 +76,7 @@ namespace TownOfHost
         /// <summary>
         /// バージョンの下にGitのブランチ名・コミットハッシュを表示するかどうか。基本false。
         /// </summary>
-        public const bool showbranch = false;
+        public const bool showbranch = true;
         public Harmony Harmony { get; } = new Harmony(PluginGuid);
         public static Version version = Version.Parse(PluginVersion);
         public static BepInEx.Logging.ManualLogSource Logger;
@@ -174,7 +174,8 @@ namespace TownOfHost
         /// 基本的に速度の代入は禁止.スピードは増減で対応してください.
         /// </summary>
         public static Dictionary<byte, float> AllPlayerSpeed = new();
-        public const float MinSpeed = 0.0001f;
+        //public const float MinSpeed = 0.0001f
+        public const float MinSpeed = 0f;
         public static Dictionary<byte, bool> CheckShapeshift = new();
         public static Dictionary<byte, byte> ShapeshiftTarget = new();
         public static Dictionary<byte, CustomDeathReason> HostKill = new();

@@ -561,7 +561,10 @@ namespace TownOfHost
                 }
             }
             bool Usetwo = false;
-
+            if (!Intro)
+            {
+                Usetwo = UseTwoIntroPlayers.Contains(player);
+            }
             if (TaskPanelBehaviourPatch.TwoIntroRoles.Contains(role) && Intro)
             {
                 int value = UnityEngine.Random.Range(1, 3);
@@ -570,10 +573,15 @@ namespace TownOfHost
                     Usetwo = true;
                     UseTwoIntroPlayers.Add(player);
                 }
+                else
+                {
+                    Usetwo = false;
+                    UseTwoIntroPlayers.Remove(player);
+                }
             }
-            if (!Intro)
+            else
             {
-                Usetwo = UseTwoIntroPlayers.Contains(player);
+                Usetwo = false;
             }
             var Info = role.IsVanilla() ? "Blurb" : Usetwo ? "Info2" : "Info";
             if (InfoLong)
