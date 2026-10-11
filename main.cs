@@ -76,7 +76,7 @@ namespace TownOfHost
         /// <summary>
         /// バージョンの下にGitのブランチ名・コミットハッシュを表示するかどうか。基本false。
         /// </summary>
-        public static readonly bool showbranch = false;
+        public const bool showbranch = false;
         public Harmony Harmony { get; } = new Harmony(PluginGuid);
         public static Version version = Version.Parse(PluginVersion);
         public static BepInEx.Logging.ManualLogSource Logger;

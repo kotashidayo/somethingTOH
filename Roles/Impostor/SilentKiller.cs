@@ -178,7 +178,7 @@ namespace TownOfHost.Roles.Impostor
                         SnapTo(p, real);
                     }
                 }
-                else
+                else if (StopTimer[id] < 70f)
                 {
                     // 移動中 → 隠す
                     NextReveal[id] = 0f;

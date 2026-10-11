@@ -50,11 +50,13 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
     static OptionItem OptionCankillAlltime;
     static OptionItem OptionCooldown;
     static OptionItem OptionPaaaaaaaanCooldown;
+    static OptionItem OptionCanUseNotLastImp;
     enum OptionName
     {
         FireWorksMaxCount,
         FireWorksRadius,
         FireWorksCanKillAlways,
+        FireWorksCanBombNotLast,
         FireWorksPaaaaaanCoolDown
     }
 
@@ -72,6 +74,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
             .SetValueFormat(OptionFormat.Pieces);
         OptionFireWorksRadius = FloatOptionItem.Create(RoleInfo, 11, OptionName.FireWorksRadius, new(0.5f, 3f, 0.5f), 1f, false)
             .SetValueFormat(OptionFormat.Multiplier);
+        OptionCanUseNotLastImp = BooleanOptionItem.Create(RoleInfo, 16, OptionName.FireWorksCanBombNotLast, true, false);
         OptionCankillAlltime = BooleanOptionItem.Create(RoleInfo, 13, OptionName.FireWorksCanKillAlways, false, false);
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
@@ -178,7 +181,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
     {
         string retText = "";
 
-        if (State == FireWorksState.WaitTime && (PlayerCatch.AliveImpostorCount <= 1 || SuddenDeathMode.NowSuddenDeathMode))
+        if (State == FireWorksState.WaitTime && (PlayerCatch.AliveImpostorCount <= 1 || SuddenDeathMode.NowSuddenDeathMode || OptionCanUseNotLastImp.GetBool()))
         {
             Logger.Info("爆破準備OK", "FireWorks");
             State = FireWorksState.ReadyFire;

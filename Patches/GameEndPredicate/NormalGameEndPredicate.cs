@@ -452,9 +452,9 @@ namespace TownOfHost
                 CustomWinnerHolder.NeutralWinnerIds.Add(PlayerCatch.AllPlayerControls
                     .FirstOrDefault(pc => pc.GetCustomRole() is CustomRoles.Remotekiller)?.PlayerId ?? byte.MaxValue);
             }
-            else if (Jackal == 0 && Imp == 0 && GrimReaper == 1 && Remotekiller == 0
+            else if (Jackal == 0 && Imp == 0 && Remotekiller == 0
                 && MilkyWay == 0 && MadBetrayer == 0 && Pavlov == 0 && Huntman == 0 && StandMasterCount == 0
-                && Dracula == 0 && Vanity == 0 && FrustCount == 0 && EaterCount == 0)//死神勝利(2)
+                && Dracula == 0 && Vanity == 0 && FrustCount == 0 && EaterCount == 0 && GrimReaper >= 1)//死神勝利(2)
             {
                 reason = GameOverReason.ImpostorsByKill;
                 CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GrimReaper, byte.MaxValue);

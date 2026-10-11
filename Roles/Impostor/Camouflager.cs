@@ -138,6 +138,7 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
 
             _limit = OptionAblitytime.GetFloat();
             NowUse = true;
+            Player.RpcResetAbilityCooldown(log: false, Sync: true);
 
             _ = new LateTask(() =>
             {
@@ -148,7 +149,11 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
         {
             _limit = -100;
             NowUse = false;
-            Camouflage.RpcSetSkin(PlayerCatch.GetPlayerById(id), force: null);
+            var original = PlayerCatch.GetPlayerById(id);
+            if (original != null)
+            {
+                Camouflage.RpcSetSkin(original, force: null);
+            }
             foreach (var pl in PlayerCatch.AllPlayerControls)
             {
                 pl.RpcShapeshift(pl, false);

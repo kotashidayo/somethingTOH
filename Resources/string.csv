@@ -1758,6 +1758,7 @@
 "FireWorksRadius","Firework BomberExplosion Radius","花火の爆発半径","烟花商人烟花爆炸半径","煙火工匠的煙火爆炸半徑","Радиус фейерверка","Alcance da Explosão",""
 "FireWorksCanKillAlways","Can Kill always","常にキルできる"
 "FireWorksPaaaaaanCoolDown","booooooooon cooldown","打ち上げる時のクールダウン"
+"FireWorksCanBombNotLast","Can boooooooon always","いつでも起爆できる"
 "SniperBulletCount","Ammo","所持弾数","最大子弹数量","子彈最大數量","Количество пуль","Balas",""
 "SniperPrecisionShooting","Precision Firing","精密射撃モード","精准射击模式","精準射擊模式","Точный выстрел","Tiro Com Precisão",""
 "SniperAimAssist","Aim Assist","エイムアシスト","瞄准辅助","瞄準輔助","Помощь в прицеливании","Assistência de Mira",""

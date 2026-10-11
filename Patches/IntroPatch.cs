@@ -34,7 +34,6 @@ namespace TownOfHost
     {
         public static void Prefix(IntroCutscene __instance)
         {
-            if (!GameStates.IsModHost) return;
             ExtendedPlayerControl.UseTwoIntroPlayers.Clear();
         }
         public static void Postfix(IntroCutscene __instance)

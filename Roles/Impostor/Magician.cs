@@ -146,6 +146,7 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
         {
             //自分と相方以外で、近くにいて既にターゲットにされていないか
             if (pc.Is(CustomRoles.King) || pc.Is(CustomRoles.Autocrat)) continue;
+            if (pc.Is(CustomRoles.Walkure)) continue;
             if (Is(pc) || MagicTarget.Contains(pc.PlayerId)) continue;
             if (pc.IsTeammate(Player)) continue;
 
