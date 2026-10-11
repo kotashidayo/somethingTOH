@@ -553,6 +553,13 @@ CustomDeathReason deathReason = CustomDeathReason.Kill)
                 Gatekeeper.CanAbility(appearanceTarget, appearanceTarget.GetPlainShipRoom());
                 Psychic.CanAbility(appearanceTarget);
             }
+            foreach (var p in PlayerCatch.AllPlayerControls)
+            {
+                if (p.GetRoleClass() is Sweetgifter sg)
+                {
+                    sg.Otosu(attemptTarget, attemptKiller);
+                }
+            }
 
             //MurderPlayer用にinfoを保存
             CheckMurderInfos[appearanceKiller.PlayerId] = info;

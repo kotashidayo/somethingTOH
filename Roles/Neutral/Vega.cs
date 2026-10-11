@@ -147,7 +147,6 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
     public bool CanUseSabotageButton() => false;
     public bool CanUseKillButton() => !Rendezvoused;
     public bool CanKill { get; private set; } = false;
-
     public override void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision);
 
     public override void StartGameTasks() => SetAltair();
@@ -158,6 +157,8 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
             Logger.Info($"お星様へと帰ったとさ。", "Vega");
             //Player.RpcSetCustomRole(CustomRoles.Emptiness);
             //Altair.RpcSetCustomRole(CustomRoles.Emptiness);
+            Player.RpcSetCustomRole(CustomRoles.Monochromer);
+            Altair.RpcSetCustomRole(CustomRoles.Monochromer);
             Options.CustomRoleSpawnChances[CustomRoles.Vega].SetValue(0, true, false);
             return;
         }

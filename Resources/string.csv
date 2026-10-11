@@ -2488,7 +2488,11 @@
 "SinnerDeathType","Valid Victory Deaths","勝利条件を満たす死亡方法"
 "MournerDeadCount","Deaths Required to Become <#5f7285>Mourner</color","<#5f7285>弔人</color>に変化するクルー死亡数"
 "MournerSeeRoleCount","Max Role Checks","役職を知れる人数"
+"SweetgifterGiveCount","Max Players to Give","お菓子を渡せる人数"
 "SweetgifterKaisyuCount","Collection Limit","回収できる回数"
+"SweetgifterKillFlash","Kill Flash","キルフラッシュが発生する"
+"SweetgifterNotifyTaisyo","Notify Treat Distribution","お菓子が配られたことを対象に通知する"
+"SweetgifterNotifyKiller","Notify Killer Only","キル役職の場合のみ通知する"
 "BlinderVision","Blinder vision","ブラインダーの視野","盲人视野",
 
 "## Neutral Role Setting"
@@ -3353,6 +3357,11 @@
 "JizoVentText","There was some movement in {0}'s vent...","{0}の通気口に動きがありました..."
 "JizoVenterText","It looks like someone saw the vent moving...","誰かに通気口の動きを見られたようだ..."
 "JizoVenterText2","It seems {0} noticed the vent moving...","{0}に通気口の動きを見られたようだ..."
+
+"SweetgifterNotifyKillNotOkasi","{0}{1}","{0}の落とし物が{1}に落ちていたようだ\n{0}はお菓子を持っているプレイヤーにキルされたようだ"
+"SweetgifterNotifyKillOkasi","{0}{1}","{0}の落とし物が{1}に落ちていたようだ\n{0}はお菓子を持っていないプレイヤーにキルされたようだ"
+"SweetgifterNotifytxt","","スウィートギフターにお菓子を貰いました"
+"SweetgifterNotifyTitle","<#FF6600>【===== Happy Halloween! =====】</color>","<#FF6600>【===== ハッピーハロウィン！ =====】</color>"
 
 "## GuesserMeg"
 "GuessError1","I think I'm typing something wrong. /cmd /bt {id} {name of role} to shoot.","おっと。撃ち方を間違えているようだね。\n/cmd bt ID 役職名\nで撃つんだ。IDは各プレイヤーの左にある黄色い数字だ。"

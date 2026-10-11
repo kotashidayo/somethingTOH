@@ -5,6 +5,7 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
+using MS.Internal.Xml.XPath;
 using Rewired;
 using TownOfHost.Modules;
 using TownOfHost.Roles.AddOns.Common;
@@ -547,14 +548,35 @@ namespace TownOfHost
         }
         public static void MurderPlayer(this PlayerControl killer, PlayerControl target)
         {
+            foreach (var p in PlayerCatch.AllPlayerControls)
+            {
+                if (p.GetRoleClass() is Sweetgifter sg)
+                {
+                    sg.Otosu(target, killer);
+                }
+            }
             killer.MurderPlayer(target, SucceededFlags);
         }
         public static void RpcMurderPlayer(this PlayerControl killer, PlayerControl target)
         {
+            foreach (var p in PlayerCatch.AllPlayerControls)
+            {
+                if (p.GetRoleClass() is Sweetgifter sg)
+                {
+                    sg.Otosu(target, killer);
+                }
+            }
             killer.RpcMurderPlayer(target, true);
         }
         public static void RpcMurderPlayerV2(this PlayerControl killer, PlayerControl target)
         {
+            foreach (var p in PlayerCatch.AllPlayerControls)
+            {
+                if (p.GetRoleClass() is Sweetgifter sg)
+                {
+                    sg.Otosu(target, killer);
+                }
+            }
             if (target == null) target = killer;
             if (AmongUsClient.Instance.AmClient)
             {

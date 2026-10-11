@@ -25,7 +25,7 @@ namespace TownOfHost.Roles.AddOns.Common
         static readonly CustomRoles[] InvalidRoles =
         {
             CustomRoles.Phantom,
-            CustomRoles.Emptiness,
+            //CustomRoles.Emptiness,
             CustomRoles.GuardianAngel,
             CustomRoles.SKMadmate,
             CustomRoles.Jackaldoll,
@@ -36,7 +36,6 @@ namespace TownOfHost.Roles.AddOns.Common
             CustomRoles.Fox,
             CustomRoles.King,
             CustomRoles.Autocrat,
-            CustomRoles.Emptiness,
             CustomRoles.SpiritGuide
         };
         static readonly IEnumerable<CustomRoles> ValidRoles = CustomRolesHelper.AllRoles.Where(role => !InvalidRoles.Contains(role));

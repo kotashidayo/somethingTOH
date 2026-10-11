@@ -27,11 +27,11 @@ namespace TownOfHost.Roles.AddOns.Common
         static readonly CustomRoles[] InvalidRoles =
         {
             CustomRoles.Phantom,
-            CustomRoles.Emptiness,
+            //CustomRoles.Emptiness,
             CustomRoles.GuardianAngel,
             CustomRoles.SKMadmate,
             CustomRoles.HASFox,
-            CustomRoles.Jackaldoll,
+            //CustomRoles.Jackaldoll,
             CustomRoles.HASTroll,
             CustomRoles.GM,
             CustomRoles.TaskPlayerB,

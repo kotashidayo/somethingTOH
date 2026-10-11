@@ -89,6 +89,11 @@ public sealed class Monochromer : RoleBase
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!Player.IsAlive()) return;
+
+        PlayerControl kuro = null;
+        PlayerControl siro = null;
+        PlayerControl gray = null;
+
         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
             if (pc == Player) continue;
@@ -99,13 +104,19 @@ public sealed class Monochromer : RoleBase
             {
                 if (id is 0 or 1 or 2 or 6 or 8 or 9 or 12 or 15 or 16)
                 {
-                    pc.RpcChColor(Player, 6, true);
-                    pc.RpcHideSkinAndPet(Player);
+                    if (kuro == null)
+                    {
+                        pc.RpcChColor(Player, 6, true);
+                        pc.RpcHideSkinAndPet(Player);
+                    }
                 }
                 else
                 {
-                    pc.RpcChColor(Player, 7, true);
-                    pc.RpcHideSkinAndPet(Player);
+                    if (siro == null)
+                    {
+                        pc.RpcChColor(Player, 7, true);
+                        pc.RpcHideSkinAndPet(Player);
+                    }
                 }
             }
             else

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using Epic.OnlineServices.RTC;
 using Hazel;
 using MS.Internal.Xml.XPath;
 using TownOfHost.Patches;
@@ -10,15 +11,18 @@ using UnityEngine;
 
 namespace TownOfHost.Roles.Crewmate;
 
-public struct OkasiState
+public class OkasiState
 {
     public int Count { get; set; }
     public int Turn { get; set; }
-
-    public OkasiState(int count, int turn)
+    public bool Okasi { get; set; }
+    public PlayerControl Player;
+    public OkasiState(int count, int turn, bool okasi, PlayerControl player)
     {
         Count = count;
         Turn = turn;
+        Okasi = okasi;
+        Player = player;
     }
 }
 
@@ -50,6 +54,8 @@ public sealed class Sweetgifter : RoleBase, IKiller
         OkasiPlayers.Clear();
         OkasiRooms.Clear();
         PetActionManager.Register(Player.PlayerId, OnPet);
+        Notify.Clear();
+        Notifytaisyo.Clear();
     }
     public override void OnDestroy()
     {
@@ -58,6 +64,9 @@ public sealed class Sweetgifter : RoleBase, IKiller
     private static OptionItem OptionCount;
     private static OptionItem OptionCooldown;
     private static OptionItem OptionKaisyuCount;
+    private static OptionItem OptionKillFlash;
+    private static OptionItem OptionNotifytaisyo;
+    private static OptionItem OptionNotifyKiller;
     int count;
     bool IsGiveMode;
     float NowKillCool;
@@ -66,6 +75,9 @@ public sealed class Sweetgifter : RoleBase, IKiller
     {
         SweetgifterGiveCount,
         SweetgifterKaisyuCount,
+        SweetgifterKillFlash,
+        SweetgifterNotifyTaisyo,
+        SweetgifterNotifyKiller
     }
 
     private static void SetupOptionItem()
@@ -76,6 +88,9 @@ public sealed class Sweetgifter : RoleBase, IKiller
             .SetValueFormat(OptionFormat.Players);
         OptionKaisyuCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.SweetgifterKaisyuCount, new(0, 14, 1), 3, false)
             .SetValueFormat(OptionFormat.Times);
+        OptionKillFlash = BooleanOptionItem.Create(RoleInfo, 13, OptionName.SweetgifterKillFlash, true, false);
+        OptionNotifytaisyo = BooleanOptionItem.Create(RoleInfo, 14, OptionName.SweetgifterNotifyTaisyo, true, false);
+        OptionNotifyKiller = BooleanOptionItem.Create(RoleInfo, 15, OptionName.SweetgifterNotifyKiller, true, false);
     }
     public bool CanUseSabotageButton() => false;
     public float CalculateKillCooldown() => NowKillCool;
@@ -83,7 +98,9 @@ public sealed class Sweetgifter : RoleBase, IKiller
     public override bool CanUseAbilityButton() => !Player.IsModClient() && !IsGiveMode;
     public bool CanUseKillButton() => IsGiveMode;
     public bool IsKiller => false;
-    List<byte> OkasiPlayers = new();
+    HashSet<byte> OkasiPlayers = new();
+    HashSet<byte> Notifytaisyo = new();
+    Dictionary<SystemTypes, Dictionary<PlayerControl, bool>> Notify = new();
     static Dictionary<SystemTypes, List<OkasiState>> OkasiRooms = new();
     public void OnCheckMurderAsKiller(MurderInfo info)
     {
@@ -95,19 +112,49 @@ public sealed class Sweetgifter : RoleBase, IKiller
         --count;
         NowKillCool = OptionCooldown.GetFloat();
         Player.SetKillCooldown(NowKillCool);
+        bool Enable = OptionNotifytaisyo.GetBool() && OptionNotifyKiller.GetBool() ? target.GetRoleClass() is IKiller && !target.Is(CustomRoleTypes.Crewmate) : OptionNotifytaisyo.GetBool();
+        if (OptionNotifytaisyo.GetBool())
+        {
+            if (target.GetRoleClass() is IKiller killer && killer.IsKiller)
+            {
+                Notifytaisyo.Add(target.PlayerId);
+            }
+            else if (target.GetRoleClass() is not IKiller && OptionNotifytaisyo.GetBool())
+            {
+                Notifytaisyo.Add(target.PlayerId);
+            }
+        }
         if (count <= 0)
         {
             ModeSwitching(RoleTypes.Crewmate);
         }
+        else
+        {
+            SendRPC();
+        }
     }
     void OnPet()
     {
-        var pr = Player.GetPlainShipRoom().RoomId;
-        if (Player.GetPlainShipRoom() is null) return;
-        Utils.SendMessage($"[Debug] {pr} にはお菓子データが登録されていません。");
+        var room = Player.GetPlainShipRoom();
+        if (room is null) return;
+        var pr = room.RoomId;
 
-        if (OkasiRooms.TryGetValue(pr, out var current))
+        if (OkasiRooms.TryGetValue(pr, out var current) && Kaisyu > 0)
         {
+            if (!Notify.TryGetValue(pr, out var roomNotify))
+            {
+                roomNotify = new Dictionary<PlayerControl, bool>(); 
+                Notify[pr] = roomNotify;
+            }
+            foreach (var kaisyu in current)
+            {
+                if (Kaisyu <= 0) break;
+                if (!roomNotify.ContainsKey(kaisyu.Player))
+                {
+                    roomNotify.Add(kaisyu.Player, kaisyu.Okasi);
+                    --Kaisyu;
+                }
+            }
             count = count + current.Sum(okasi => okasi.Count);
 
             if (IsGiveMode)
@@ -120,6 +167,7 @@ public sealed class Sweetgifter : RoleBase, IKiller
             }
 
             OkasiRooms.Remove(pr);
+            SendRPC();
         }
     }
 
@@ -128,7 +176,6 @@ public sealed class Sweetgifter : RoleBase, IKiller
         foreach (var room in OkasiRooms.Keys.ToList())
         {
             var okasiList = OkasiRooms[room];
-
             var updatedList = new List<OkasiState>();
 
             foreach (var current in okasiList)
@@ -137,7 +184,7 @@ public sealed class Sweetgifter : RoleBase, IKiller
 
                 if (nextTurn < 2)
                 {
-                    updatedList.Add(new OkasiState(current.Count, nextTurn));
+                    updatedList.Add(new OkasiState(current.Count, nextTurn, current.Okasi, current.Player));
                 }
             }
 
@@ -164,6 +211,37 @@ public sealed class Sweetgifter : RoleBase, IKiller
         }
         return "";
     }
+    public override void OnStartMeeting()
+    {
+        if (Notify.Count is 0)
+        {
+            Logger.Info("からっぽ！","SweetGifter");
+        }
+        foreach (var room in Notify.Keys)
+        {
+            foreach (var okasi in Notify[room])
+            { 
+                if (okasi.Value)
+                {
+                    _ = new LateTask(() => Utils.SendMessage(string.Format(GetString("SweetgifterNotifyKillOkasi"), UtilsName.GetPlayerColor(okasi.Key), GetString($"{room}"), Player.PlayerId)),
+                    1f, "SendPhantom", true);
+                }
+                else
+                {
+                    _ = new LateTask(() => Utils.SendMessage(string.Format(GetString("SweetgifterNotifyKillNotOkasi"), UtilsName.GetPlayerColor(okasi.Key), GetString($"{room}"), Player.PlayerId)),
+                    1f, "SendPhantom", true);
+                }
+            }
+        }
+        Notifytaisyo.Add(Player.PlayerId);
+        foreach (var p in Notifytaisyo)
+        {
+            _ = new LateTask(() => Utils.SendMessage(string.Format(GetString("SweetgifterNotifytxt")), p, GetString("SweetgifterNotifyTitle")),
+                    1f, "SendPhantom", true);
+        }
+        Notifytaisyo.Clear();
+        Notify.Clear();
+    }
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
         if (count <= 0 && !IsGiveMode) return false;
@@ -173,27 +251,28 @@ public sealed class Sweetgifter : RoleBase, IKiller
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
-        foreach (var id in OkasiPlayers.ToList())
-        {
-            var target = PlayerCatch.GetPlayerById(id);
-            if (target == null || target.IsAlive()) continue;
-
-            OkasiPlayers.Remove(id);
-            var room = target.GetPlainShipRoom();
-            if (room == null) continue;
-
-            Utils.KillFlash(Player);
-            if (!OkasiRooms.ContainsKey(room.RoomId))
-                OkasiRooms[room.RoomId] = new List<OkasiState>();
-            OkasiRooms[room.RoomId].Add(new OkasiState(1, 0));
-        }
-
         if (NowKillCool <= 0f)
         {
             NowKillCool = 0f;
             return;
         }
         NowKillCool -= Time.fixedDeltaTime;
+    }
+    public void Otosu(PlayerControl target, PlayerControl killer)
+    {
+        OkasiPlayers.Remove(target.PlayerId);
+        SendRPC();
+
+        var room = target.GetPlainShipRoom();
+        if (room == null) return;
+
+        if (OptionKillFlash.GetBool())
+        {
+            Utils.KillFlash(Player);
+        }
+        if (!OkasiRooms.ContainsKey(room.RoomId))
+            OkasiRooms[room.RoomId] = new List<OkasiState>();
+        OkasiRooms[room.RoomId].Add(new OkasiState(1, 0, OkasiPlayers.Contains(killer.PlayerId), target));
     }
     void SetRoleForSweetgifterClient(PlayerControl target, RoleTypes role, int clientId)
     {
@@ -247,12 +326,23 @@ public sealed class Sweetgifter : RoleBase, IKiller
         sender.Writer.Write(count);
         sender.Writer.Write(IsGiveMode);
         sender.Writer.Write(Kaisyu);
+        sender.Writer.Write(OkasiPlayers.Count);
+        foreach (var id in OkasiPlayers)
+        {
+            sender.Writer.Write(id);
+        }
     }
     public override void ReceiveRPC(MessageReader reader)
     {
         count = reader.ReadInt32();
         IsGiveMode = reader.ReadBoolean();
         Kaisyu = reader.ReadInt32();
+        OkasiPlayers.Clear();
+        var n = reader.ReadInt32();
+        for (int i = 0; i < n; i++)
+        {
+            OkasiPlayers.Add(reader.ReadByte());
+        }
     }
     public override bool CanVentMoving(PlayerPhysics physics, int ventId) => false;
     public override bool CanClickUseVentButton => count > 0;
@@ -263,7 +353,8 @@ public sealed class Sweetgifter : RoleBase, IKiller
     }
     public override string GetProgressText(bool comms = false, bool GameLog = false)
     {
-        var text = $"({count})";
+        var kc = Kaisyu < 0 ? 0 : Kaisyu;
+        var text = $"({count})({kc})";
         return count > 0 ? Utils.ColorString(Color.yellow, text) : Utils.ColorString(Color.gray, text);
     }
 }

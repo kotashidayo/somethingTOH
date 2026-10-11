@@ -146,7 +146,7 @@ class ShowFilter
                     {
                         if (buttons.ContainsKey(customrole)) continue;
                         if (customrole.IsMainRole() is false && !role.addon) continue;
-                        if (customrole is CustomRoles.SKMadmate or CustomRoles.Emptiness or CustomRoles.HASFox or CustomRoles.HASTroll) continue;
+                        if (customrole is CustomRoles.SKMadmate or CustomRoles.HASFox or CustomRoles.HASTroll) continue;
                         if (IsFilterOption is false && !role.addon)
                         {
                             if ((customrole is CustomRoles.Merlin && CustomRoles.Assassin.IsEnable()) ||
