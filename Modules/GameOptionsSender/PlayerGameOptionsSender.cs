@@ -4,18 +4,18 @@ using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppSystem.Linq;
 using InnerNet;
-using Mathf = UnityEngine.Mathf;
-
-using TownOfHost.Roles.Core;
+using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
-using TownOfHost.Roles.Ghost;
-using static TownOfHost.Options;
+using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using TownOfHost.Roles.AddOns.Common;
+using TownOfHost.Roles.Crewmate;
+using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Madmate;
 using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.Vanilla;
+using static TownOfHost.Options;
+using Mathf = UnityEngine.Mathf;
 
 namespace TownOfHost.Modules
 {
@@ -237,8 +237,9 @@ namespace TownOfHost.Modules
                             break;
                     }
                 }
+                Blinder.ApplyGameOptionsByOther(player.PlayerId, opt);
 
-                //書く役職の処
+                //各役職の処理
                 if (HasRoleAddon)
                 {
                     //Wac

@@ -115,8 +115,7 @@ namespace TownOfHost
                 Logger.Warn($"{__instance?.Data?.GetLogPlayerName()}:{callId}({RPC.GetRpcName(callId)}) ホスト以外から送信されたためキャンセルしました。", "CustomRPC");
                 if (AmongUsClient.Instance.AmHost)
                 {
-                    //今はもう不正RPC送られんけど、
-                    //キックまではしなくていいと思う。
+                    //今はもう不正RPC送られんけど、不正なのが来てもキックまではしなくていいと思う
                     //AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
                     //Logger.Warn($"不正なRPCを受信したため{__instance?.Data?.GetLogPlayerName()}をキックしました。", "Kick");
                     Logger.Warn($"不正なRPCを受信ししました。送信者：{__instance?.Data?.GetLogPlayerName()}", "InvalidRpc");

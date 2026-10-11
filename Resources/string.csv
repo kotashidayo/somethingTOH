@@ -235,6 +235,7 @@
 "Mourner","Mourner","弔人"
 "Sentry","Sentry","セントリー"
 "Sweetgifter","Sweet gifter","スウィートギフター"
+"Blinder","Blinder","ブラインダー","盲人"
 "#CrewmateName"
 
 "# ニュートラル役職"
@@ -665,6 +666,7 @@
 "SinnerInfo","To Bear the Guilt","罪を背負う為に"
 "MournerInfo","To Mourn a Life","命を悼む為に"
 "SentryInfo","You can't escape these eyes","この眼からは逃れられない"
+"BlinderInfo","You can kill me, right?","私をキルしてもいいんだよ?"
 "#CrewmateInfo"
 
 "# ニュートラル役職"
@@ -1043,6 +1045,7 @@
 "HunterInfoLong","The Hunter can kill any player. You can switch between Task Mode and Hunter Mode by petting your pet. \nThe Hunter's killing ability cannot be used while in Task Mode. \nYou cannot perform tasks while in Hunter Mode.","ハンターはすべてのプレイヤーを殺すことができる。ペットを撫でることでタスクモードとハンターモードを切り替えることが出来る。\nタスクモード中にはハンターのキル能力が使用できない。\nハンターモードではタスクが行えない。"
 "GatekeeperInfoLong","","ベントに入ると警戒状態になり、入った部屋を警備する。\n警備中の部屋で死体が発生するとノイズメーカーのノイズが発生する。\nノイズが発生している状態でベントに入ることで最初警戒状態になった時に入ったベントに瞬間移動する。\n警戒する部屋は毎ターンリセットされ、ベント移動はできない"
 "MournerInfoLong","If the match ends before the Mourner has completed their task, the Mourner cannot win as part of the Crewmates' faction. \nThe Mourner's task is not included in the Crewmates' tasks. \nAdditionally, when a body is reported, you can see the role of the player who reported it.","タスクを終えていない状態で試合が終了した場合、弔人はクルーメイト陣営として勝利することができない。\n弔人のタスクはクルーメイトのタスクには含まれない。\nまた、死体を通報すると通報したプレイヤーの役職を見ることができる。"
+"BlinderInfoLong","Crew with an independent vision.\nMake the view of the person who kills you the same as the blinder's own view.Killed people become affected by the blackout regardless of the original setting.","独立した視野を持つクルー。\nキルしてきた人の視野をブラインダー自身の視野と同じにさせる。キルした人は元設定に関わらず停電の影響を受けるようになる。","此船员具有独立的视野。让杀你的人的视野和盲人的视野一样。被杀的人会受到停电的影响，不管最初的设定是什么。",
 "#CrewmateInfoLong"
 
 "# ニュートラル役職"
@@ -2486,6 +2489,7 @@
 "MournerDeadCount","Deaths Required to Become <#5f7285>Mourner</color","<#5f7285>弔人</color>に変化するクルー死亡数"
 "MournerSeeRoleCount","Max Role Checks","役職を知れる人数"
 "SweetgifterKaisyuCount","Collection Limit","回収できる回数"
+"BlinderVision","Blinder vision","ブラインダーの視野","盲人视野",
 
 "## Neutral Role Setting"
 "SchrodingerCatExiledTeamChanges","Team Changes When Ejected","吊られた際、陣営が変化する","薛定谔的猫被放逐时会加入其他阵营","薛定諤的貓被丟出時陣營會轉變","Команда меняется после его Изгнания","Time Muda Quando Exilado",""
