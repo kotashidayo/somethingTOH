@@ -235,7 +235,7 @@
 "Sinner","Sinner","罪人"
 "Mourner","Mourner","弔人"
 "Sentry","Sentry","セントリー"
-"Sweetgifter","Sweet gifter","s"
+"Sweetgifter","Sweet gifter","スウィートギフター"
 "#CrewmateName"
 
 "# ニュートラル役職"
@@ -2488,6 +2488,7 @@
 "SinnerDeathType","Valid Victory Deaths","勝利条件を満たす死亡方法"
 "MournerDeadCount","Deaths Required to Become <#5f7285>Mourner</color","<#5f7285>弔人</color>に変化するクルー死亡数"
 "MournerSeeRoleCount","Max Role Checks","役職を知れる人数"
+"SweetgifterKaisyuCount","Collection Limit","回収できる回数"
 
 "## Neutral Role Setting"
 "SchrodingerCatExiledTeamChanges","Team Changes When Ejected","吊られた際、陣営が変化する","薛定谔的猫被放逐时会加入其他阵营","薛定諤的貓被丟出時陣營會轉變","Команда меняется после его Изгнания","Time Muda Quando Exilado",""
