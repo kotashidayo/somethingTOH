@@ -85,15 +85,72 @@ public sealed class Monochromer : RoleBase
         }
         else return "";
     }
+    //↓シェイプでどうにかしたかった奴の残骸
+    /*public override void ChangeColor()
+    {
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
+        if (!Player.IsAlive()) return;
+        PlayerControl kuro = null;
+        PlayerControl siro = null;
+        PlayerControl gray = null;
+        _ = new LateTask(() => {
+
+            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+            {
+                if (pc == Player) continue;
+                if (pc == null) continue;
+                if (pc.Is(CustomRoles.UltraStar)) continue;
+                var id = Camouflage.PlayerSkins[pc.PlayerId].ColorId;
+                if (Kurosiro.GetBool())
+                {
+                    if (id is 0 or 1 or 2 or 6 or 8 or 9 or 12 or 15 or 16)
+                    {
+                        if (kuro == null)
+                        {
+                            pc.RpcChColor(Player, 6, true);
+                            pc.RpcHideSkinAndPet(Player);
+                            kuro = pc;
+                        }
+                        else
+                        {
+                            RpcShapeShiftDesync(pc, kuro, Player);
+                        }
+                    }
+                    else
+                    {
+                        if (siro == null)
+                        {
+                            pc.RpcChColor(Player, 7, true);
+                            pc.RpcHideSkinAndPet(Player);
+                            siro = pc;
+                        }
+                        else
+                        {
+                            RpcShapeShiftDesync(pc, siro, Player);
+                        }
+                    }
+                }
+                else
+                {
+                    if (gray == null)
+                    {
+                        pc.RpcChColor(Player, 15, true);
+                        pc.RpcHideSkinAndPet(Player);
+                        gray = pc;
+                    }
+                    else
+                    {
+                        RpcShapeShiftDesync(pc, siro, Player);
+                    }
+                }
+            }
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+        }, 0.2f, "", true);
+    }*/
     public override void ChangeColor()
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!Player.IsAlive()) return;
-
-        PlayerControl kuro = null;
-        PlayerControl siro = null;
-        PlayerControl gray = null;
-
         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
             if (pc == Player) continue;
@@ -104,19 +161,13 @@ public sealed class Monochromer : RoleBase
             {
                 if (id is 0 or 1 or 2 or 6 or 8 or 9 or 12 or 15 or 16)
                 {
-                    if (kuro == null)
-                    {
-                        pc.RpcChColor(Player, 6, true);
-                        pc.RpcHideSkinAndPet(Player);
-                    }
+                    pc.RpcChColor(Player, 6, true);
+                    pc.RpcHideSkinAndPet(Player);
                 }
                 else
                 {
-                    if (siro == null)
-                    {
-                        pc.RpcChColor(Player, 7, true);
-                        pc.RpcHideSkinAndPet(Player);
-                    }
+                    pc.RpcChColor(Player, 7, true);
+                    pc.RpcHideSkinAndPet(Player);
                 }
             }
             else
@@ -126,6 +177,26 @@ public sealed class Monochromer : RoleBase
             }
         }
         UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+    }
+    void RpcShapeShiftDesync(PlayerControl player, PlayerControl target, PlayerControl seer)
+    {
+        if (player == null || target == null || seer == null)
+        {
+            return;
+        }
+
+        if (seer.PlayerId == 0)
+        {
+            target.RpcShapeshift(target, false);
+        }
+
+        var sender = CustomRpcSender.Create("CamouflagerShape");
+        sender.AutoStartRpc(player.NetId, RpcCalls.Shapeshift, seer.GetClientId())
+            .Write(target)
+            .Write(false)
+            .EndRpc();
+        sender.EndMessage();
+        sender.SendMessage();
     }
     //public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __)
     //{

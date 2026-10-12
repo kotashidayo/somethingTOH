@@ -8,14 +8,17 @@ namespace TownOfHost
     {
         public static NetworkedPlayerInfo.PlayerOutfit Set(this NetworkedPlayerInfo.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId)
         {
+            if (instance == null || instance.Pointer == System.IntPtr.Zero) return instance;
+
             instance.PlayerName = playerName;
             instance.ColorId = colorId;
             instance.HatId = hatId;
             instance.SkinId = skinId;
             instance.VisorId = visorId;
-            instance.PetId = petId;
+            try { instance.PetId = petId; } catch { }
             return instance;
         }
+
         public static bool Compare(this NetworkedPlayerInfo.PlayerOutfit instance, NetworkedPlayerInfo.PlayerOutfit targetOutfit)
         {
             if (targetOutfit == null || targetOutfit.Pointer == System.IntPtr.Zero) return false;
@@ -23,23 +26,38 @@ namespace TownOfHost
 
             try
             {
-                return instance.ColorId == targetOutfit.ColorId &&
-                       instance.HatId == targetOutfit.HatId &&
-                       instance.SkinId == targetOutfit.SkinId &&
-                       instance.VisorId == targetOutfit.VisorId &&
-                       instance.PetId == targetOutfit.PetId;
+                bool isSame = instance.ColorId == targetOutfit.ColorId;
+
+                try { isSame &= instance.HatId == targetOutfit.HatId; } catch { return false; }
+                try { isSame &= instance.SkinId == targetOutfit.SkinId; } catch { return false; }
+                try { isSame &= instance.VisorId == targetOutfit.VisorId; } catch { return false; }
+
+                try { isSame &= instance.PetId == targetOutfit.PetId; } catch { return false; }
+
+                return isSame;
             }
             catch
             {
                 return false;
             }
         }
+
         public static string GetString(this NetworkedPlayerInfo.PlayerOutfit instance)
         {
-            return $"{instance.PlayerName} Color:{instance.ColorId} {instance.HatId} {instance.SkinId} {instance.VisorId} {instance.PetId}";
+            if (instance == null || instance.Pointer == System.IntPtr.Zero) return "NullOutfit";
+
+            string name = "Unknown";
+            string hat = "", skin = "", visor = "", pet = "";
+            try { name = instance.PlayerName; } catch { }
+            try { hat = instance.HatId; } catch { }
+            try { skin = instance.SkinId; } catch { }
+            try { visor = instance.VisorId; } catch { }
+            try { pet = instance.PetId; } catch { }
+
+            return $"{name} Color:{instance.ColorId} {hat} {skin} {visor} {pet}";
         }
     }
-    public static class Camouflage
+public static class Camouflage
     {
         static NetworkedPlayerInfo.PlayerOutfit CamouflageOutfit = new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "", "");
 
