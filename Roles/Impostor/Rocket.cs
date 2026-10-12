@@ -9,6 +9,7 @@ using MS.Internal.Xml.XPath;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Crewmate;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
@@ -242,6 +243,13 @@ public sealed class Rocket : RoleBase, IImpostor, IUsePhantomButton
             Vector2 spawnPos = launchPos + new Vector2(xOffset, 0f);
 
             PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Launch;
+            foreach (var p in PlayerCatch.AllPlayerControls)
+            {
+                if (p.GetRoleClass() is Sweetgifter sg)
+                {
+                    sg.Otosu(target, Player);
+                }
+            }
             target.RpcExileV3();
             PlayerState.GetByPlayerId(target.PlayerId).SetDead();
 

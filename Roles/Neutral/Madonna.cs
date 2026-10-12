@@ -4,6 +4,7 @@ using Hazel;
 using TownOfHost.Attributes;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Madmate;
 using static TownOfHost.Modules.SelfVoteManager;
 
@@ -211,6 +212,13 @@ public sealed class Madonna : RoleBase, ISelfVoter
         else
             if (limit <= UtilsGameLog.day && IsNonLover && Player.IsAlive())
             {
+                foreach (var p in PlayerCatch.AllPlayerControls)
+                {
+                    if (p.GetRoleClass() is Sweetgifter sg)
+                    {
+                        sg.Otosu(Player, Player);
+                    }
+                }
                 Player.RpcExileV3();
                 MyState.SetDead();
                 MyState.DeathReason = CustomDeathReason.Suicide;

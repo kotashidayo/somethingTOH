@@ -641,6 +641,13 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
         {
             if (pc.GetRoleClass() is Tama tama && tama.OwnerId == Player.PlayerId && pc.IsAlive())
             {
+                foreach (var p in PlayerCatch.AllPlayerControls)
+                {
+                    if (p.GetRoleClass() is Sweetgifter sg)
+                    {
+                        sg.Otosu(pc, pc);
+                    }
+                }
                 PlayerState.GetByPlayerId(pc.PlayerId).DeathReason = CustomDeathReason.Sacrifice;
                 pc.RpcExileV3();
                 PlayerState.GetByPlayerId(pc.PlayerId).SetDead();

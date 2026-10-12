@@ -4,7 +4,9 @@ using System.Linq;
 using Hazel;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Crewmate;
 using static TownOfHost.Options;
+using static UnityEngine.GraphicsBuffer;
 
 namespace TownOfHost;
 
@@ -184,6 +186,13 @@ class Triplets
                 PlayerState.GetByPlayerId(triplet.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
                 if (isExiled)
                 {
+                    foreach (var p in PlayerCatch.AllPlayerControls)
+                    {
+                        if (p.GetRoleClass() is Sweetgifter sg)
+                        {
+                            sg.Otosu(triplet, triplet);
+                        }
+                    }
                     triplet.RpcExileV3();
                 }
                 else

@@ -4,6 +4,7 @@ using System.Linq;
 using Hazel;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Crewmate;
 using static TownOfHost.Options;
 
 namespace TownOfHost;
@@ -138,6 +139,13 @@ class Twins
                     PlayerState.GetByPlayerId(twins.Key).DeathReason = CustomDeathReason.FollowingSuicide;
                     if (isExiled)
                     {
+                        foreach (var p in PlayerCatch.AllPlayerControls)
+                        {
+                            if (p.GetRoleClass() is Sweetgifter sg)
+                            {
+                                sg.Otosu(twin, twin);
+                            }
+                        }
                         twin.RpcExileV3();
                     }
                     else

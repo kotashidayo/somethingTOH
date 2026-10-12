@@ -230,6 +230,13 @@ public sealed class Assassin : RoleBase, IImpostor, IUsePhantomButton, IDoubleTr
         {
             NowState = AssassinMeeting.EndMeeting;
             SendStateRPC();
+            foreach (var p in PlayerCatch.AllPlayerControls)
+            {
+                if (p.GetRoleClass() is Sweetgifter sg)
+                {
+                    sg.Otosu(Player, Player);
+                }
+            }
             Player.RpcExileV3();
             MyState.SetDead();
             return;

@@ -124,7 +124,7 @@ static class Event
         {CustomRoles.Cakeshop , () => Birthday12 || Birthday},
 
         {CustomRoles.MadPukupuku,() => Birthday12 || Birthday || Mpkjyousetu},
-        //{CustomRoles.Sweetgifter,() => IsHalloween},
+        {CustomRoles.Sweetgifter,() => IsHalloween},
     };
 
     public static Dictionary<(CustomRoles role, bool isApiData), bool> cachedEventFlags = new(EventRoles.Count);
@@ -207,10 +207,13 @@ public sealed class SpeedStar : RoleBase, IImpostor, IUsePhantomButton
     [PluginModuleInitializer]
     public static void Load()
     {
-        Event.OptionLoad.Add("SpeedStar");
-        Event.OptionLoad.Add("Chameleon");
         Event.OptionLoad.Add("Cakeshop");
-        Event.OptionLoad.Add("VegaandAltair");
+        Event.OptionLoad.Add("MadPukupuku");
+        Event.OptionLoad.Add("Sweetgifter");
+
+        //Event.OptionLoad.Add("SpeedStar");
+        //Event.OptionLoad.Add("Chameleon");
+        //Event.OptionLoad.Add("VegaandAltair");
     }
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = cooldown;
     public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)

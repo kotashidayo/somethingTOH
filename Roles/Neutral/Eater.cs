@@ -9,6 +9,7 @@ using TMPro;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Madmate;
 using TownOfHost.Roles.Vanilla;
 using UnityEngine;
@@ -100,7 +101,7 @@ public sealed class Eater : RoleBase, IKiller, IUsePhantomButton, IKillFlashSeea
     {
         eatOrSwallowCount = 0;
     }
-    [Attributes.GameModuleInitializer]
+
     private static void SetupOptionItem()
     {
         SoloWinOption.Create(RoleInfo, 10, defo: 1);
@@ -236,7 +237,16 @@ public sealed class Eater : RoleBase, IKiller, IUsePhantomButton, IKillFlashSeea
                     Player.SetKillCooldown();
                     ++eatOrSwallowCount;
                     PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Swallowed;
+                    foreach (var p in PlayerCatch.AllPlayerControls)
+                    {
+                        if (p.GetRoleClass() is Sweetgifter sg)
+                        {
+                            sg.Otosu(target, Player);
+                        }
+                    }
                     target.RpcExileV3();
+                    PlayerState.GetByPlayerId(target.PlayerId).SetDead();
+
                     Logger.Info($"食べた数：{eatOrSwallowCount}", "Eater");
 
                     if (eatOrSwallowCount >= OptionWinCount.GetInt())

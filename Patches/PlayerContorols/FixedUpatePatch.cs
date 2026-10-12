@@ -385,6 +385,11 @@ namespace TownOfHost
                         || Camouflager.NowUse
                         || (SuddenDeathMode.SuddenCannotSeeName && !TemporaryName))
                             RealName = $"<size=0>{RealName}</size> ";
+
+                        if (Decolor.DecoloredPlayers.Contains(target.PlayerId))
+                        {
+                            RealName = $"<#C9CDD2>×</color><size=0>{RealName}</size> ";
+                        }
                     }
                     bool? canseedeathreasoncolor = seer.PlayerId.CanDeathReasonKillerColor() == true ? true : null;
                     string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"<size=75%>({Utils.GetVitalText(target.PlayerId, canseedeathreasoncolor)})</size>" : "";

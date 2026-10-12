@@ -4,6 +4,7 @@ using HarmonyLib;
 using TownOfHost.Attributes;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost;
 
@@ -228,7 +229,7 @@ class CheckGetNomalAchievement
             Achievements.RpcCompleteAchievement(killer.PlayerId, 1, achievements[200_017]);
         }
 
-        if (Camouflage.IsCamouflage/* || Camouflager.NowUse*/)
+        if (Camouflage.IsCamouflage || Camouflager.NowUse)
             Achievements.RpcCompleteAchievement(killer.PlayerId, 0, achievements[700_006]);
 
         if (killer.Is(CustomRoleTypes.Impostor) && target.GetCustomRole().IsMadmate())

@@ -5,6 +5,7 @@ using TownOfHost.Modules;
 using TownOfHost.Modules.ChatManager;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Crewmate;
 using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral;
@@ -127,6 +128,13 @@ public sealed class Nue : RoleBase, ISelfVoter, IKiller
     {
         var target = PlayerCatch.GetPlayerById(targetId);
         var state = PlayerState.GetByPlayerId(targetId);
+        foreach (var p in PlayerCatch.AllPlayerControls)
+        {
+            if (p.GetRoleClass() is Sweetgifter sg)
+            {
+                sg.Otosu(target, Player);
+            }
+        }
         target.RpcExileV3();
         state.DeathReason = targetId == Player.PlayerId ? CustomDeathReason.Misfire : CustomDeathReason.Kill;
         state.SetDead();

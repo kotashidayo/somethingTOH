@@ -3,6 +3,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Impostor;
 using UnityEngine;
 
@@ -236,6 +237,13 @@ public sealed class Autocrat : RoleBase, IAdditionalWinner
                         PlayerState state = PlayerState.GetByPlayerId(pc.PlayerId);
                         ++RevengeCount;
                         state.DeathReason = deathReasons[OptionDeathReason.GetValue()];
+                        foreach (var p in PlayerCatch.AllPlayerControls)
+                        {
+                            if (p.GetRoleClass() is Sweetgifter sg)
+                            {
+                                sg.Otosu(pc, pc);
+                            }
+                        }
                         Player.RpcExileV3();
                         state.SetDead();
                         ReportDeadBodyPatch.IgnoreBodyids[Player.PlayerId] = false;

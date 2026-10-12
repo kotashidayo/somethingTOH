@@ -555,6 +555,8 @@ namespace TownOfHost
                     sg.Otosu(target, killer);
                 }
             }
+            Decolor.Color(target);
+
             killer.MurderPlayer(target, SucceededFlags);
         }
         public static void RpcMurderPlayer(this PlayerControl killer, PlayerControl target)
@@ -566,10 +568,13 @@ namespace TownOfHost
                     sg.Otosu(target, killer);
                 }
             }
+            Decolor.Color(target);
             killer.RpcMurderPlayer(target, true);
         }
         public static void RpcMurderPlayerV2(this PlayerControl killer, PlayerControl target)
         {
+            if (target == null) target = killer;
+            Decolor.Color(target);
             foreach (var p in PlayerCatch.AllPlayerControls)
             {
                 if (p.GetRoleClass() is Sweetgifter sg)
@@ -577,7 +582,6 @@ namespace TownOfHost
                     sg.Otosu(target, killer);
                 }
             }
-            if (target == null) target = killer;
             if (AmongUsClient.Instance.AmClient)
             {
                 killer.MurderPlayer(target, SuccessFlags);

@@ -117,10 +117,11 @@ namespace TownOfHost
             //<>が使えないので結構困る。
             var res = $"INVALID:{str}";
             var ch = res;
-            //if (str is "CakeshopInfoLong" or "CakeshopInfo" or "Cakeshop" && !Event.CheckRole(CustomRoles.Cakeshop)) return res;
+            if (str is "CakeshopInfoLong" or "CakeshopInfo" or "Cakeshop" && !Event.CheckRole(CustomRoles.Cakeshop)) return res;
             //if (str is "VegaInfoLong" or "VegaInfo" or "Vega" && !Event.CheckRole(CustomRoles.Vega)) return res;
             //if (str is "AltairInfoLong" or "AltairInfo" or "Altair" && !Event.CheckRole(CustomRoles.Altair)) return res;
             if (str is "MadPukupuku" or "MadPukupukuInfo" or "MadPukupukuInfoLong" && !Event.CheckRole(CustomRoles.MadPukupuku)) return res;
+            if (str is "Sweetgifter" or "SweetgifterInfo" or "SweetgifterInfoLong" && !Event.CheckRole(CustomRoles.Sweetgifter)) return res;
 
             if (str.StartsWith("Amateras") && !Event.CheckRole(CustomRoles.Amateras)) return res;
             if (translateMaps.TryGetValue(str, out var dic) && (!dic.TryGetValue((int)langId, out res) || res == "")) //strに該当する&無効なlangIdかresが空

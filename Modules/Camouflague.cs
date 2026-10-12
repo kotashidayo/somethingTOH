@@ -8,56 +8,31 @@ namespace TownOfHost
     {
         public static NetworkedPlayerInfo.PlayerOutfit Set(this NetworkedPlayerInfo.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId)
         {
-            if (instance == null || instance.Pointer == System.IntPtr.Zero) return instance;
-
             instance.PlayerName = playerName;
             instance.ColorId = colorId;
             instance.HatId = hatId;
             instance.SkinId = skinId;
             instance.VisorId = visorId;
-            try { instance.PetId = petId; } catch { }
+            //instance.PetId = petId;
             return instance;
         }
-
         public static bool Compare(this NetworkedPlayerInfo.PlayerOutfit instance, NetworkedPlayerInfo.PlayerOutfit targetOutfit)
         {
-            if (targetOutfit == null || targetOutfit.Pointer == System.IntPtr.Zero) return false;
-            if (instance == null || instance.Pointer == System.IntPtr.Zero) return false;
+            return instance.ColorId == targetOutfit.ColorId &&
+                    instance.HatId == targetOutfit.HatId &&
+                    instance.SkinId == targetOutfit.SkinId &&
+                    instance.VisorId == targetOutfit.VisorId
+                    //&& instance.PetId == targetOutfit.PetId
+                    ;
 
-            try
-            {
-                bool isSame = instance.ColorId == targetOutfit.ColorId;
-
-                try { isSame &= instance.HatId == targetOutfit.HatId; } catch { return false; }
-                try { isSame &= instance.SkinId == targetOutfit.SkinId; } catch { return false; }
-                try { isSame &= instance.VisorId == targetOutfit.VisorId; } catch { return false; }
-
-                try { isSame &= instance.PetId == targetOutfit.PetId; } catch { return false; }
-
-                return isSame;
-            }
-            catch
-            {
-                return false;
-            }
         }
-
         public static string GetString(this NetworkedPlayerInfo.PlayerOutfit instance)
         {
-            if (instance == null || instance.Pointer == System.IntPtr.Zero) return "NullOutfit";
-
-            string name = "Unknown";
-            string hat = "", skin = "", visor = "", pet = "";
-            try { name = instance.PlayerName; } catch { }
-            try { hat = instance.HatId; } catch { }
-            try { skin = instance.SkinId; } catch { }
-            try { visor = instance.VisorId; } catch { }
-            try { pet = instance.PetId; } catch { }
-
-            return $"{name} Color:{instance.ColorId} {hat} {skin} {visor} {pet}";
+            return $"{instance.PlayerName} Color:{instance.ColorId} {instance.HatId} {instance.SkinId} {instance.VisorId}";
+            //return $"{instance.PlayerName} Color:{instance.ColorId} {instance.HatId} {instance.SkinId} {instance.VisorId} {instance.PetId}";
         }
     }
-public static class Camouflage
+    public static class Camouflage
     {
         static NetworkedPlayerInfo.PlayerOutfit CamouflageOutfit = new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "", "");
 
@@ -102,6 +77,9 @@ public static class Camouflage
         public static List<byte> ventplayr = new();
         public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool? force = false)
         {
+            if (target.Data == null || target.Data.Disconnected
+                || target.Data.DefaultOutfit == null
+                || target.Data.DefaultOutfit.Pointer == System.IntPtr.Zero) return;
             if ((!AmongUsClient.Instance.AmHost && !(Options.CommsCamouflage.GetBool() || (force is null or true)))
             || (GameStates.IsLobby)
             || (target == null)) return;
@@ -143,13 +121,9 @@ public static class Camouflage
                 }
             }
 
-            if (target.Data == null || target.Data.DefaultOutfit == null || target.Data.DefaultOutfit.Pointer == System.IntPtr.Zero)
-            {
-                return;
-            }
-
             if (newOutfit.Compare(target.Data.DefaultOutfit) && force is false) return;
-            Logger.Info($"newOutfit={newOutfit.GetString()}", "RpcSetSkin");
+
+            //Logger.Info($"newOutfit={newOutfit.GetString()}", "RpcSetSkin");
 
             var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.GetLogPlayerName()})");
 
@@ -159,7 +133,6 @@ public static class Camouflage
                 .Write(newOutfit.ColorId)
                 .EndRpc();
 
-            
             target.SetHat(newOutfit.HatId, newOutfit.ColorId);
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
                 .Write(newOutfit.HatId)
@@ -177,7 +150,13 @@ public static class Camouflage
                 .Write(newOutfit.VisorId)
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
                 .EndRpc();
-                
+
+
+            /*target.SetPet(newOutfit.PetId, newOutfit.ColorId);
+            sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
+                .Write(newOutfit.PetId)
+                .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+                .EndRpc();*/
 
             sender.SendMessage();
             if (ventplayr.Contains(target.PlayerId)) ventplayr.Remove(target.PlayerId);

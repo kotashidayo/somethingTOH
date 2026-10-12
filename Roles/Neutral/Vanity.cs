@@ -23,6 +23,7 @@ public sealed class Vanity : RoleBase, IKiller, ISchrodingerCatOwner, IAdditiona
             "van",
             "#aa8d22",
             (5, 9),
+            true,
             introSound: () => GetIntroSound(RoleTypes.Crewmate),
             from: From.NebulaontheShip,
             Desc: () => string.Format(GetString("VanityDesc"), OptionSoloKiller.GetBool() ? GetString("VanityDescKiller") : GetString("VanityDescAdd"))
@@ -175,20 +176,14 @@ public sealed class Vanity : RoleBase, IKiller, ISchrodingerCatOwner, IAdditiona
     public override CustomRoles Misidentify() => !Realized ? CustomRoles.Sheriff : CustomRoles.Vanity;
     public void OnCheckMurderAsKiller(MurderInfo info)
     {
-        if (!OptionSoloKiller.GetBool() && ShotLimit <= 0)
+        if ((!OptionSoloKiller.GetBool() && ShotLimit <= 0) || info.AttemptKiller == info.AttemptTarget || !Is(info.AttemptKiller))
         {
             info.DoKill = false;
             return;
         }
         var target = info.AttemptTarget;
-        if (ShotLimit > 0)
-        {
-            --ShotLimit;
-        }
-        if (target.Is(CustomRoles.Vanity))
-        {
-            return;
-        }
+        --ShotLimit;
+
         if (target.Is(CustomRoleTypes.Crewmate))
         {
             KilledCrewmate = true;

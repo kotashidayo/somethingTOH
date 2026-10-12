@@ -1,10 +1,10 @@
-using AmongUs.GameOptions;
 using System.Collections.Generic;
-using UnityEngine;
+using AmongUs.GameOptions;
 using Hazel;
-
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Crewmate;
+using UnityEngine;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -198,6 +198,13 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
             }
             else
             {
+                foreach (var p in PlayerCatch.AllPlayerControls)
+                {
+                    if (p.GetRoleClass() is Sweetgifter sg)
+                    {
+                        sg.Otosu(target, Player);
+                    }
+                }
                 target.RpcExileV3();
             }
             if (Eraser.Erasedtargets.Contains(target.PlayerId))

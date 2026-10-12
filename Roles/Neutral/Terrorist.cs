@@ -90,21 +90,28 @@ public sealed class Terrorist : RoleBase
     }
     public void Win()
     {
-        foreach (var otherPlayer in PlayerCatch.AllAlivePlayerControls)
-        {
-            if (otherPlayer.Is(CustomRoles.Terrorist))
-            {
-                continue;
-            }
-            otherPlayer.SetRealKiller(Player);
-            otherPlayer.RpcMurderPlayer(otherPlayer);
-            var playerState = PlayerState.GetByPlayerId(otherPlayer.PlayerId);
-            playerState.DeathReason = CustomDeathReason.Bombed;
-            playerState.SetDead();
-        }
         if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Terrorist, Player.PlayerId, true))
         {
             CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
+        }
+    }
+    public override void CheckWinner(GameOverReason reason)
+    {
+        if (CustomWinnerHolder.WinnerIds.Contains(Player.PlayerId) && CustomWinnerHolder.WinnerTeam is CustomWinner.Terrorist)
+        {
+            //優先度無視できちゃうから...
+            foreach (var otherPlayer in PlayerCatch.AllAlivePlayerControls)
+            {
+                if (otherPlayer.Is(CustomRoles.Terrorist))
+                {
+                    continue;
+                }
+                otherPlayer.SetRealKiller(Player);
+                otherPlayer.RpcMurderPlayer(otherPlayer);
+                var playerState = PlayerState.GetByPlayerId(otherPlayer.PlayerId);
+                playerState.DeathReason = CustomDeathReason.Bombed;
+                playerState.SetDead();
+            }
         }
     }
     public static System.Collections.Generic.Dictionary<int, Achievement> achievements = new();

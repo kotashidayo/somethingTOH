@@ -31,7 +31,7 @@ public interface IKiller
     /// サボタージュボタンを使えるかどうか
     /// </summary>
     /// <returns>trueを返した場合，サボタージュボタンを使える</returns>
-    public bool CanUseSabotageButton();
+    public bool CanUseSabotageButton() => false;
     /// <summary>
     /// ベントボタンを使えるかどうか
     /// デフォルトでは使用可能

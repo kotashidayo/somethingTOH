@@ -67,6 +67,7 @@ public sealed class Sweetgifter : RoleBase, IKiller
     private static OptionItem OptionKillFlash;
     private static OptionItem OptionNotifytaisyo;
     private static OptionItem OptionNotifyKiller;
+    private static OptionItem OptionKaisyuSonoturn;
     int count;
     bool IsGiveMode;
     float NowKillCool;
@@ -77,7 +78,8 @@ public sealed class Sweetgifter : RoleBase, IKiller
         SweetgifterKaisyuCount,
         SweetgifterKillFlash,
         SweetgifterNotifyTaisyo,
-        SweetgifterNotifyKiller
+        SweetgifterNotifyKiller,
+        SweetgifterCanKaisyu
     }
 
     private static void SetupOptionItem()
@@ -91,6 +93,7 @@ public sealed class Sweetgifter : RoleBase, IKiller
         OptionKillFlash = BooleanOptionItem.Create(RoleInfo, 13, OptionName.SweetgifterKillFlash, true, false);
         OptionNotifytaisyo = BooleanOptionItem.Create(RoleInfo, 14, OptionName.SweetgifterNotifyTaisyo, true, false);
         OptionNotifyKiller = BooleanOptionItem.Create(RoleInfo, 15, OptionName.SweetgifterNotifyKiller, true, false);
+        OptionKaisyuSonoturn = BooleanOptionItem.Create(RoleInfo, 16, OptionName.SweetgifterCanKaisyu, true, false);
     }
     public bool CanUseSabotageButton() => false;
     public float CalculateKillCooldown() => NowKillCool;
@@ -149,13 +152,16 @@ public sealed class Sweetgifter : RoleBase, IKiller
             foreach (var kaisyu in current)
             {
                 if (Kaisyu <= 0) break;
-                if (!roomNotify.ContainsKey(kaisyu.Player))
+                if (kaisyu.Turn == 1 || OptionKaisyuSonoturn.GetBool())
                 {
-                    roomNotify.Add(kaisyu.Player, kaisyu.Okasi);
-                    --Kaisyu;
+                    if (!roomNotify.ContainsKey(kaisyu.Player))
+                    {
+                        roomNotify.Add(kaisyu.Player, kaisyu.Okasi);
+                        --Kaisyu;
+                        ++count;
+                    }
                 }
             }
-            count = count + current.Sum(okasi => okasi.Count);
 
             if (IsGiveMode)
             {
@@ -202,6 +208,8 @@ public sealed class Sweetgifter : RoleBase, IKiller
 
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
+        seen ??= seer;
+
         if (OkasiPlayers == null) return "";
         if (!Is(seer)) return "";
 
@@ -260,6 +268,7 @@ public sealed class Sweetgifter : RoleBase, IKiller
     }
     public void Otosu(PlayerControl target, PlayerControl killer)
     {
+        if (GameStates.IsMeeting || GameStates.CalledMeeting) return;
         OkasiPlayers.Remove(target.PlayerId);
         SendRPC();
 

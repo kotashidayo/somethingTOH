@@ -1436,6 +1436,7 @@ public enum CustomRoles
     Vanity,
     Moira,
     Frust,
+    Decolor,
     //DEBUG only Neutral.
     //HideAndSeek
     HASFox,

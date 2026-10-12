@@ -1,10 +1,10 @@
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using System.Collections.Generic;
-
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost.Roles.Madmate;
 
@@ -224,6 +224,13 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                     {
                         if (AmongUsClient.Instance.AmHost)
                         {
+                            foreach (var p in PlayerCatch.AllPlayerControls)
+                            {
+                                if (p.GetRoleClass() is Sweetgifter sg)
+                                {
+                                    sg.Otosu(Player, Player);
+                                }
+                            }
                             Player.RpcExileV3();
                             MyState.DeathReason = CustomDeathReason.Misfire;
                             MyState.SetDead();

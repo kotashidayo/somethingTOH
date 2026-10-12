@@ -169,6 +169,13 @@ public sealed class MeetingSheriff : RoleBase, ISelfVoter
         if ((CanBeKilledBy(target.GetCustomRole()) && !AlienTairo) || (target.IsLovers() && OptionMeetingSheriffCanKillLovers.GetBool()) || (target.Is(CustomRoles.Amanojaku) && OptionMeetingSheriffCanKillNeutrals.GetBool()))
         {
             state = PlayerState.GetByPlayerId(target.PlayerId);
+            foreach (var p in PlayerCatch.AllPlayerControls)
+            {
+                if (p.GetRoleClass() is Sweetgifter sg)
+                {
+                    sg.Otosu(target, Player);
+                }
+            }
             target.RpcExileV3();
             state.DeathReason = CustomDeathReason.Kill;
             state.SetDead();
@@ -192,6 +199,13 @@ public sealed class MeetingSheriff : RoleBase, ISelfVoter
             Achievements.RpcCompleteAchievement(Player.PlayerId, 1, achievements[0]);
             onemeetingkill++;
             return;
+        }
+        foreach (var p in PlayerCatch.AllPlayerControls)
+        {
+            if (p.GetRoleClass() is Sweetgifter sg)
+            {
+                sg.Otosu(Player, Player);
+            }
         }
         Player.RpcExileV3();
         MyState.DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Counter :

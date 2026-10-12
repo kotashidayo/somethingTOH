@@ -333,10 +333,17 @@ class SubmergedPatch
             }
             else
             {
-                if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled && Options.CurrentGameMode != CustomGameMode.TaskBattle)
-                    player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId], delay: true);
-                else if (Options.CurrentGameMode != CustomGameMode.TaskBattle && MeetingStates.FirstMeeting)
+                if (player.Is(CustomRoles.Decolor))
+                {
                     player.SetKillCooldown(10f, delay: true);
+                }
+                else
+                {
+                    if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled && Options.CurrentGameMode != CustomGameMode.TaskBattle)
+                        player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId], delay: true);
+                    else if (Options.CurrentGameMode != CustomGameMode.TaskBattle && MeetingStates.FirstMeeting && !player.Is(CustomRoles.Decolor))
+                        player.SetKillCooldown(10f, delay: true);
+                }
             }
 
             if (MeetingStates.FirstMeeting) player.RpcResetAbilityCooldown();

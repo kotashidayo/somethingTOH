@@ -324,6 +324,11 @@ public static class MeetingHudPatch
             {
                 Send += vampiremsg + "\n";
             }
+            var decolormsg = Decolor.SendMessage();
+            if (decolormsg != "")
+            {
+                Send += "\n" + decolormsg + "\n";
+            }
             if (Options.SyncButtonMode.GetBool())
             {
                 Send += "<#006e54>★" + string.Format(GetString("Message.SyncButtonLeft"), Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + "</color>\n";

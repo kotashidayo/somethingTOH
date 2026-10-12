@@ -208,6 +208,14 @@ public sealed class Abuser : RoleBase, IImpostor, IUsePhantomButton
         var retaliationKiller = PlayerCatch.GetPlayerById(retaliationKillerId);
         if (retaliationKiller != null)
             Player.SetRealKiller(retaliationKiller, true);
+
+        foreach (var p in PlayerCatch.AllPlayerControls)
+        {
+            if (p.GetRoleClass() is Sweetgifter sg)
+            {
+                sg.Otosu(Player, Player);
+            }
+        }
         Player.RpcExileV3();
         MyState.SetDead();
         PlayerCatch.CountAlivePlayers(true);

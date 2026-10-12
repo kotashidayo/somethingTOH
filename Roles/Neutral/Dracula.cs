@@ -49,7 +49,11 @@ public sealed class Dracula : RoleBase, ILNKiller, IUsePhantomButton
         Kenzokus.Clear();
         targetDieChanceBonus.Clear();
     }
-
+    [Attributes.GameModuleInitializer]
+    public static void Init()
+    {
+        staticKenzokuid.Clear();
+    }
     public static OptionItem OptionKillCooldown;
     public static OptionItem OptionCanVent;
     public static OptionItem OptionSuicideTimer;

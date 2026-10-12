@@ -18,7 +18,7 @@ public sealed class Monochromer : RoleBase
             "Mnc",
             "#808080",
             //(6, 1),
-            (0, 0),
+            (0, 1),
             assignInfo: new RoleAssignInfo(CustomRoles.Monochromer, CustomRoleTypes.Neutral)
             {
                 AssignCountRule = new(0, 15, 1)

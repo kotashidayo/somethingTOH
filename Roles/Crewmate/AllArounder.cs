@@ -273,6 +273,13 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
         if ((CanBeKilledBy(target.GetCustomRole()) && !AlienTairo) || (target.IsLovers() && OptionMeetingSheriffCanKillLovers.GetBool()) || (target.Is(CustomRoles.Amanojaku) && OptionMeetingSheriffCanKillNeutrals.GetBool()))
         {
             state = PlayerState.GetByPlayerId(target.PlayerId);
+            foreach (var p in PlayerCatch.AllPlayerControls)
+            {
+                if (p.GetRoleClass() is Sweetgifter sg)
+                {
+                    sg.Otosu(target, Player);
+                }
+            }
             target.RpcExileV3();
             state.DeathReason = CustomDeathReason.Kill;
             state.SetDead();
@@ -294,6 +301,13 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
             MeetingVoteManager.ResetVoteManager(target.PlayerId);
             if (target != PlayerControl.LocalPlayer) Player.RpcMeetingKill(target);
             return;
+        }
+        foreach (var p in PlayerCatch.AllPlayerControls)
+        {
+            if (p.GetRoleClass() is Sweetgifter sg)
+            {
+                sg.Otosu(Player, Player);
+            }
         }
         Player.RpcExileV3();
         MyState.DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Counter :

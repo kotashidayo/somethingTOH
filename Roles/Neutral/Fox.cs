@@ -7,7 +7,9 @@ using TownOfHost.Modules.ChatManager;
 using TownOfHost.Patches;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Crewmate;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 namespace TownOfHost.Roles.Neutral;
 
@@ -140,6 +142,13 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook, IRoomTasker
         {
             if (PlayerCatch.AllAlivePlayersCount <= DieAliveCount)
             {
+                foreach (var p in PlayerCatch.AllPlayerControls)
+                {
+                    if (p.GetRoleClass() is Sweetgifter sg)
+                    {
+                        sg.Otosu(Player, Player);
+                    }
+                }
                 MyState.DeathReason = CustomDeathReason.Spell;
                 Player.RpcExileV3();
                 UtilsGameLog.AddGameLog($"Fox", $"{UtilsName.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]");
@@ -391,6 +400,13 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook, IRoomTasker
         //ぽんこつ占い師のぽんこつ占い師で死ぬのはかわいそう('ω')
         if (AmongUsClient.Instance.AmHost && IsTellDie && player != null && player.IsAlive() && Player.IsAlive())
         {
+            foreach (var p in PlayerCatch.AllPlayerControls)
+            {
+                if (p.GetRoleClass() is Sweetgifter sg)
+                {
+                    sg.Otosu(Player, Player);
+                }
+            }
             Player.RpcExileV3();
             MyState.DeathReason = CustomDeathReason.Spell;
             MyState.SetDead();

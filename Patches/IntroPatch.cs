@@ -479,7 +479,17 @@ namespace TownOfHost
                         {
                             _ = new LateTask(() =>
                             {
-                                PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(10f, force: true, delay: true));
+                                foreach (var pc in PlayerCatch.AllPlayerControls)
+                                {
+                                    if (!pc.Is(CustomRoles.Decolor))
+                                    {
+                                        pc.SetKillCooldown(10f, force: true, delay: true);
+                                    }
+                                    else
+                                    {
+                                        pc.SetKillCooldown(Decolor.OptionCooldown.GetFloat(), force: true, delay: true);
+                                    }
+                                }
                             }, 0.7f, "FixKillCooldownTask", null);
                         }
                     }

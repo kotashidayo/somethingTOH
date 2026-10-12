@@ -94,7 +94,6 @@ namespace TownOfHost
             }
             WinnerTeam = winner;
             winners.Add(winner);
-            Dracula.staticKenzokuid.Clear();
         }
 
         /// <summary>

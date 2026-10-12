@@ -994,10 +994,13 @@ namespace TownOfHost
                 case From.TownOfHost_Pko: Fromtext = ""; break;
                 case From.RevolutionaryHostRoles: Fromtext += $"<#3cb371>RevolutionaryHostRoles</color>"; break;
                 case From.Love_Couple_Mod: Fromtext += "<#ff6be4>Love Couple Mod</color>"; break;
+                case From.UchuAddon: Fromtext += "<#0065f4>Uchu Addon</color>"; break;
             }
             if (role is CustomRoles.MadSuicide) Fromtext += "  <#000000>(<#ff1919>崇拝者</color>)</color>";
             if (role is CustomRoles.BoostLighter) Fromtext += "  <#000000>(<#eee5be>ライター</color>)</color>";
             if (role is CustomRoles.Juggler) Fromtext += "  <#000000>(<#ff1919>カモフラージャー</color>)</color>";
+            if (role is CustomRoles.Decolor) Fromtext += "  <#000000>(<#ffff00>シトラス</color>)</color>";
+
             return Fromtext;
         }
         public static void SetVision(this IGameOptions opt, bool HasImpVision)

@@ -6,6 +6,7 @@ using HarmonyLib;
 using Hazel;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Neutral;
 using UnityEngine;
 using static Il2CppSystem.Threading.SemaphoreSlim;
 
@@ -150,25 +151,14 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
             _limit = -100;
             NowUse = false;
             var original = PlayerCatch.GetPlayerById(id);
-            if (original != null)
-            {
-                Camouflage.RpcSetSkin(original, force: null);
-            }
-            foreach (var pl in PlayerCatch.AllPlayerControls)
-            {
-                pl.RpcShapeshift(pl, false);
-                var sender = CustomRpcSender.Create("CamouflagerShape");
-                sender.AutoStartRpc(pl.NetId, RpcCalls.Shapeshift)
-                    .Write(pl)
-                    .Write(false)
-                    .EndRpc();
-                sender.EndMessage();
-                sender.SendMessage();
-            }
+
             _ = new LateTask(() =>
             {
                 if (GameStates.CalledMeeting) return;
-
+                if (original != null)
+                {
+                    Camouflage.RpcSetSkin(original, force: null);
+                }
                 // しゅーりょー
                 foreach (var pl in PlayerCatch.AllPlayerControls)
                 {
@@ -183,7 +173,8 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
                 }
 
                 UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-            }, 0.4f, "", true);
+                Decolor.DecolorPlayer();
+            }, 0.2f, "", true);
             Player.RpcResetAbilityCooldown(log: false, Sync: true);
         }
     }

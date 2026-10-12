@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using UnityEngine;
-
-using TownOfHost.Roles.Core;
-using TownOfHost.Roles.AddOns.Neutral;
 using Hazel;
+using TownOfHost.Roles.AddOns.Neutral;
+using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Crewmate;
+using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral;
 
@@ -302,6 +302,13 @@ public sealed class JackalDoll : RoleBase
                     //ガードなどは無視
                     _ = new LateTask(() =>
                     {
+                        foreach (var p in PlayerCatch.AllPlayerControls)
+                        {
+                            if (p.GetRoleClass() is Sweetgifter sg)
+                            {
+                                sg.Otosu(Jd, Jd);
+                            }
+                        }
                         PlayerState.GetByPlayerId(Jd.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
                         Jd.RpcExileV3();
                         PlayerState.GetByPlayerId(Jd.PlayerId).SetDead();
