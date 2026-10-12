@@ -21,11 +21,7 @@ public sealed class Juggler : RoleBase, IImpostor, IUsePhantomButton
         SetupOptionItem,
         "jug",
         OptionSort: (6, 0),
-        from: From.TheOtherRoles,
-        assignInfo: new RoleAssignInfo(CustomRoles.Juggler, CustomRoleTypes.Impostor)
-        {
-            IsInitiallyAssignableCallBack = () => Main.NormalOptions.MapId is not 5
-        }
+        from: From.TheOtherRoles
     );
 
     private static OptionItem OptionKillCoolDown;
@@ -124,7 +120,7 @@ public sealed class Juggler : RoleBase, IImpostor, IUsePhantomButton
                 .Where(p => !JPlayer.Contains(p.PlayerId)) 
                 .OrderBy(_ => UnityEngine.Random.value) // ランダムにシャッフル
                 .FirstOrDefault(); // 先頭の1人を取得（いなければnull）
-
+            if (target is null) return;
             JPlayer.Add(target.PlayerId);
             if (target != null && !ShapeShiftedPlayer.Contains(pl.PlayerId))
             {

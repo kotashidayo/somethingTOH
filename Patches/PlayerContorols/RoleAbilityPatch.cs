@@ -133,6 +133,11 @@ namespace TownOfHost
                     }
                     return false;
                 }
+            if (Camouflager.NowUse || Decolor.DecoloredPlayers.Contains(shapeshifter.PlayerId) || Juggler.NowUse)
+            {
+                shapeshifter.RpcRejectShapeshift();
+                return false;
+            }
             shouldAnimate &= !MeetingHud.Instance;
 
             shapeshifter.RpcShapeshift(target, shouldAnimate);

@@ -167,7 +167,7 @@ namespace TownOfHost
                 }
                 else
                 {
-                    if (Main.CheckShapeshift.TryGetValue(target.PlayerId, out var shapeshifting) && shapeshifting)
+                    if (Main.CheckShapeshift.TryGetValue(target.PlayerId, out var shapeshifting) && shapeshifting && !Camouflager.NowUse && !Juggler.NowUse && !Decolor.DecoloredPlayers.Contains(target.PlayerId))
                     {
                         //シェイプシフト強制解除
                         target.RpcShapeshift(target, false);

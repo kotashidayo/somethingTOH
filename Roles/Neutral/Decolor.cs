@@ -61,6 +61,10 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
         Modosita = false;
         status = DeColorstatus.Normal;
     }
+    public override void OnDestroy()
+    {
+        Modosu();
+    }
     public bool CanKill { get; private set; } = false;
     public static HashSet<byte> DecoloredPlayers = new();
     static HashSet<byte> DecolorWaitPlayers = new();
