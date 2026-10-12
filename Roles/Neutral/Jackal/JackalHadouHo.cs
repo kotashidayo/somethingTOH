@@ -32,10 +32,10 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
             (1, 5),
             true,
             countType: CountTypes.Jackal,
-            assignInfo: new RoleAssignInfo(CustomRoles.JackalHadouHo, CustomRoleTypes.Neutral)
+            /*assignInfo: new RoleAssignInfo(CustomRoles.JackalHadouHo, CustomRoleTypes.Neutral)
             {
                 AssignCountRule = new(1, 1, 1),
-            },
+            },*/
             from: From.SuperNewRoles
         );
 
@@ -72,7 +72,7 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
 
         skMode = false;
         nowcool = KillCooldown;
-        LastCooltime = (int)KillCooldown;
+        LastCooltime = KillCooldown;
         Charging = false;
         skCandidateId = byte.MaxValue;
         skNearTimer = 0f;
@@ -96,14 +96,13 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
     public bool CanSideKick;
     public bool IsLoaded;
     public bool IsSuperBeam;
-    public static bool NextNoSideKick = false;
     bool _prevCharging;
     bool _prevSuperCharging;
     bool _prevBeamMark;
 
     bool skMode;
     float nowcool;
-    int LastCooltime;
+    float LastCooltime;
 
     byte skCandidateId;
     float skNearTimer;
@@ -252,12 +251,11 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
     public override void Add()
     {
         PlayerSpeed = Main.AllPlayerSpeed[Player.PlayerId];
-        CanSideKick = NextNoSideKick ? false : OptionCanMakeSidekick.GetBool();
-        NextNoSideKick = false;
+        CanSideKick = JackalDoll.SidekicknoJackal.Contains(Player.PlayerId) ? false : OptionCanMakeSidekick.GetBool();
         SidekickCooldown = OptionSidekickCooldown.GetFloat();
         skMode = false;
         nowcool = KillCooldown;
-        LastCooltime = (int)KillCooldown;
+        LastCooltime = KillCooldown;
 
         skCandidateId = byte.MaxValue;
         skNearTimer = 0f;
@@ -292,12 +290,15 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
     private void OnPetUsed()
     {
         if (!Player.IsAlive()) return;
-        if (!CanSideKick) return;
+        if ((!CanSideKick || JackalDoll.SidekicknoJackal.Contains(Player.PlayerId)) && !skMode)
+        {
+            return;
+        }
 
         skMode = !skMode;
 
         if (!IsFiring)
-            Player.SetKillCooldown(Mathf.Max(LastCooltime, 0.1f), delay: true);
+            Player.SetKillCooldown(Mathf.Max(Mathf.FloorToInt(LastCooltime), 0.1f), delay: true);
 
         SendRpc();
         UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
@@ -320,8 +321,8 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
 
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
-        if (Madmate.MadAvenger.Skill) return true;
-        if (Impostor.Assassin.NowUse) return true;
+        if (MadAvenger.Skill) return true;
+        if (Assassin.NowUse) return true;
         if (!Is(voter) || !CanSideKick || !Player.IsAlive()) return true;
 
         if (CheckSelfVoteMode(Player, votedForId, out var status))
@@ -391,7 +392,7 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
 
             skMode = false;
             nowcool = SidekickCooldown;
-            LastCooltime = (int)nowcool;
+            LastCooltime = nowcool;
             Player.SetKillCooldown(nowcool);
             SendRpc();
             UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
@@ -400,7 +401,7 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
         Jizo.Checkroom(Player.GetPlainShipRoom(), Player);
 
         nowcool = KillCooldown;
-        LastCooltime = (int)nowcool;
+        LastCooltime = nowcool;
         AfterKillPhantomReset();
     }
 
@@ -698,7 +699,7 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
             if (!Player.IsAlive()) { IsFiring = false; return; }
 
             nowcool = KillCooldown;
-            LastCooltime = (int)nowcool;
+            LastCooltime = nowcool;
             Main.AllPlayerKillCooldown[Player.PlayerId] = nowcool;
             Player.SetKillCooldown(nowcool);
 
@@ -791,7 +792,7 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
         }
 
         nowcool = KillCooldown;
-        LastCooltime = (int)nowcool;
+        LastCooltime = nowcool;
         Main.AllPlayerKillCooldown[Player.PlayerId] = nowcool;
         Player.SetKillCooldown(nowcool);
 
@@ -802,7 +803,7 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
 
     private void DoSideKick(PlayerControl target)
     {
-        CanSideKick = false;
+        if (!CanSideKick) return;
         var targetrole = target.GetCustomRole();
         if ((targetrole is CustomRoles.King or CustomRoles.Merlin or CustomRoles.AlienHijack or CustomRoles.Autocrat || Jackal.IsJackal(target))
             || ((targetrole.IsImpostor() || targetrole is CustomRoles.Egoist) && !OptionImpostorCanSidekick.GetBool()))
@@ -811,7 +812,13 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
             SetMode(Player, false);
             return;
         }
-
+        if (JackalDoll.SidekicknoJackal.Contains(Player.PlayerId))
+        {
+            Utils.SendMessage("<color=#00b4eb>昇格ジャッカルはSKできません。</color>", Player.PlayerId);
+            SetMode(Player, false);
+            return;
+        }
+        CanSideKick = false;
         Player.RpcProtectedMurderPlayer(target);
         target.RpcProtectedMurderPlayer(Player);
         target.RpcProtectedMurderPlayer(target);
@@ -957,10 +964,10 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
-        if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive()) return "";
+        if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive() || !Is(seer)) return "";
         string size = isForHud ? "" : "<size=60%>";
 
-        if (skMode && CanSideKick)
+        if (skMode && CanSideKick && !JackalDoll.SidekicknoJackal.Contains(Player.PlayerId))
             return $"{size}<color=#00b4eb>【SKモード】SKしたいプレイヤーにキル！ペット→キルモードへ</color>";
 
         if (CanSideKick && skCandidateId != byte.MaxValue && !IsCharging && !IsSuperCharging && !ShowBeamMark)
@@ -1239,7 +1246,7 @@ public sealed class Tama : RoleBase, IKiller
             MyState.SetCountType(CountTypes.Jackal);
             if (!Utils.RoleSendList.Contains(Player.PlayerId))
                 Utils.RoleSendList.Add(Player.PlayerId);
-            JackalHadouHo.NextNoSideKick = true;
+            JackalDoll.SidekicknoJackal.Add(Player.PlayerId);
             Player.RpcSetCustomRole(CustomRoles.JackalHadouHo, true);
             SendRPC();
             UtilsNotifyRoles.NotifyRoles();

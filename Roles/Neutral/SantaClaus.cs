@@ -262,7 +262,8 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
         CustomRoles.InfoPoor,//   というか天邪鬼付与させたいとても(?)
         CustomRoles.Water,
         CustomRoles.Clumsy,
-        CustomRoles.Sunglasses
+        CustomRoles.Sunglasses,
+        CustomRoles.Medicalrecord
     };
     void GiftPresent()
     {

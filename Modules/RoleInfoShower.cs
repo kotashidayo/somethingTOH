@@ -371,6 +371,7 @@ class RoleInfoShower
                                         case CustomRoles.JackalMafia:
                                         case CustomRoles.JackalAlien:
                                         case CustomRoles.JackalWolf:
+                                        //case CustomRoles.JackalHadouHo:
                                             showlist.Add(CustomRoles.Jackal);
                                             break;
                                         case CustomRoles.SwitchSheriff:

@@ -28,7 +28,6 @@ public sealed class PavlovDog : PavlovDogBase
             countType: CountTypes.Pavlov,
             assignInfo: new RoleAssignInfo(CustomRoles.PavlovDog, CustomRoleTypes.Neutral)
             {
-                AssignCountRule = new(1, 1, 1),
                 AssignUnitRoles = [CustomRoles.PavlovOwner]
             },
             from: From.SuperNewRoles

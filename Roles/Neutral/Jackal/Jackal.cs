@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
@@ -24,10 +25,10 @@ namespace TownOfHost.Roles.Neutral
                 (1, 0),
                 true,
                 countType: CountTypes.Jackal,
-                assignInfo: new RoleAssignInfo(CustomRoles.Jackal, CustomRoleTypes.Neutral)
+                /*assignInfo: new RoleAssignInfo(CustomRoles.Jackal, CustomRoleTypes.Neutral)
                 {
                     AssignCountRule = new(1, 1, 1)
-                },
+                },*/
                 from: From.TheOtherRoles,
                 Desc: () =>
                 {
@@ -47,7 +48,6 @@ namespace TownOfHost.Roles.Neutral
             CanUseSabotage = OptionCanUseSabotage.GetBool();
             CanSideKick = OptionCanMakeSidekick.GetBool();
         }
-
         public static OptionItem OptionKillCooldown;
         private static OptionItem OptionCooldown;
         public static OptionItem OptionCanVent;
@@ -100,12 +100,12 @@ namespace TownOfHost.Roles.Neutral
         public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
         public bool UseOneclickButton => CanSideKick;
         public override bool CanUseAbilityButton() => CanSideKick;
-        bool IUsePhantomButton.IsPhantomRole => JackalDoll.GetSideKickCount() > JackalDoll.NowSideKickCount;
+        bool IUsePhantomButton.IsPhantomRole => JackalDoll.GetSideKickCount() > JackalDoll.NowSideKickCount && CanSideKick;
         bool IUsePhantomButton.IsresetAfterKill => false;
         public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
         {
             AdjustKillCooldown = true;
-            if (!CanSideKick) return;
+            if (!CanSideKick || JackalDoll.SidekicknoJackal.Contains(Player.PlayerId)) return;
 
             if (JackalDoll.GetSideKickCount() <= JackalDoll.NowSideKickCount)
             {
@@ -172,7 +172,10 @@ namespace TownOfHost.Roles.Neutral
         public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
         {
             seen ??= seer;
-            if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive() || JackalDoll.GetSideKickCount() <= JackalDoll.NowSideKickCount || !CanSideKick) return "";
+            if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive()
+                || JackalDoll.GetSideKickCount() <= JackalDoll.NowSideKickCount
+                || !CanSideKick
+                || JackalDoll.SidekicknoJackal.Contains(Player.PlayerId)) return "";
 
             if (isForHud) return GetString("PhantomButtonSideKick");
             return $"<size=50%>{GetString("PhantomButtonSideKick")}</size>";

@@ -25,11 +25,12 @@ static class Event
     public static bool GoldenWeek = DateTime.Now.Month == 5 && DateTime.Now.Day is 3 or 4 or 5;
     public static bool April = DateTime.Now.Month == 4 && DateTime.Now.Day is 1 or 2 or 3 or 4 or 5 or 6 or 7 or 8;
     public static bool Tanabata = DateTime.Now.Month == 7 && DateTime.Now.Day is > 6 and < 15;
+    //ハロウィンまで4日しかないからまとめていい気がする。
     public static bool Birthday12 = DateTime.Now.Month == 10 && DateTime.Now.Day is 19 or 20 or 21 or 22 or 23 or 24 or 25 or 26;
     public static bool IsEventDay => IsChristmas || White || IsInitialRelease || IsHalloween || GoldenWeek || April || Birthday12;
     public static bool Special = false;
     public static bool NowRoleEvent => false;
-    public static bool Mpkjyousetu => false;
+    public static bool Mpkjyousetu => DateTime.Now.Year >= 2027;
     public static List<string> OptionLoad = new();
     public static bool IsE(this CustomRoles role) => role is CustomRoles.SpeedStar or CustomRoles.Chameleon or CustomRoles.Fortuner;
     public static bool IsEventRole(CustomRoles role) => EventRoles.ContainsKey(role);
@@ -121,10 +122,10 @@ static class Event
         {CustomRoles.SpeedStar , () => Special},
         {CustomRoles.Chameleon , () => Special},
         */
-        {CustomRoles.Cakeshop , () => Birthday12 || Birthday},
+        {CustomRoles.Cakeshop , () => Birthday12 || Birthday || IsChristmas},
 
-        {CustomRoles.MadPukupuku,() => Birthday12 || Birthday || Mpkjyousetu},
-        {CustomRoles.Sweetgifter,() => IsHalloween},
+        {CustomRoles.MadPukupuku,() => Birthday12 || Mpkjyousetu || IsHalloween},
+        {CustomRoles.Sweetgifter,() => IsHalloween || IsHalloween},
     };
 
     public static Dictionary<(CustomRoles role, bool isApiData), bool> cachedEventFlags = new(EventRoles.Count);
@@ -312,7 +313,7 @@ public sealed class Chameleon : RoleBase, IAdditionalWinner
                 }
             }
         }
-        if (CustomRoles.Jackal.IsPresent() || CustomRoles.JackalAlien.IsPresent() || CustomRoles.JackalMafia.IsPresent() || CustomRoles.JackalWolf.IsPresent())
+        if (CustomRoles.Jackal.IsPresent() || CustomRoles.JackalAlien.IsPresent() || CustomRoles.JackalMafia.IsPresent() || CustomRoles.JackalWolf.IsPresent() || CustomRoles.JackalHadouHo.IsPresent())
             TeamList.Add(CustomRoles.Jackal);
 
         if (CustomRoles.Egoist.IsPresent())
@@ -346,7 +347,7 @@ public sealed class Chameleon : RoleBase, IAdditionalWinner
     {
         if (AmongUsClient.Instance.AmHost is false) return;
         var oldteam = NowTeam;
-        if (!PlayerCatch.AllAlivePlayerControls.Any(p => p.GetCustomRole() is CustomRoles.Jackal or CustomRoles.JackalAlien or CustomRoles.JackalMafia or CustomRoles.JackalWolf))
+        if (!PlayerCatch.AllAlivePlayerControls.Any(p => p.GetCustomRole() is CustomRoles.Jackal or CustomRoles.JackalAlien or CustomRoles.JackalMafia or CustomRoles.JackalWolf or CustomRoles.JackalHadouHo))
             TeamList.Remove(CustomRoles.Jackal);
         if (!PlayerCatch.AllAlivePlayerControls.Any(p => p.GetCustomRole() is CustomRoles.Egoist))
             TeamList.Remove(CustomRoles.Egoist);

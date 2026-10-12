@@ -84,6 +84,7 @@ namespace TownOfHost
                 CustomRoles.Serial or
                 CustomRoles.PlusVote or
                 CustomRoles.Opener or
+                CustomRoles.Medicalrecord or
                 //CustomRoles.AntiTeleporter or
                 CustomRoles.Seeing or
                 CustomRoles.Revenger or
@@ -134,6 +135,7 @@ namespace TownOfHost
                 CustomRoles.Tiebreaker or
                 CustomRoles.MagicHand or
                 CustomRoles.Powerful or
+                CustomRoles.Medicalrecord or
                 CustomRoles.Absorb
                 ;
         }

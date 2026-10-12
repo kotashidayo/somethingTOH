@@ -268,7 +268,7 @@ public sealed class Sweetgifter : RoleBase, IKiller
     }
     public void Otosu(PlayerControl target, PlayerControl killer)
     {
-        if (GameStates.IsMeeting || GameStates.CalledMeeting) return;
+        if (GameStates.IsMeeting || GameStates.CalledMeeting || !CustomRoles.Sweetgifter.IsPresent()) return;
         OkasiPlayers.Remove(target.PlayerId);
         SendRPC();
 

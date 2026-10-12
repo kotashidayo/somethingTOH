@@ -460,7 +460,7 @@ namespace TownOfHost
                 CustomRoles.CountKiller or
                 CustomRoles.Fool or
                 CustomRoles.Altair or
-                CustomRoles.Huntman or                
+                CustomRoles.Huntman or
                 CustomRoles.Eater;
         }
         public static List<PlayerControl> UseTwoIntroPlayers = new()
@@ -471,7 +471,7 @@ namespace TownOfHost
         public static bool IsNeutralKiller(this PlayerControl player)
         {
             if (player.GetRoleClass() is BakeCat bakeCat) return bakeCat.Team is not ISchrodingerCatOwner.TeamType.None;
-
+            if (player.GetRoleClass() is Frust frust) return frust.IsKilled;
 
             return player.GetCustomRole().IsNeutralKiller();
         }
@@ -508,8 +508,8 @@ namespace TownOfHost
                 if (data.GiveAutopsy.GetBool()) check |= !Utils.IsActive(SystemTypes.Comms) || data.AutopsyCanSeeComms.GetBool();
 
             // IDeathReasonSeeable未対応役職はこちら
-            return check     
-            || (seer.Is(CustomRoles.Autopsy) && (!Utils.IsActive(SystemTypes.Comms) || Autopsy.CanUseActiveComms.GetBool()));
+            return check
+            || (seer.Is(CustomRoles.Autopsy) && (!Utils.IsActive(SystemTypes.Comms) || Autopsy.CanUseActiveComms.GetBool())) || seen.Is(CustomRoles.Medicalrecord);
         }
         public static string GetRoleDesc(this PlayerControl player, bool InfoLong = false, bool Intro = false)
         {

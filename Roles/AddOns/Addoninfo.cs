@@ -31,6 +31,7 @@ class AddondataInfo
                 CustomRoles.Moon => "э",
                 CustomRoles.VoteTracker => "∇",
                 CustomRoles.Absorb => "Г",
+                CustomRoles.Medicalrecord => "Ｍ",
                 //デバフ
                 CustomRoles.SlowStarter => "Ｓs",
                 CustomRoles.Notvoter => "Ｖ",
@@ -83,7 +84,7 @@ class AddondataInfo
                     {CustomRoles.Sealer, "#ff1919" },
                     {CustomRoles.SilverBuzzer, "#C0C0C0" },
 
-                    { CustomRoles.Watching, "#800080"},
+                    {CustomRoles.Watching, "#800080"},
                     {CustomRoles.Speeding, "#33ccff"},
                     {CustomRoles.Moon,"#ffff33"},
                     {CustomRoles.Guesser,"#999900"},
@@ -102,6 +103,7 @@ class AddondataInfo
                     {CustomRoles.Powerful , "#f08e39"},
                     {CustomRoles.Stack , "#b55f47"},
                     {CustomRoles.Absorb,"#434981"},
+                    {CustomRoles.Medicalrecord, "#8D9BA6"},
                     //{CustomRoles.AntiTeleporter,"#dea785"},
                     //デバフ
                     { CustomRoles.NonReport,"#006666"},

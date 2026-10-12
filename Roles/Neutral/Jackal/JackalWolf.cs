@@ -26,10 +26,10 @@ public sealed class JackalWolf : RoleBase, ILNKiller, IUsePhantomButton, IDouble
             true,
             from: From.TownOfHost_K,
             countType: CountTypes.Jackal,
-            assignInfo: new RoleAssignInfo(CustomRoles.JackalWolf, CustomRoleTypes.Neutral)
-            {
-                AssignCountRule = new(1, 1, 1)
-            },
+            //assignInfo: new RoleAssignInfo(CustomRoles.JackalWolf, CustomRoleTypes.Neutral)
+            //{
+            //    AssignCountRule = new(1, 1, 1)
+            //},
             AddHaveRole: () => OptionHaveRole.GetRole());
     public JackalWolf(PlayerControl player)
     : base(
@@ -41,6 +41,7 @@ public sealed class JackalWolf : RoleBase, ILNKiller, IUsePhantomButton, IDouble
         CanUseSabotage = OptionCanUseSabotage.GetBool();
         JackalCanAlsoBeExposedToJMafia = OptionJackalCanAlsoBeExposedToJMafia.GetBool();
         JackalMafiaCanAlsoBeExposedToJackal = OptionJJackalMafiaCanAlsoBeExposedToJackal.GetBool();
+        CanSideKick = OptionCanMakeSidekick.GetBool();
     }
     static OptionItem OptionCanVent;
     static OptionItem OptionCanUseSabotage;
@@ -54,17 +55,24 @@ public sealed class JackalWolf : RoleBase, ILNKiller, IUsePhantomButton, IDouble
     public static bool CanUseSabotage;
     public static FilterOptionItem OptionHaveRole; static CustomRoles haverole;
     RoleBase AddRole;
-
+    bool CanSideKick;
     public static bool GetCanUseSabotageOption() => OptionCanUseSabotage?.GetBool() ?? false;
-
+    public static OptionItem OptionCanMakeSidekick;
+    static OptionItem OptionImpostorCanSidekick;
+    //サイドキックが元仲間の色を見える
+    public static OptionItem OptionSidekickCanSeeOldImpostorTeammates;
+    //元仲間impがサイドキック相手の名前の色を見える
+    public static OptionItem OptionImpostorCanSeeNameColor;
+    public static OptionItem OptionSidekickPromotion;
+    private static OptionItem OptionCooldown;
     static CustomRoles[] InvalidRoles()
     {
         List<CustomRoles> InvalidRoles = new();
         foreach (var data in CustomRoleManager.AllRolesInfo)
         {
             if (data.Key.IsImpostor() is false && data.Key is not CustomRoles.NotAssigned) continue;
-            if (data.Key is CustomRoles.AlienHijack /*or CustomRoles.EvilSatellite or CustomRoles.ConnectSaver*/
-            or CustomRoles.Limiter or CustomRoles.Assassin or CustomRoles.Amnesiac or CustomRoles.Driver or CustomRoles.Soulbinder or CustomRoles.Abuser)
+            if (data.Key is CustomRoles.AlienHijack /*or CustomRoles.EvilSatellite or CustomRoles.ConnectSaver
+            or CustomRoles.Limiter*/ or CustomRoles.Assassin or CustomRoles.Amnesiac or CustomRoles.Driver or CustomRoles.Soulbinder or CustomRoles.Abuser or CustomRoles.BeginnerImpostor)
             {
                 InvalidRoles.Add(data.Key);
                 continue;
@@ -74,7 +82,11 @@ public sealed class JackalWolf : RoleBase, ILNKiller, IUsePhantomButton, IDouble
     }
     enum OptionName
     {
-        AssassinHaveRole
+        AssassinHaveRole,
+        JackalImpostorCanSidekick,
+        JackalbeforeImpCanSeeImp,
+        Jackaldollimpgaimpnimieru,
+        JackalSidekickPromotion
     }
     public static void SetupOptionItem()
     {
@@ -86,8 +98,18 @@ public sealed class JackalWolf : RoleBase, ILNKiller, IUsePhantomButton, IDouble
         OptionJJackalCanKillMafia = BooleanOptionItem.Create(RoleInfo, 14, JackalMafia.JackalOption.JackalCanKillMafia, false, false);
         OptionJJackalMafiaCanAlsoBeExposedToJackal = BooleanOptionItem.Create(RoleInfo, 15, JackalMafia.JackalOption.JackalMafiaCanAlsoBeExposedToJackal, false, false);
         OptionJackalCanAlsoBeExposedToJMafia = BooleanOptionItem.Create(RoleInfo, 16, JackalMafia.JackalOption.JackalCanAlsoBeExposedToJMafia, true, false);
+
         ObjectOptionitem.Create(RoleInfo, 24, "AddonOption", true, null).SetOptionName(() => "Sidekick Setting");
-        RoleAddAddons.Create(RoleInfo, 25, NeutralKiller: true);
+        OptionCanMakeSidekick = BooleanOptionItem.Create(RoleInfo, 25, GeneralOption.CanCreateSideKick, true, false);
+        OptionImpostorCanSidekick = BooleanOptionItem.Create(RoleInfo, 26, OptionName.JackalImpostorCanSidekick, false, false, OptionCanMakeSidekick);
+        OptionSidekickCanSeeOldImpostorTeammates = BooleanOptionItem.Create(RoleInfo, 27, OptionName.JackalbeforeImpCanSeeImp, false, false, OptionImpostorCanSidekick);
+        OptionImpostorCanSeeNameColor = BooleanOptionItem.Create(RoleInfo, 28, OptionName.Jackaldollimpgaimpnimieru, false, false, OptionImpostorCanSidekick);
+        OptionCooldown = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false, OptionCanMakeSidekick)
+            .SetValueFormat(OptionFormat.Seconds);
+        OptionSidekickPromotion = BooleanOptionItem.Create(RoleInfo, 19, OptionName.JackalSidekickPromotion, false, false, OptionCanMakeSidekick);
+
+        ObjectOptionitem.Create(RoleInfo, 29, "AddonOption", true, null).SetOptionName(() => "Addon Setting");
+        RoleAddAddons.Create(RoleInfo, 30, NeutralKiller: true);
     }
     public override void Add()
     {
@@ -106,8 +128,8 @@ public sealed class JackalWolf : RoleBase, ILNKiller, IUsePhantomButton, IDouble
         {
             AddRole?.OnDestroy();
         }
-        AddRole = null;
-        haverole = CustomRoles.NotAssigned;
+        //AddRole = null;
+        //haverole = CustomRoles.NotAssigned;
     }
     public override void OnFixedUpdate(PlayerControl player) => AddRole?.OnFixedUpdate(player);
     public override void OnSpawn(bool initialState = false) => AddRole?.OnSpawn(initialState);
@@ -129,6 +151,7 @@ public sealed class JackalWolf : RoleBase, ILNKiller, IUsePhantomButton, IDouble
     public override void ApplyGameOptions(IGameOptions opt)
     {
         opt.SetVision(OptionHasImpostorVision.GetBool());
+        AURoleOptions.PhantomCooldown = JackalDoll.GetSideKickCount() <= JackalDoll.NowSideKickCount ? 200f : OptionCooldown.GetFloat();
         AddRole?.ApplyGameOptions(opt);
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)
@@ -166,7 +189,7 @@ public sealed class JackalWolf : RoleBase, ILNKiller, IUsePhantomButton, IDouble
     => AddRole?.OverrideProgressTextAsSeen(seer, ref enabled, ref text);
     public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
-        if ((seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia) || seen.Is(CustomRoles.JackalAlien) || seen.Is(CustomRoles.JackalWolf)) && JackalMafiaCanAlsoBeExposedToJackal)
+        if ((seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia) || seen.Is(CustomRoles.JackalAlien) || seen.Is(CustomRoles.JackalWolf) || seen.Is(CustomRoles.JackalHadouHo) || seen.Is(CustomRoles.Tama)) && JackalMafiaCanAlsoBeExposedToJackal)
         {
             enabled = true;
             addon = false;
@@ -175,7 +198,7 @@ public sealed class JackalWolf : RoleBase, ILNKiller, IUsePhantomButton, IDouble
     }
     public override void OverrideDisplayRoleNameAsSeen(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
-        if ((seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia) || seen.Is(CustomRoles.JackalAlien) || seen.Is(CustomRoles.JackalWolf)) && JackalCanAlsoBeExposedToJMafia)
+        if ((seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia) || seen.Is(CustomRoles.JackalAlien) || seen.Is(CustomRoles.JackalWolf) || seen.Is(CustomRoles.JackalHadouHo) || seen.Is(CustomRoles.Tama)) && JackalCanAlsoBeExposedToJMafia)
         {
             enabled = true;
             addon = false;
@@ -211,7 +234,7 @@ public sealed class JackalWolf : RoleBase, ILNKiller, IUsePhantomButton, IDouble
     public bool CanUseImpostorVentButton() => CanVent && (AddRole is IKiller killer ? killer.CanUseImpostorVentButton() : true);
     public void OnCheckMurderAsKiller(MurderInfo info) { if (AddRole is IKiller killer) killer.OnCheckMurderAsKiller(info); }
     public void OnCheckMurderDontKill(MurderInfo info) { if (AddRole is IKiller killer) killer.OnCheckMurderDontKill(info); }
-    public void OnMurderPlayerAsKiller(MurderInfo info) { if (AddRole is IKiller killer) killer.OnCheckMurderAsKiller(info); }
+    public void OnMurderPlayerAsKiller(MurderInfo info) { if (AddRole is IKiller killer) killer.OnMurderPlayerAsKiller(info); }
     public bool OverrideKillButtonText(out string text)
     {
         if ((AddRole as IKiller)?.OverrideKillButtonText(out var killbuttontext) is true)
@@ -254,9 +277,9 @@ public sealed class JackalWolf : RoleBase, ILNKiller, IUsePhantomButton, IDouble
         }
     }
     public ISchrodingerCatOwner.TeamType SchrodingerCatChangeTo => ISchrodingerCatOwner.TeamType.Jackal;
-    bool IUsePhantomButton.IsPhantomRole => AddRole is IUsePhantomButton iusephantom && iusephantom?.IsPhantomRole is true;
-    bool IUsePhantomButton.UseOneclickButton => AddRole is IUsePhantomButton iusephantom && iusephantom?.UseOneclickButton is true;
-    bool IUsePhantomButton.IsresetAfterKill => AddRole is IUsePhantomButton iusephantom && iusephantom.IsresetAfterKill;
+    bool IUsePhantomButton.IsPhantomRole => AddRole is IUsePhantomButton iusephantom ? iusephantom?.IsPhantomRole is true : JackalDoll.GetSideKickCount() > JackalDoll.NowSideKickCount && CanSideKick;
+    bool IUsePhantomButton.UseOneclickButton => AddRole is IUsePhantomButton iusephantom ? iusephantom?.UseOneclickButton is true : CanSideKick;
+    bool IUsePhantomButton.IsresetAfterKill => AddRole is IUsePhantomButton iusephantom ? iusephantom.IsresetAfterKill : false;
     public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
         if (AddRole is IUsePhantomButton iusephantom)

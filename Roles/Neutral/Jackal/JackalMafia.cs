@@ -26,10 +26,10 @@ namespace TownOfHost.Roles.Neutral
                 (1, 2),
                 true,
                 countType: CountTypes.Jackal,
-                assignInfo: new RoleAssignInfo(CustomRoles.JackalMafia, CustomRoleTypes.Neutral)
-                {
-                    AssignCountRule = new(1, 1, 1)
-                },
+                //assignInfo: new RoleAssignInfo(CustomRoles.JackalMafia, CustomRoleTypes.Neutral)
+                //{
+                //    AssignCountRule = new(1, 1, 1)
+                //},
                 Desc: () =>
                 {
                     return GetString("JackalMafiaInfoLong") + (OptionCanMakeSidekick.GetBool() ? string.Format(GetString("JackalDescSidekick"), !OptionImpostorCanSidekick.GetBool() ? GetString("JackalDescImpostorSideKick") : "") : "");
@@ -51,7 +51,11 @@ namespace TownOfHost.Roles.Neutral
             JackalMafiaCanAlsoBeExposedToJackal = OptionJJackalMafiaCanAlsoBeExposedToJackal.GetBool();
             CanSideKick = OptionCanMakeSidekick.GetBool();
         }
-
+        public override void Add()
+        {
+            CanSideKick = OptionCanMakeSidekick.GetBool()
+              && !JackalDoll.SidekicknoJackal.Contains(Player.PlayerId);
+        }
         public static OptionItem OptionKillCooldown;
         private static OptionItem OptionCooldown;
         public static OptionItem OptionCanVent;
@@ -118,12 +122,12 @@ namespace TownOfHost.Roles.Neutral
         public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
         public bool UseOneclickButton => CanSideKick;
         public override bool CanUseAbilityButton() => CanSideKick;
-        bool IUsePhantomButton.IsPhantomRole => JackalDoll.GetSideKickCount() > JackalDoll.NowSideKickCount;
+        bool IUsePhantomButton.IsPhantomRole => JackalDoll.GetSideKickCount() > JackalDoll.NowSideKickCount && CanSideKick;
         bool IUsePhantomButton.IsresetAfterKill => false;
         public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
         {
             AdjustKillCooldown = true;
-            if (!CanSideKick) return;
+            if (!CanSideKick || JackalDoll.SidekicknoJackal.Contains(Player.PlayerId)) return;
 
             if (JackalDoll.GetSideKickCount() <= JackalDoll.NowSideKickCount)
             {
@@ -173,7 +177,7 @@ namespace TownOfHost.Roles.Neutral
             foreach (var pc in PlayerCatch.AllAlivePlayerControls)
             {
                 if (pc.PlayerId == Player.PlayerId) continue;
-                if (pc.Is(CountTypes.Jackal)) livingImpostorsNum++;
+                if (pc.Is(CountTypes.Jackal) && !pc.Is(CustomRoles.Jackaldoll) /*&& !pc.Is(CustomRoles.Jackaldoll)*/) livingImpostorsNum++;
             }
             return livingImpostorsNum <= 0;
         }
@@ -190,13 +194,13 @@ namespace TownOfHost.Roles.Neutral
         public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
         {
             addon = false;
-            if ((seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia) || seen.Is(CustomRoles.JackalAlien) || seen.Is(CustomRoles.JackalWolf)) && JackalMafiaCanAlsoBeExposedToJackal)
+            if ((seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia) || seen.Is(CustomRoles.JackalAlien) || seen.Is(CustomRoles.JackalWolf) || seen.Is(CustomRoles.JackalHadouHo) || seen.Is(CustomRoles.Tama)) && JackalMafiaCanAlsoBeExposedToJackal)
                 enabled = true;
         }
         public override void OverrideDisplayRoleNameAsSeen(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
         {
             addon = false;
-            if ((seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia) || seen.Is(CustomRoles.JackalAlien) || seen.Is(CustomRoles.JackalWolf)) && JackalCanAlsoBeExposedToJMafia)
+            if ((seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia) || seen.Is(CustomRoles.JackalAlien) || seen.Is(CustomRoles.JackalWolf) || seen.Is(CustomRoles.JackalHadouHo) || seen.Is(CustomRoles.Tama)) && JackalCanAlsoBeExposedToJMafia)
                 enabled = true;
         }
         public override string GetAbilityButtonText() => GetString("Sidekick");
@@ -209,7 +213,9 @@ namespace TownOfHost.Roles.Neutral
         {
             seen ??= seer;
             if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive()
-            || JackalDoll.GetSideKickCount() <= JackalDoll.NowSideKickCount || !CanSideKick) return "";
+                || JackalDoll.GetSideKickCount() <= JackalDoll.NowSideKickCount
+                || !CanSideKick
+                || JackalDoll.SidekicknoJackal.Contains(Player.PlayerId)) return "";
 
             if (isForHud) return GetString("PhantomButtonSideKick");
             return $"<size=50%>{GetString("PhantomButtonSideKick")}</size>";

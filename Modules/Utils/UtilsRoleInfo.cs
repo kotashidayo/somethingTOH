@@ -87,6 +87,7 @@ namespace TownOfHost
                 roleCommands.Add(CustomRoles.MagicHand, "MaH");
                 roleCommands.Add(CustomRoles.Powerful, "pf");
                 roleCommands.Add(CustomRoles.Absorb, "Abs");
+                roleCommands.Add(CustomRoles.Medicalrecord, "Mdr");
 
                 //デバフ
                 roleCommands.Add(CustomRoles.SlowStarter, "sl");

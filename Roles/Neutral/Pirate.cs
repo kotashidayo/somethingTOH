@@ -89,6 +89,7 @@ public sealed class Pirate : RoleBase, IKiller
         CustomRoles.Sunglasses,
         CustomRoles.Elector,
         CustomRoles.Water,
+        CustomRoles.Medicalrecord,
     ];
 
     public static readonly CustomRoles[] RemoveAddon =

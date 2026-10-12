@@ -335,6 +335,9 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
     }
     public static void Color(PlayerControl player)
     {
+        if (player == null || player.Data == null) return;
+        if (DecoloredPlayers == null || !CustomRoles.Decolor.IsPresent()) return;
+
         var id = player.PlayerId;
         DecoloredPlayers.Remove(id);
         if (!player.IsAlive())

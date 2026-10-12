@@ -37,6 +37,7 @@ class GhostRoleCore
         Guarding.Init();
         Connecting.Init();
         Opener.Init();
+        Medicalrecord.Init();
         //AntiTeleporter.Init();
         Moon.Init();
         Tiebreaker.Init();
@@ -102,6 +103,7 @@ class GhostRoleCore
         Management.SetupCustomOption();
         Seeing.SetupCustomOption();
         Opener.SetupCustomOption();
+        Medicalrecord.SetupCustomOption();
         //AntiTeleporter.SetupCustomOption();
         Lighting.SetupCustomOption();
         Moon.SetupCustomOption();

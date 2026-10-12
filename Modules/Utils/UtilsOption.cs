@@ -750,6 +750,7 @@ namespace TownOfHost
             if (player.Is(CustomRoles.Seeing)) SendMessage(GetAddonsHelp(CustomRoles.Seeing), player.PlayerId, AddRoleInfoTitle);
             if (player.Is(CustomRoles.Lighting)) SendMessage(GetAddonsHelp(CustomRoles.Lighting), player.PlayerId, AddRoleInfoTitle);
             if (player.Is(CustomRoles.Moon)) SendMessage(GetAddonsHelp(CustomRoles.Moon), player.PlayerId, AddRoleInfoTitle);
+            if (player.Is(CustomRoles.Medicalrecord)) SendMessage(GetAddonsHelp(CustomRoles.Medicalrecord), player.PlayerId, AddRoleInfoTitle);
 
             //デバフ
             if (player.Is(CustomRoles.News)) SendMessage(GetAddonsHelp(CustomRoles.News), player.PlayerId, AddRoleInfoTitle);
@@ -818,6 +819,8 @@ namespace TownOfHost
                 CustomRoles.Seeing => AddonInfo(role, "☯", From.TownOfHost_Y),
                 CustomRoles.Lighting => AddonInfo(role, "＊", From.TownOfHost_Y),
                 CustomRoles.Moon => AddonInfo(role, "э"),
+                CustomRoles.Medicalrecord => AddonInfo(role, "Ｍ"),
+
                 //デバフ
                 CustomRoles.Amnesia => AddonInfo(role),
                 CustomRoles.SlowStarter => AddonInfo(role, "Ｓs"),
@@ -996,10 +999,15 @@ namespace TownOfHost
                 case From.Love_Couple_Mod: Fromtext += "<#ff6be4>Love Couple Mod</color>"; break;
                 case From.UchuAddon: Fromtext += "<#0065f4>Uchu Addon</color>"; break;
             }
-            if (role is CustomRoles.MadSuicide) Fromtext += "  <#000000>(<#ff1919>崇拝者</color>)</color>";
-            if (role is CustomRoles.BoostLighter) Fromtext += "  <#000000>(<#eee5be>ライター</color>)</color>";
-            if (role is CustomRoles.Juggler) Fromtext += "  <#000000>(<#ff1919>カモフラージャー</color>)</color>";
-            if (role is CustomRoles.Decolor) Fromtext += "  <#000000>(<#ffff00>シトラス</color>)</color>";
+            var camo = GetString("Camouflager");
+            var lig = GetString("Lighter");
+            var cit = GetString("Citrus");
+            var suuhai = GetString("Worshiper");
+
+            if (role is CustomRoles.MadSuicide) Fromtext += $"  <#000000>(<#ff1919>{suuhai}</color>)</color>";
+            if (role is CustomRoles.BoostLighter) Fromtext += $"  <#000000>(<#eee5be>{lig}</color>)</color>";
+            if (role is CustomRoles.Juggler) Fromtext += $"  <#000000>(<#ff1919>{camo}</color>)</color>";
+            if (role is CustomRoles.Decolor) Fromtext += $"  <#000000>(<#ffff00>{cit}</color>)</color>";
 
             return Fromtext;
         }

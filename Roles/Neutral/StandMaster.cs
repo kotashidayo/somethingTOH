@@ -100,6 +100,7 @@ public sealed class StandMaster : RoleBase, ILNKiller, IUsePhantomButton
         CustomRoles.Sunglasses,
         CustomRoles.Elector,
         CustomRoles.Water,
+        CustomRoles.Medicalrecord,
     ];
 
     public static readonly CustomRoles[] DebuffAddons =

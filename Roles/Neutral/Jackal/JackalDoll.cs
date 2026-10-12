@@ -49,11 +49,12 @@ public sealed class JackalDoll : RoleBase
         () => HasTask.False
     )
     {
-        BossAndSidekicks.Clear();
+        //BossAndSidekicks.Clear();
         CanPromotion = false;
         ExiledPlayerInfo = null;
         ApplyJackalKillerCount();
     }
+    public static HashSet<byte> SidekicknoJackal = new();
     static OptionItem OptionJackaldieMode;
     static OptionItem OptionCountAsJackalKiller;
     static OptionItem OptionCountAsKillerOnlyWhenPromotionEnabled;
@@ -81,6 +82,13 @@ public sealed class JackalDoll : RoleBase
     };
     public static int NowSideKickCount;
     bool CanPromotion;
+    [Attributes.PluginModuleInitializer]
+    public static void ResetAll()
+    {
+        BossAndSidekicks.Clear();
+        SidekicknoJackal.Clear();
+        NowSideKickCount = 0;
+    }
     /// <summary>
     /// key→Sidekick
     /// Va→Owner
@@ -98,13 +106,14 @@ public sealed class JackalDoll : RoleBase
         || (CustomRoles.JackalMafia.IsEnable() && JackalMafia.OptionCanMakeSidekick.GetBool())
         || (CustomRoles.JackalWolf.IsEnable() && JackalWolf.OptionHaveRole.GetRole().CanMakeMadmate()))
         {
-            // 0%以上なら確認する。
+            /*// 0%以上なら確認する。
             if (Options.GetRoleChance(CustomRoles.Jackaldoll) > 0)
             {
                 return OptionSideKickMaxmim.GetInt();
             }
             // 0%でサイドキックあり得るなら1は返してあげる。
-            return 1;
+            return 1;*/
+            return OptionSideKickMaxmim.GetInt();
         }
         else return 0;
     }
@@ -292,7 +301,7 @@ public sealed class JackalDoll : RoleBase
 
         var id = ExiledPlayerInfo?.PlayerId ?? byte.MaxValue;
 
-        if (PlayerCatch.AllAlivePlayerControls.Any(x => (x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia) || x.Is(CustomRoles.JackalAlien) || x.Is(CustomRoles.JackalWolf) || BossAndSidekicks.ContainsKey(x.PlayerId)) && x.PlayerId != id)) return;
+        if (PlayerCatch.AllAlivePlayerControls.Any(x => (x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia) || x.Is(CustomRoles.JackalAlien) || x.Is(CustomRoles.JackalWolf) || x.Is(CustomRoles.JackalHadouHo)  || BossAndSidekicks.ContainsKey(x.PlayerId)) && x.PlayerId != id)) return;
 
         foreach (var Jd in PlayerCatch.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll) && !BossAndSidekicks.ContainsKey(x.PlayerId)))
         {
@@ -338,6 +347,8 @@ public sealed class JackalDoll : RoleBase
                 MyState.SetCountType(CountTypes.Jackal);
                 CanPromotion = true;
                 if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
+                SidekicknoJackal.Add(Player.PlayerId);
+                SendNoJackal(Player.PlayerId);
                 player.RpcSetCustomRole(data.Ownerrole, true, log: null);
 
                 //徒党が存在していて、ジャッカルの徒党がON
@@ -382,20 +393,40 @@ public sealed class JackalDoll : RoleBase
         if (seen.Is(CountTypes.Jackal))
             enabled = true;
     }
-
+    enum RPC_type
+    {
+        SetSidekick,
+        SyncNoJackal,
+    }
     public void SetSidekick(byte ownerId, CustomRoles ownerRole)
     {
         using var sender = CreateSender();
+        sender.Writer.Write((byte)RPC_type.SetSidekick);
         sender.Writer.Write(NowSideKickCount);
         sender.Writer.Write(ownerId);
         sender.Writer.Write((int)ownerRole);
     }
 
+    private void SendNoJackal(byte Playerid)
+    {
+        using var sender = CreateSender();
+        sender.Writer.Write((byte)RPC_type.SyncNoJackal);
+        sender.Writer.Write(Playerid);
+    }
+
     public override void ReceiveRPC(MessageReader reader)
     {
-        NowSideKickCount = reader.ReadInt32();
-        var ownerId = reader.ReadByte();
-        var ownerRole = (CustomRoles)reader.ReadInt32();
-        BossAndSidekicks[Player.PlayerId] = (ownerId, ownerRole);
+        switch ((RPC_type)reader.ReadByte())
+        {
+            case RPC_type.SetSidekick:
+                NowSideKickCount = reader.ReadInt32();
+                var ownerId = reader.ReadByte();
+                var ownerRole = (CustomRoles)reader.ReadInt32();
+                BossAndSidekicks[Player.PlayerId] = (ownerId, ownerRole);
+                break;
+            case RPC_type.SyncNoJackal:
+                SidekicknoJackal.Add(reader.ReadByte());
+                break;
+        }
     }
 }

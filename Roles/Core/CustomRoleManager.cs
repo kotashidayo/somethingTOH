@@ -846,6 +846,7 @@ CustomDeathReason deathReason = CustomDeathReason.Kill)
                 case CustomRoles.MagicHand: MagicHand.Add(pc.PlayerId); break;
                 case CustomRoles.Powerful: Powerful.Add(pc.PlayerId); break;
                 case CustomRoles.Absorb: Absorb.Add(pc.PlayerId); break;
+                case CustomRoles.Medicalrecord: Medicalrecord.Add(pc.PlayerId); break;
 
                 case CustomRoles.SlowStarter: SlowStarter.Add(pc.PlayerId); break;
                 case CustomRoles.Notvoter: Notvoter.Add(pc.PlayerId); break;
@@ -1483,6 +1484,7 @@ public enum CustomRoles
     Opener,
     Powerful,
     Stack,
+    Medicalrecord,
     //AntiTeleporter,
     Seeing,
     Lighting,

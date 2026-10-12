@@ -180,6 +180,7 @@ namespace TownOfHost
                         case CustomRoles.Moon: sb.Append(Moon.SubRoleMark); break;
                         case CustomRoles.Powerful: sb.Append(Powerful.SubRoleMark); break;
                         case CustomRoles.Absorb: sb.Append(Absorb.SubRoleMark); break;
+                        case CustomRoles.Medicalrecord: sb.Append(Medicalrecord.SubRoleMark); break;
                         //デバフ
                         case CustomRoles.SlowStarter: sb.Append(SlowStarter.SubRoleMark); break;
                         case CustomRoles.NonReport: sb.Append(NonReport.SubRoleMark); break;
