@@ -37,12 +37,14 @@ namespace TownOfHost.Roles.Neutral
 
         private static OptionItem OptionKillCooldown;
         private static OptionItem OptionKillAnimation;
+        static OptionItem CanSeeteammate;
         private byte ReamoteTargetId;
         private static float KillCooldown;
 
         enum OptionName
         {
-            KillAnimation
+            KillAnimation,
+            StandMasterCanSeeOtherStand
         }
 
         private static void SetupOptionItem()
@@ -51,15 +53,24 @@ namespace TownOfHost.Roles.Neutral
             OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
             OptionKillAnimation = BooleanOptionItem.Create(RoleInfo, 11, OptionName.KillAnimation, true, false);
-            RoleAddAddons.Create(RoleInfo, 12, NeutralKiller: true);
+            CanSeeteammate = BooleanOptionItem.Create(RoleInfo, 12, OptionName.StandMasterCanSeeOtherStand, true, false);
+            RoleAddAddons.Create(RoleInfo, 13, NeutralKiller: true);
         }
         public ISchrodingerCatOwner.TeamType SchrodingerCatChangeTo => ISchrodingerCatOwner.TeamType.Remotekiller;
         public float CalculateKillCooldown() => KillCooldown;
         public override bool OnInvokeSabotage(SystemTypes systemType) => false;
-
+        public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
+        {
+            addon = false;
+            if (seen.GetCustomRole() is CustomRoles.Remotekiller && CanSeeteammate.GetBool())
+            {
+                roleText = GetString("Remotekiller");
+                enabled = true;
+            }
+        }
         public void OnCheckMurderAsKiller(MurderInfo info)
         {
-            if (!info.CanKill) return; //キル出来ない相手には無効
+            if (!info.CanKill || (info.AttemptTarget.GetCustomRole() is CustomRoles.Remotekiller && CanSeeteammate.GetBool())) return; //キル出来ない相手には無効
             var (killer, target) = info.AttemptTuple;
 
             if (info.IsFakeSuicide) return;
@@ -94,12 +105,16 @@ namespace TownOfHost.Roles.Neutral
                 {
                     _ = new LateTask(() =>
                     {
-                        CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 10);
+                        var pos = target.transform.position;
+                        if (CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 1))
+                        {
+                            Player.RpcSnapToForced(pos);
+                        }
                     }, 1.2f);
                 }
                 else
                 {
-                    CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 10);
+                    CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 1);
                 }
 
                 RPC.PlaySoundRPC(user.PlayerId, Sounds.KillSound);

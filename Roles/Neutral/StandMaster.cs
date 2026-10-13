@@ -28,10 +28,10 @@ public sealed class StandMaster : RoleBase, ILNKiller, IUsePhantomButton
             (6, 4),
             true,
             countType: CountTypes.StandMaster,
-            assignInfo: new RoleAssignInfo(CustomRoles.StandMaster, CustomRoleTypes.Neutral)
+            /*assignInfo: new RoleAssignInfo(CustomRoles.StandMaster, CustomRoleTypes.Neutral)
             {
                 AssignCountRule = new(1, 1, 1)
-            },
+            },*/
             from: From.TownOfHost_Pko
         );
 
@@ -58,7 +58,7 @@ public sealed class StandMaster : RoleBase, ILNKiller, IUsePhantomButton
     static OptionItem OptionAddonGiveToMaster;
     static OptionItem OptionAddonAllowDebuff;
     static OptionItem OptionStandDeathGrantsKill;
-
+    public static OptionItem CanSeeOtherStand;
     public static float SummonCooldown;
     public static float StandStayTime;
     public static float KillCooldown_;
@@ -80,6 +80,7 @@ public sealed class StandMaster : RoleBase, ILNKiller, IUsePhantomButton
         StandEnableTaskAddon,
         StandAddonGiveToMaster,
         StandAddonAllowDebuff,
+        StandMasterCanSeeOtherStand
     }
 
     public static readonly CustomRoles[] BuffAddons =
@@ -136,6 +137,7 @@ public sealed class StandMaster : RoleBase, ILNKiller, IUsePhantomButton
             RoleInfo, 13, OptionName.StandMasterStandDeathGrantsKill, false, false);
         OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 18, OptionName.StandMasterKillCooldown,
             new(0f, 60f, 2.5f), 30f, false).SetValueFormat(OptionFormat.Seconds);
+        CanSeeOtherStand = BooleanOptionItem.Create(RoleInfo, 19, OptionName.StandMasterCanSeeOtherStand, true, false);
 
         OptionStandImpostorVision = BooleanOptionItem.Create(
             RoleInfo, 14, OptionName.StandImpostorVision, false, false);
@@ -185,14 +187,29 @@ public sealed class StandMaster : RoleBase, ILNKiller, IUsePhantomButton
         ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
         addon = false;
-        if (standPlayerId != byte.MaxValue && seen.PlayerId == standPlayerId) enabled = true;
+        if ((standPlayerId != byte.MaxValue && seen.PlayerId == standPlayerId) || (CanSeeOtherStand.GetBool() && seen.GetCustomRole() is CustomRoles.StandMaster or CustomRoles.Stand))
+        {
+            if (seen.Is(CustomRoles.StandMaster))
+            {
+                roleText = GetString("StandMaster");
+            }
+            else
+            {
+                roleText = GetString("Stand");
+            }
+            enabled = true;
+        }
     }
 
     public override void OverrideDisplayRoleNameAsSeen(PlayerControl seer,
         ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
         addon = false;
-        if (standPlayerId != byte.MaxValue && seer.PlayerId == standPlayerId) enabled = true;
+        if (standPlayerId != byte.MaxValue && seer.PlayerId == standPlayerId)
+        {
+            roleText = GetString("StandMaster");
+            enabled = true;
+        }
     }
 
     public override string MeetingAddMessage()
@@ -246,6 +263,12 @@ public sealed class StandMaster : RoleBase, ILNKiller, IUsePhantomButton
     public void OnCheckMurderAsKiller(MurderInfo info)
     {
         var (killer, target) = info.AttemptTuple;
+
+        if (target.GetCustomRole() is CustomRoles.Stand or CustomRoles.StandMaster && CanSeeOtherStand.GetBool())
+        {
+            info.DoKill = false;
+            return;
+        }
 
         if (!standCreated && !standHadDied)
         {
@@ -520,7 +543,6 @@ public sealed class Stand : RoleBase, ILNKiller
     bool isFollowingDeath;
 
     public void SetOwner(byte ownerId) { OwnerId = ownerId; SendRPC(); }
-
     public StandMaster GetOwner()
     {
         if (OwnerId == byte.MaxValue) return null;
@@ -539,14 +561,28 @@ public sealed class Stand : RoleBase, ILNKiller
         ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
         addon = false;
-        if (OwnerId != byte.MaxValue && seen.PlayerId == OwnerId) enabled = true;
+        if ((OwnerId != byte.MaxValue && seen.PlayerId == OwnerId) || (StandMaster.CanSeeOtherStand.GetBool() && seen.GetCustomRole() is CustomRoles.StandMaster or CustomRoles.Stand))
+        {
+            if (seen.Is(CustomRoles.StandMaster))
+            {
+                roleText = GetString("StandMaster");
+            }
+            else
+            {
+                roleText = GetString("Stand");
+            }
+            enabled = true;
+        }
     }
-
     public override void OverrideDisplayRoleNameAsSeen(PlayerControl seer,
         ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
         addon = false;
-        if (OwnerId != byte.MaxValue && seer.PlayerId == OwnerId) enabled = true;
+        if (OwnerId != byte.MaxValue && seer.PlayerId == OwnerId)
+        {
+            roleText = GetString("Stand");
+            enabled = true;
+        }
     }
 
     public override bool OnCheckMurderAsTarget(MurderInfo info)
@@ -559,7 +595,7 @@ public sealed class Stand : RoleBase, ILNKiller
         (var killer, var target) = info.AttemptTuple;
         if (killer.PlayerId == target.PlayerId) return true;
 
-        info.GuardPower = 1;
+        info.GuardPower = 9;
 
         if (!sm.isRevealed) { sm.isRevealed = true; sm.SyncState(); }
         return true;

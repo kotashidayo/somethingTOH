@@ -193,7 +193,7 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
             {
                 var position = target.transform.position;
                 target.RpcSnapToForced(new Vector2(9999f, 9999f));
-                target.RpcMurderPlayer(target, true);
+                CustomRoleManager.OnCheckMurder(Player, target, target, target, Killpower: 3);
                 _ = new LateTask(() => target.RpcSnapToForced(position), 0.5f);
             }
             else

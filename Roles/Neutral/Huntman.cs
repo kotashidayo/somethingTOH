@@ -76,6 +76,7 @@ namespace TownOfHost.Roles.Neutral
         public static OptionItem OptionSpeedBoostTime;
         public static FloatOptionItem optionDarkenDuration;
         public static OptionItem OptionDarkenRange;
+        static OptionItem CanSeeteammate;
 
         private PlayerControl[] darkenedPlayers;
 
@@ -85,7 +86,8 @@ namespace TownOfHost.Roles.Neutral
             HuntmanSpeedBoostTime,
             HuntmanSpeedBoost,
             StealthDarkenDuration,
-            HuntmanDarkenRange
+            HuntmanDarkenRange,
+            StandMasterCanSeeOtherStand
         }
 
         private static void SetupOptionItem()
@@ -94,6 +96,7 @@ namespace TownOfHost.Roles.Neutral
             OptionCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 40f, false).SetValueFormat(OptionFormat.Seconds);
             OptionCanVent = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanVent, true, false);
             OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.ImpostorVision, true, false);
+            CanSeeteammate = BooleanOptionItem.Create(RoleInfo, 18, OptionName.StandMasterCanSeeOtherStand, true, false);
             OptionchangeColorTime = FloatOptionItem.Create(RoleInfo, 13, OptionName.HuntmanchangeColorTime,
                 new(0f, 180f, 0.5f), 7.5f, false).SetValueFormat(OptionFormat.Seconds);
             OptionSpeedBoostTime = FloatOptionItem.Create(RoleInfo, 14, OptionName.HuntmanSpeedBoostTime,
@@ -106,7 +109,15 @@ namespace TownOfHost.Roles.Neutral
                 .SetValueFormat(OptionFormat.Multiplier);
             RoleAddAddons.Create(RoleInfo, 20, NeutralKiller: true);
         }
-
+        public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
+        {
+            addon = false;
+            if (seen.GetCustomRole() is CustomRoles.Huntman && CanSeeteammate.GetBool())
+            {
+                roleText = GetString("Huntman");
+                enabled = true;
+            }
+        }
         public float CalculateKillCooldown() => 0f;
         public bool CanUseSabotageButton() => false;
         public bool CanUseImpostorVentButton() => CanVent;
@@ -278,6 +289,7 @@ namespace TownOfHost.Roles.Neutral
             animate = false;
             if (!targeted)
             {
+                if (target.Is(CustomRoles.Huntman) && CanSeeteammate.GetBool()) return false;
                 if (target.IsAlive())
                 {
                     KillWaitPlayer = target;

@@ -221,20 +221,6 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
     {
         if (GameStates.IsInGame && IsDouseDone(Player) && !Optionfire.GetBool())
         {
-            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
-            {
-                if (pc.PlayerId != Player.PlayerId)
-                {
-                    //生存者は焼殺
-                    pc.SetRealKiller(Player);
-                    pc.RpcMurderPlayer(pc);
-                    var state = PlayerState.GetByPlayerId(pc.PlayerId);
-                    state.DeathReason = CustomDeathReason.Torched;
-                    state.SetDead();
-                }
-                else
-                    RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);
-            }
             if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Arsonist, Player.PlayerId))
             {
                 CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
@@ -243,6 +229,33 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
             return false;
         }
         return OptionCanUseVent.GetBool();
+    }
+    void Fire()
+    {
+        //勝った時しかダメ！！！
+        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+        {
+            //テロは勝っちゃうからだめ
+            if (pc.GetCustomRole() is CustomRoles.Terrorist) continue;
+            if (pc.PlayerId != Player.PlayerId)
+            {
+                //生存者は焼殺
+                pc.SetRealKiller(Player);
+                pc.RpcMurderPlayer(pc);
+                var state = PlayerState.GetByPlayerId(pc.PlayerId);
+                state.DeathReason = CustomDeathReason.Torched;
+                state.SetDead();
+            }
+            else
+                RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);
+        }
+    }
+    public override void CheckWinner(GameOverReason reason)
+    {
+        if (CustomWinnerHolder.WinnerTeam is CustomWinner.Arsonist)
+        {
+            Fire();
+        }
     }
     public bool OverrideKillButtonText(out string text)
     {

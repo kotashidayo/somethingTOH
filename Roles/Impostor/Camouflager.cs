@@ -14,7 +14,8 @@ namespace TownOfHost.Roles.Impostor;
 
 public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
 {
-    public static readonly SimpleRoleInfo RoleInfo = SimpleRoleInfo.Create(
+    public static readonly SimpleRoleInfo RoleInfo =
+        SimpleRoleInfo.Create(
         typeof(Camouflager),
         player => new Camouflager(player),
         CustomRoles.Camouflager,
@@ -33,22 +34,27 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
     private static OptionItem OptionAblitytime;
     private static OptionItem OptionKoufuka;
     public static bool NowUse { get; set; }
+    bool Use;
 
     private float _limit;
     private readonly List<byte> _ventPlayers = new();
-    byte id;
+    public static byte id;
 
     private enum OptionName
     {
         CamoKoufuka,
         GhostNoiseSenderTime 
     }
-
+    public override void Add()
+    {
+        Use = false;
+    }
     public Camouflager(PlayerControl player) : base(RoleInfo, player)
     {
         NowUse = false;
         _limit = -50;
         _ventPlayers.Clear();
+        Use = false;
     }
 
     private static void SetupOptionItem()
@@ -94,12 +100,24 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
         if (NowUse) return;
         SetCamouflage(true);
     }
-    void SetCamouflage(bool active)
+    public void SetCamouflage(bool active, PlayerControl nottarget = null, bool totyu = false)
     {
         if (active)
         {
-            if (NowUse) return;
-            var dummy = PlayerCatch.AllAlivePlayerControls.FirstOrDefault(pc => pc != null) ?? PlayerCatch.GetPlayerById(1);
+            if (NowUse && !totyu) return;
+            if (totyu && !Use) return;
+            Use = true;
+            PlayerControl dummy;
+            if (nottarget != null)
+            {
+                dummy = PlayerCatch.AllAlivePlayerControls.FirstOrDefault(pc => pc != null && pc != nottarget) ?? PlayerCatch.GetPlayerById(1);
+                Camouflage.RpcSetSkin(nottarget);
+            }
+            else
+            {
+                dummy = PlayerCatch.AllAlivePlayerControls.FirstOrDefault(pc => pc != null) ?? PlayerCatch.GetPlayerById(1);
+            }
+            if (dummy == null) return;
             id = dummy.PlayerId;
             SendRPC();
             foreach (var p in PlayerCatch.AllAlivePlayerControls)
@@ -136,18 +154,21 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
                     senderat.SendMessage();
                 }
             }
-
-            _limit = OptionAblitytime.GetFloat();
-            NowUse = true;
-            Player.RpcResetAbilityCooldown(log: false, Sync: true);
-
-            _ = new LateTask(() =>
+            if (!totyu)
             {
-                UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-            }, 0.2f, "", true);
+                _limit = OptionAblitytime.GetFloat();
+                NowUse = true;
+                Player.RpcResetAbilityCooldown(log: false, Sync: true);
+
+                _ = new LateTask(() =>
+                {
+                    UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
+                }, 0.2f, "", true);
+            }
         }
         else
         {
+            Use = false;
             _limit = -100;
             NowUse = false;
             var original = PlayerCatch.GetPlayerById(id);

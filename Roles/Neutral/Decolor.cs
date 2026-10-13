@@ -1,16 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AmongUs.GameOptions;
 using Hazel;
-using Rewired.Utils.Classes.Data;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using TownOfHost.Roles.Madmate;
-using UnityEngine;
-using static Il2CppSystem.Globalization.CultureInfo;
-using static UnityEngine.GraphicsBuffer;
+
 namespace TownOfHost.Roles.Neutral;
 
 public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
@@ -124,11 +118,7 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
         InstanceWaitPlayers.Add(Player.PlayerId);
 
         SendRPC();
-        //ぱりーんが鬱陶しいので
-        if (OptionCooldown.GetFloat() != 0f)
-        {
-            Player.SetKillCooldown(OptionCooldown.GetFloat());
-        }
+        Player.SetKillCooldown(OptionCooldown.GetFloat());
     }
     public void OnCheckMurderAsKiller(MurderInfo info)
     {
@@ -137,15 +127,11 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
         if (InstanceWaitPlayers.Contains(target.PlayerId) || DecoloredPlayers.Contains(target.PlayerId) || DecolorWaitPlayers.Contains(target.PlayerId)) return;
         DecolorWaitPlayers.Add(target.PlayerId);
         InstanceWaitPlayers.Add(target.PlayerId);
-        //ぱりーんが鬱陶しいので
-        if (OptionCooldown.GetFloat() != 0f)
+        Player.SetKillCooldown(OptionCooldown.GetFloat());
+        _ = new LateTask(() =>
         {
-            Player.SetKillCooldown(OptionCooldown.GetFloat());
-            _ = new LateTask(() =>
-            {
-                Player.RpcResetAbilityCooldown();
-            }, Main.LagTime, "", true);
-        }
+            Player.RpcResetAbilityCooldown();
+        }, Main.LagTime, "", true);
         bool CanWin = Sokuji.GetBool();
         status = DeColorstatus.Waiting;
         foreach (var p in PlayerCatch.AllAlivePlayerControls)
@@ -340,7 +326,7 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
     public static void Color(PlayerControl player)
     {
         if (player == null || player.Data == null) return;
-        if (DecoloredPlayers == null || !CustomRoles.Decolor.IsPresent()) return;
+        if (DecoloredPlayers == null || shape == null) return;
 
         var id = player.PlayerId;
         DecoloredPlayers.Remove(id);

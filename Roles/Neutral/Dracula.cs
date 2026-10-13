@@ -31,10 +31,6 @@ public sealed class Dracula : RoleBase, ILNKiller, IUsePhantomButton
                 }
                 return string.Format(GetString("DraculaDesc"), OptionSuicideTimer.GetFloat(), OptionDieChance.GetInt(), OptionDieChanceBonus.GetInt(), OptionKenzokuChance.GetInt());
             }
-            //assignInfo: new RoleAssignInfo(CustomRoles.Dracula, CustomRoleTypes.Neutral)
-            //{
-            //    AssignCountRule = new(1, 1, 1)
-            //}
         );
     public Dracula(PlayerControl player)
     : base(

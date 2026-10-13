@@ -1,16 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
-using Hazel;
-using UnityEngine;
-using HarmonyLib;
 using AmongUs.GameOptions;
-
+using HarmonyLib;
+using Hazel;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using UnityEngine;
 using static TownOfHost.Modules.SelfVoteManager;
+using static UnityEngine.GraphicsBuffer;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -100,12 +99,12 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         stopCount = true;
         // 時間切れ状態で会議を迎えたらはしご中でも構わずキルする
         if (AbductVictim != null && AbductTimer <= 0f)
-            Player.RpcMurderPlayer(AbductVictim);
+            CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim, Killpower: 1);
         if (MeetingKill)
         {
             if (AbductVictim != null)
             {
-                Player.RpcMurderPlayer(AbductVictim);
+                CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim, Killpower: 1);
                 RemoveVictim();
             }
         }
@@ -220,12 +219,12 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
             }
             return;
         }
-        if (AbductVictim != null)//会議明けでのペングインを考えてこっち優先。
+        if (AbductVictim != null)//会議明けでのペンギンを考えてこっち優先。
         {
             if (target != AbductVictim)
             {
                 //拉致中は拉致相手しか切れない
-                Player.RpcMurderPlayer(AbductVictim);
+                CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim, Killpower: 1);
                 Player.ResetKillCooldown();
                 info.DoKill = false;
             }
@@ -670,14 +669,16 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                 {
                     _ = new LateTask(() =>
                     {
-                        target.SetRealKiller(user);
-                        user.RpcMurderPlayer(target, true);
+                        var pos = target.transform.position;
+                        if (CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 1))
+                        {
+                            Player.RpcSnapToForced(pos);
+                        }
                     }, 1.2f);
                 }
                 else
                 {
-                    target.SetRealKiller(user);
-                    target.RpcMurderPlayer(target, true);
+                    CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 1);
                 }
 
                 RPC.PlaySoundRPC(user.PlayerId, Sounds.KillSound);
@@ -980,7 +981,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole + RateProgresskiller + RateNekokabocha + RateInsider
         + RatePenguin)
         {
-            Logger.Info("Alienはペングインになりました", "Alien");
+            Logger.Info("Alienはペンギンになりました", "Alien");
             mode = AlienMode.Penguin;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller

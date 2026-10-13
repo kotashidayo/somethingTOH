@@ -211,7 +211,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook, IRoomTasker
     }
     public override string MeetingAddMessage()
     {
-        if (SelfVoteManager.Canuseability() is false) return "";
+        if (SelfVoteManager.Canuseability() is false || StandMaster.IsSpecialMeetingNoSwap()) return "";
         var oldcomptask = CompleteRoomTask;
         CompleteRoomTask = false;
         if (!Player.IsAlive() || oldcomptask) return "";

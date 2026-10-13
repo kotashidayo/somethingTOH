@@ -2891,6 +2891,7 @@
 "FrustCanSabotage","Can Use Sabotage After Kill","キル後、サボタージュが使える"
 "DecolorSelfCool","Self Decolor Cooldown","自己脱色のクールダウン"
 "DecolorSokujiWin","Win on Bleaching All Players","全員を脱色した瞬間に勝利する"
+"StandMasterCanSeeOtherStand","Can see Teammate","同陣営のプレイヤーを視認できる"
 
 "## Unit Role Setting"
 "BraidKillCooldown","Bread Task Complete Driver Killcool","ブレイドが全タスク完了時のキルクール"

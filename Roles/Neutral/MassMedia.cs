@@ -303,14 +303,15 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
             if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.MassMedia, Player.PlayerId, true))
             {
                 CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
-                foreach (var crew in PlayerCatch.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate()))
+                
+                /*foreach (var crew in PlayerCatch.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate()))
                 {
                     crew.SetRealKiller(Player);
                     crew.RpcMurderPlayer(crew);
                     var state = PlayerState.GetByPlayerId(crew.PlayerId);
                     state.DeathReason = CustomDeathReason.Misfire;
                     state.SetDead();
-                }
+                }*/
             }
         }
         Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;

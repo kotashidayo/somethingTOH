@@ -188,6 +188,9 @@ namespace TownOfHost.Roles.Crewmate
             if (killerRef == null || !killerRef.IsAlive()) return;
 
             revengeDone = true;
+
+            //ワルキューレはだめ。
+            if (killerRef.Is(CustomRoles.Walkure)) return;
             PlayerState.GetByPlayerId(killerRef.PlayerId).DeathReason = CustomDeathReason.Poisoned;
             killerRef.RpcMurderPlayerV2(killerRef);
 

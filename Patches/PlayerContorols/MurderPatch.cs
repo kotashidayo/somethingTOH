@@ -110,7 +110,7 @@ namespace TownOfHost
                 return false;
             }
             // キルが可能なプレイヤーか(遠隔は除く)←いらないかなあ。って思ってるけど....
-            if (!bypass && !info.IsFakeSuicide && !killer.CanUseKillButton() && !killer.Is(CustomRoles.UltraStar) && !killer.Is(CustomRoles.Huntman))
+            if (!bypass && !info.IsFakeSuicide && !killer.CanUseKillButton() && !killer.Is(CustomRoles.UltraStar) && !killer.Is(CustomRoles.Huntman) && !killer.Is(CustomRoles.Conjurer))
             {
                 Logger.Info(killer.GetNameWithRole().RemoveHtmlTags() + "はKillできないので、キルはキャンセルされました。", "CheckMurder");
                 return false;
@@ -135,7 +135,7 @@ namespace TownOfHost
             }
             if (isProtectedByHost)
             {
-                //logger.Info("守護されているため，キルはホストによってキャンセルされました");
+                logger.Info("守護されているため，キルはホストによってキャンセルされました");
             }
             if (isFailed)
             {
@@ -167,10 +167,20 @@ namespace TownOfHost
                 }
                 else
                 {
-                    if (Main.CheckShapeshift.TryGetValue(target.PlayerId, out var shapeshifting) && shapeshifting && !Camouflager.NowUse && !Juggler.NowUse && !Decolor.DecoloredPlayers.Contains(target.PlayerId))
+                    if (Main.CheckShapeshift.TryGetValue(target.PlayerId, out var shapeshifting) && shapeshifting)
                     {
                         //シェイプシフト強制解除
                         target.RpcShapeshift(target, false);
+                    }
+                    if (Camouflager.NowUse && Camouflager.id == target.PlayerId)
+                    {
+                        foreach (var p in PlayerCatch.AllPlayerControls)
+                        {
+                            if (p.GetRoleClass() is Camouflager camo)
+                            {
+                                camo.SetCamouflage(true, target, true);
+                            }
+                        }
                     }
                 }
                 //if (!Camouflager.NowUse) Camouflage.RpcSetSkin(target, ForceRevert: true, RevertToDefault: true);

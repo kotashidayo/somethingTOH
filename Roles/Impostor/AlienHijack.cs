@@ -93,12 +93,12 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
         stopCount = true;
         // 時間切れ状態で会議を迎えたらはしご中でも構わずキルする
         if (AbductVictim != null && AbductTimer <= 0f)
-            Player.RpcMurderPlayer(AbductVictim);
+            CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim, Killpower: 1);
         if (MeetingKill)
         {
             if (AbductVictim != null)
             {
-                Player.RpcMurderPlayer(AbductVictim);
+                CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim, Killpower: 1);
                 RemoveVictim();
             }
         }
@@ -212,12 +212,12 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
             }
             return;
         }
-        if (AbductVictim != null)//会議明けでのペングインを考えてこっち優先。
+        if (AbductVictim != null)//会議明けでのペンギンを考えてこっち優先。
         {
             if (target != AbductVictim)
             {
                 //拉致中は拉致相手しか切れない
-                Player.RpcMurderPlayer(AbductVictim);
+                CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim, Killpower: 1);
                 Player.ResetKillCooldown();
                 info.DoKill = false;
             }
@@ -653,18 +653,20 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
             {
                 var target = PlayerCatch.GetPlayerById(Remotekillertarget);
                 if (!target.IsAlive()) return true;
-                if (Alien.OptionKillAnimation.GetBool())
+                if (OptionKillAnimation.GetBool())
                 {
                     _ = new LateTask(() =>
                     {
-                        target.SetRealKiller(user);
-                        user.RpcMurderPlayer(target, true);
+                        var pos = target.transform.position;
+                        if (CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 1))
+                        {
+                            Player.RpcSnapToForced(pos);
+                        }
                     }, 1.2f);
                 }
                 else
                 {
-                    target.SetRealKiller(user);
-                    target.RpcMurderPlayer(target, true);
+                    CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 1);
                 }
 
                 RPC.PlaySoundRPC(user.PlayerId, Sounds.KillSound);

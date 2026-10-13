@@ -244,7 +244,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IRoomTa
     public override string MeetingAddMessage()
     {
         var addmeg = "";
-        if (targetId is not byte.MaxValue && IsAssignRoomtask && Player.IsAlive() && IsStolen is false)
+        if (targetId is not byte.MaxValue && IsAssignRoomtask && Player.IsAlive() && IsStolen is false && !StandMaster.IsSpecialMeetingNoSwap())
         {
             addmeg = $"<size=90%><{RoleInfo.RoleColorCode}>{GetString("PhantomThief_Title")}</size></color>";
             addmeg += $"\n<size=70%>{GetString($"PhantomThiefStolenMessage_{IRandom.Instance.Next(3)}")}</size>\n";

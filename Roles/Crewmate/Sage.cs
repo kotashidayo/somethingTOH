@@ -232,6 +232,7 @@ public sealed class Sage : RoleBase
         _ = new LateTask(() =>
         {
             if (!killer.IsAlive()) return;
+            if (killer.Is(CustomRoles.Walkure)) return;
             PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = CustomDeathReason.Counter;
             killer.RpcMurderPlayerV2(killer);
             UtilsGameLog.AddGameLog("Sage",

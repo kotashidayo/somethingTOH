@@ -360,16 +360,12 @@ public sealed class PlagueDoctor : RoleBase, IKiller
         if (comprete)
         {
             InfectActive = false;
+            //まだキルはしない
             var i = 0;
             foreach (var player in PlayerCatch.AllAlivePlayerControls)
             {
                 if (player.Is(CustomRoles.PlagueDoctor)) continue;
                 i++;
-                player.SetRealKiller(null);
-                player.RpcMurderPlayer(player);
-                var state = PlayerState.GetByPlayerId(player.PlayerId);
-                state.DeathReason = CustomDeathReason.Infected;
-                state.SetDead();
             }
             foreach (var plagueDoctor in PlayerCatch.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)))
             {
@@ -387,6 +383,21 @@ public sealed class PlagueDoctor : RoleBase, IKiller
             }
         }
     }
+
+    public override void CheckWinner(GameOverReason reason)
+    {
+        if (CustomWinnerHolder.WinnerTeam is not CustomWinner.PlagueDoctor) return;
+        foreach (var player in PlayerCatch.AllAlivePlayerControls)
+        {
+            if (player.Is(CustomRoles.PlagueDoctor)) continue;
+            player.SetRealKiller(null);
+            player.RpcMurderPlayer(player);
+            var state = PlayerState.GetByPlayerId(player.PlayerId);
+            state.DeathReason = CustomDeathReason.Infected;
+            state.SetDead();
+        }
+    }
+
     public bool OverrideKillButton(out string text)
     {
         text = "Plague_Kill";

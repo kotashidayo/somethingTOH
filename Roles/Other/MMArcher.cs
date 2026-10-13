@@ -46,7 +46,7 @@ public sealed class MMArcher : RoleBase, IKiller, IUsePhantomButton
     static OptionItem OptionArrowTimeForTaskend;
     static OptionItem OptionArrowSpeed; static int ArrowSpeedValue;//矢の速さ
     static OptionItem OptionArrowMiss;
-    // 0 =>両社死亡 | 1=>自身のみ死亡 | 2 => 相手のみ死亡
+    // 0 =>両者死亡 | 1=>自身のみ死亡 | 2 => 相手のみ死亡
 
     enum OptionName
     {

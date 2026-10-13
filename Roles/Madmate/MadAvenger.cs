@@ -199,16 +199,16 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                                     {
                                         if (pc.PlayerId != Player.PlayerId)
                                         {
-                                            if (pc.Is(CustomRoles.Terrorist)) continue;
-                                            pc.SetRealKiller(Player);
-                                            pc.RpcMurderPlayer(pc);
-                                            var state = PlayerState.GetByPlayerId(pc.PlayerId);
-                                            state.DeathReason = CustomDeathReason.Bombed;
-                                            state.SetDead();
+                                            //if (pc.Is(CustomRoles.Terrorist)) continue;
+                                            //pc.SetRealKiller(Player);
+                                            //pc.RpcMurderPlayer(pc);
+                                            //var state = PlayerState.GetByPlayerId(pc.PlayerId);
+                                            //state.DeathReason = CustomDeathReason.Bombed;
+                                            //state.SetDead();
                                             killcount++;
                                         }
-                                        else
-                                            RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);
+                                        //else
+                                        //    RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);
                                     }
                                     Achievements.RpcCompleteAchievement(Player.PlayerId, 0, achievements[1]);
                                     if (3 <= Guessd.Count && 10 <= killcount)

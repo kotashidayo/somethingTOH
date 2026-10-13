@@ -102,7 +102,10 @@ public sealed class Turncoat : RoleBase, IKiller
         //それでも0の場合、ターゲット無しにする
         if (!list.Any())
         {
+            //変化先は迷い中。
             Logger.Error($"{Player?.Data?.GetLogPlayerName() ?? "???"}のターゲットが存在しません", "Turncoat");
+            //Player.RpcSetCustomRole(CustomRoles.Opportunist, true, true);
+            Player.RpcSetCustomRole(CustomRoles.Monochromer);
             return;
         }
 

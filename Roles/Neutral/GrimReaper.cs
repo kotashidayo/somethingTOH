@@ -45,6 +45,7 @@ namespace TownOfHost.Roles.Neutral
         public static OptionItem OptionCanUseSabotage;
         private static OptionItem OptionGrimReaperCanButtom;
         private static OptionItem OptionGrimActiveTime;
+        static OptionItem CanSeeteammate;
         private static float KillCooldown;
         public static bool CanVent;
         public static bool CanUseSabotage;
@@ -53,7 +54,8 @@ namespace TownOfHost.Roles.Neutral
         enum OptionName
         {
             GrimReaperCanButtom,
-            GrimReaperGrimActiveTime
+            GrimReaperGrimActiveTime,
+            StandMasterCanSeeOtherStand
         }
 
         Dictionary<byte, float> GrimPlayers = new(14);
@@ -66,26 +68,34 @@ namespace TownOfHost.Roles.Neutral
             OptionCanVent = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanVent, true, false);
             OptionCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanUseSabotage, false, false);//正味サボ使用不可でもいい気がする
             OptionGrimReaperCanButtom = BooleanOptionItem.Create(RoleInfo, 14, OptionName.GrimReaperCanButtom, false, false);
-            RoleAddAddons.Create(RoleInfo, 15);
+            CanSeeteammate = BooleanOptionItem.Create(RoleInfo, 15, OptionName.StandMasterCanSeeOtherStand, true, false);
+            RoleAddAddons.Create(RoleInfo, 16);
         }
         public float CalculateKillCooldown() => KillCooldown;
         public bool CanUseSabotageButton() => CanUseSabotage;
         public bool CanUseImpostorVentButton() => CanVent;
+        public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
+        {
+            addon = false;
+            if (seen.GetCustomRole() is CustomRoles.GrimReaper && CanSeeteammate.GetBool())
+            {
+                roleText = GetString("GrimReaper");
+                enabled = true;
+            }
+        }
         public void OnCheckMurderAsKiller(MurderInfo info)
         {
             info.DoKill = false;
-
+            var (killer, target) = info.AttemptTuple;
+            if (target.Is(CustomRoles.GrimReaper) && CanSeeteammate.GetBool()) return;
             if (!info.IsSuicide)
             {
-                var kille = info.AttemptKiller;
                 {
-                    Logger.Info($"{kille?.Data?.GetLogPlayerName()}:キル", "GrimReaper");
-                    Main.AllPlayerKillCooldown[kille.PlayerId] = 200f;
-                    kille.SyncSettings();//もう君はキルできないよ...!
+                    Logger.Info($"{killer?.Data?.GetLogPlayerName()}:キル", "GrimReaper");
+                    Main.AllPlayerKillCooldown[killer.PlayerId] = 200f;
+                    killer.SyncSettings();//もう君はキルできないよ...!
                 }
             }
-
-            var (killer, target) = info.AttemptTuple;
 
             if (info.IsFakeSuicide) return;
 

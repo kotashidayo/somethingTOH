@@ -161,8 +161,7 @@ public sealed class CharismaStar : RoleBase, IImpostor, IUsePhantomButton, IDoub
                 // 集まらないプレイヤーをキルするがONの時
                 if (notGatherPlayerKill)
                 {
-                    target.SetRealKiller(Player);
-                    target.RpcMurderPlayer(target);
+                    CustomRoleManager.OnCheckMurder(Player, target, target, target, Killpower: 3);
                     PlayerState.GetByPlayerId(targetId).DeathReason = CustomDeathReason.NotGather;
                     // キルフラッシュを自視点に鳴らす
                     Player.KillFlash();

@@ -97,7 +97,7 @@ public sealed class Terrorist : RoleBase
     }
     public override void CheckWinner(GameOverReason reason)
     {
-        if (CustomWinnerHolder.WinnerIds.Contains(Player.PlayerId) && CustomWinnerHolder.WinnerTeam is CustomWinner.Terrorist)
+        if (CustomWinnerHolder.WinnerTeam is CustomWinner.Terrorist)
         {
             //優先度無視できちゃうから...
             foreach (var otherPlayer in PlayerCatch.AllAlivePlayerControls)
