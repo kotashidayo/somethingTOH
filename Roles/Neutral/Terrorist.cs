@@ -12,7 +12,7 @@ public sealed class Terrorist : RoleBase
             typeof(Terrorist),
             player => new Terrorist(player),
             CustomRoles.Terrorist,
-            () => RoleTypes.Engineer,
+            () => OptCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             15400,
             SetupOptionItem,
@@ -38,7 +38,10 @@ public sealed class Terrorist : RoleBase
         canSuicideWin = OptionCanSuicideWin.GetBool();
     }
     private static OptionItem OptionCanSuicideWin;
-    private static OverrideTasksData Tasks;
+    static OptionItem OptCanUseVent;
+    static OptionItem OptVentCool;
+    static OptionItem OptVentTime;
+
     private enum OptionName
     {
         CanTerroristSuicideWin
@@ -49,13 +52,17 @@ public sealed class Terrorist : RoleBase
     {
         SoloWinOption.Create(RoleInfo, 9, defo: 1);
         OptionCanSuicideWin = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanTerroristSuicideWin, false, false);
-        Tasks = OverrideTasksData.Create(RoleInfo, 11);
+        OptCanUseVent = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanVent, false, false);
+        OptVentCool = FloatOptionItem.Create(RoleInfo, 12, StringNames.EngineerCooldown, OptionBaseCoolTime, 10f, false, OptCanUseVent);
+        OptVentTime = FloatOptionItem.Create(RoleInfo, 13, StringNames.EngineerInVentCooldown, OptionBaseCoolTime, 5f, false, OptCanUseVent);
+
+        OverrideTasksData.Create(RoleInfo, 14);
     }
 
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.EngineerCooldown = 0;
-        AURoleOptions.EngineerInVentMaxTime = 0;
+        AURoleOptions.EngineerCooldown = OptVentCool.GetFloat();
+        AURoleOptions.EngineerInVentMaxTime = OptVentTime.GetFloat();
     }
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
