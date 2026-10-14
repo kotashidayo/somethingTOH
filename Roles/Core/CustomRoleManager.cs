@@ -1397,6 +1397,7 @@ public enum CustomRoles
     CountKiller,
     GrimReaper,
     Madonna,
+    LoversBreaker,
     Jackaldoll,
     DollBetrayer,
     Workaholic,

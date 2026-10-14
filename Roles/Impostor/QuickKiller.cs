@@ -1,7 +1,6 @@
 using System;
 using AmongUs.GameOptions;
 using Hazel;
-using MS.Internal.Xml.XPath;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Madmate;

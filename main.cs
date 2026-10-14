@@ -13,7 +13,6 @@ using TownOfHost.Attributes;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using UnityEngine;
-using static Unity.Services.LevelPlay.LevelPlayBannerPosition;
 
 [assembly: AssemblyFileVersionAttribute(TownOfHost.Main.PluginVersion)]
 [assembly: AssemblyInformationalVersionAttribute(TownOfHost.Main.PluginVersion)]
@@ -462,6 +461,7 @@ namespace TownOfHost
         Crewmate = CustomRoles.Crewmate,
         Jester = CustomRoles.Jester,
         HappyJester = CustomRoles.HappyJester,
+        LoversBreaker = CustomRoles.LoversBreaker,
         Frust = CustomRoles.Frust,
         UnHappyJester = CustomRoles.UnHappyJester,
         PlagueDoctor = CustomRoles.PlagueDoctor,

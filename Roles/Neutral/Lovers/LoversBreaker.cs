@@ -1,4 +1,4 @@
-/*using System.Linq;
+using System.Linq;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using Hazel;
@@ -7,7 +7,7 @@ using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
 
-public sealed class LoversBreaker : RoleBase, ILNKiller
+public sealed class LoversBreaker : RoleBase, IKiller
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -23,23 +23,44 @@ public sealed class LoversBreaker : RoleBase, ILNKiller
             (5, 4),
             true,
             from: From.SuperNewRoles
-        );
+            /*,assignInfo: new RoleAssignInfo(CustomRoles.LoversBreaker, CustomRoleTypes.Neutral)
+            {
+                IsInitiallyAssignableCallBack = () =>
+                {
+                    return CustomRoles.Madonna.IsEnable()
+                        || CustomRoles.Cupid.IsEnable()
+                        || CustomRoles.Lovers.IsEnable()
+                        || CustomRoles.RedLovers.IsEnable()
+                        || CustomRoles.BlueLovers.IsEnable()
+                        || CustomRoles.GreenLovers.IsEnable()
+                        || CustomRoles.YellowLovers.IsEnable()
+                        || CustomRoles.PurpleLovers.IsEnable()
+                        || CustomRoles.WhiteLovers.IsEnable()
+                        ;
+                }
+            }*/
+            );
 
     static OptionItem OptionKillCooldown;
     static OptionItem OptionRequiredLoversKills;
-    static OptionItem OptionCanWinAtDeath;
-    static OptionItem OptionOnlyAssignWithLoversRole;
+    //static OptionItem OptionCanWinAtDeath;
+    static OptionItem OptMiss;
+    //static OptionItem OptionOnlyAssignWithLoversRole;
 
     static float KillCooldown => OptionKillCooldown?.GetFloat() ?? 25f;
     static int RequiredLoversKills => OptionRequiredLoversKills?.GetInt() ?? 1;
-    static bool CanWinAtDeath => OptionCanWinAtDeath?.GetBool() ?? false;
-    public static bool IsTanabataEventActive => Event.Tanabata;
-
+    //static bool CanWinAtDeath => OptionCanWinAtDeath?.GetBool() ?? false;
+    //public static bool IsTanabataEventActive => Event.Tanabata;
+    public static bool IsTanabataEventActive => true;
+    int CanMissCount;
+    HashSet<byte> MissTarget = new();
     enum OptionName
     {
         LoversBreakerRequiredLoversKills,
         LoversBreakerCanWinAtDeath,
-        LoversBreakerOnlyAssignWithLoversRole
+        LoversBreakerOnlyAssignWithLoversRole,
+        //↓許して...
+        MassMediaCanMissCount
     }
 
     int loversKillCount;
@@ -50,6 +71,7 @@ public sealed class LoversBreaker : RoleBase, ILNKiller
     {
         loversKillCount = 0;
         hadTargetLovers = false;
+        CanMissCount = OptMiss.GetInt();
     }
 
     static void SetupOptionItem()
@@ -59,12 +81,15 @@ public sealed class LoversBreaker : RoleBase, ILNKiller
             .SetValueFormat(OptionFormat.Seconds);
         OptionRequiredLoversKills = IntegerOptionItem.Create(RoleInfo, 12, OptionName.LoversBreakerRequiredLoversKills, new(1, 10, 1), 3, false)
             .SetValueFormat(OptionFormat.Times);
-        OptionCanWinAtDeath = BooleanOptionItem.Create(RoleInfo, 13, OptionName.LoversBreakerCanWinAtDeath, false, false);
-        OptionOnlyAssignWithLoversRole = BooleanOptionItem.Create(RoleInfo, 14, OptionName.LoversBreakerOnlyAssignWithLoversRole, true, false);
+        //OptionCanWinAtDeath = BooleanOptionItem.Create(RoleInfo, 13, OptionName.LoversBreakerCanWinAtDeath, false, false);
+        OptMiss = IntegerOptionItem.Create(RoleInfo, 15, OptionName.MassMediaCanMissCount, new(1, 99, 1), 3, false)
+            .SetZeroNotation(OptionZeroNotation.Infinity);
+        //OptionOnlyAssignWithLoversRole = BooleanOptionItem.Create(RoleInfo, 14, OptionName.LoversBreakerOnlyAssignWithLoversRole, true, false);
     }
 
     public override void Add()
     {
+        CanMissCount = OptMiss.GetInt();
         RefreshTargetLoversState();
         SendRPC();
     }
@@ -81,12 +106,19 @@ public sealed class LoversBreaker : RoleBase, ILNKiller
         var target = info.AttemptTarget;
 
         if (CanKillTarget(target)) return;
-
         info.DoKill = false;
+
+        if (CanMissCount > 0)
+        {
+            --CanMissCount;
+            Player.SetKillCooldown();
+            SendRPC();
+            return;
+        }
         PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Misfire;
         info.AttemptKiller.RpcMurderPlayer(info.AttemptKiller);
+        SendRPC();
     }
-
     public void OnMurderPlayerAsKiller(MurderInfo info)
     {
         if (!Is(info.AttemptKiller) || info.IsSuicide) return;
@@ -94,16 +126,16 @@ public sealed class LoversBreaker : RoleBase, ILNKiller
 
         loversKillCount++;
         hadTargetLovers = true;
+        TryWinNow();
         SendRPC();
     }
-
     public override void CheckWinner(GameOverReason reason)
         => TryWinNow();
 
     public bool TryWinNow()
     {
-        RefreshTargetLoversState();
-        if (!CanWinAtDeath && !Player.IsAlive()) return false;
+        //RefreshTargetLoversState();
+        //if (!CanWinAtDeath && !Player.IsAlive()) return false;
         if (!CanSoloWinNow()) return false;
 
         if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.LoversBreaker, Player.PlayerId))
@@ -117,13 +149,16 @@ public sealed class LoversBreaker : RoleBase, ILNKiller
     }
 
     public override string GetProgressText(bool comms = false, bool gamelog = false)
-        => Utils.ColorString(RoleInfo.RoleColor, $"({loversKillCount}/{RequiredLoversKills})");
+        => Utils.ColorString(RoleInfo.RoleColor, $"({loversKillCount}/{RequiredLoversKills})[{CanMissCount}]");
 
     bool CanSoloWinNow()
     {
         if (loversKillCount < RequiredLoversKills) return false;
         if (!hadTargetLovers) return false;
-        return !PlayerCatch.AllAlivePlayerControls.Any(IsVictoryTarget);
+        return true;
+
+        //全滅しないといけないのは可哀想やろ。
+        //return !PlayerCatch.AllAlivePlayerControls.Any(IsVictoryTarget);
     }
 
     void RefreshTargetLoversState()
@@ -157,7 +192,7 @@ public sealed class LoversBreaker : RoleBase, ILNKiller
 
     public static bool ShouldRemoveFromAssignment(IEnumerable<CustomRoles> assignedRoles)
     {
-        if (OptionOnlyAssignWithLoversRole?.GetBool() != true) return false;
+        //if (OptionOnlyAssignWithLoversRole?.GetBool() != true) return false;
 
         return !assignedRoles.Any(role =>
             role is CustomRoles.Lovers
@@ -180,6 +215,7 @@ public sealed class LoversBreaker : RoleBase, ILNKiller
         sender.Writer.WritePacked((int)RPCType.SyncState);
         sender.Writer.Write(loversKillCount);
         sender.Writer.Write(hadTargetLovers);
+        sender.Writer.Write(CanMissCount);
     }
 
     public override void ReceiveRPC(MessageReader reader)
@@ -189,6 +225,7 @@ public sealed class LoversBreaker : RoleBase, ILNKiller
             case RPCType.SyncState:
                 loversKillCount = reader.ReadInt32();
                 hadTargetLovers = reader.ReadBoolean();
+                CanMissCount = reader.ReadInt32();
                 break;
         }
     }
@@ -198,4 +235,3 @@ public sealed class LoversBreaker : RoleBase, ILNKiller
         SyncState
     }
 }
-*/
