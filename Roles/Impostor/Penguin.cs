@@ -129,7 +129,7 @@ class Penguin : RoleBase, IImpostor
             if (target != AbductVictim)
             {
                 //拉致中は拉致相手しか切れない
-                CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim);
+                Player.RpcMurderPlayerV2(AbductVictim);
                 Player.ResetKillCooldown();
                 info.DoKill = false;
             }
@@ -178,13 +178,13 @@ class Penguin : RoleBase, IImpostor
         // 時間切れ状態で会議を迎えたらはしご中でも構わずキルする
         if (AbductVictim != null && AbductTimer <= 0f)
         {
-            CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim);
+            Player.RpcMurderPlayerV2(AbductVictim);
         }
         if (MeetingKill)
         {
             if (!AmongUsClient.Instance.AmHost) return;
             if (AbductVictim == null) return;
-            CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim);
+            Player.RpcMurderPlayerV2(AbductVictim);
             RemoveVictim();
         }
     }
@@ -224,7 +224,7 @@ class Penguin : RoleBase, IImpostor
                 // ペンギン自身がはしご上にいる場合，はしごを降りてからキルする
                 if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
-                    CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim);
+                    Player.RpcMurderPlayerV2(AbductVictim);
 
                     RemoveVictim();
                     Achievements.RpcCompleteAchievement(Player.PlayerId, 0, achievements[0]);

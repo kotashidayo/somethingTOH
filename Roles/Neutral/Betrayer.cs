@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using Hazel;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Madmate;
 using UnityEngine;
-using static TownOfHost.Roles.Crewmate.AllArounder;
 
 namespace TownOfHost.Roles.Neutral;
 
@@ -19,7 +17,7 @@ public sealed class Betrayer : RoleBase, ILNKiller, ISchrodingerCatOwner
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
             57700,
-            SetupOptionItem,
+            null,
             "Bet",
             "#8b2551",
             (2, 0),
@@ -39,20 +37,9 @@ public sealed class Betrayer : RoleBase, ILNKiller, ISchrodingerCatOwner
     }
     static bool CanVent;
     static float KillCooldown;
-    private static void SetupOptionItem()
-    {
-        HideRoleOptions(CustomRoles.Betrayer);
-    }
     public override void ApplyGameOptions(IGameOptions opt)
     {
         opt.SetVision(MadBetrayer.HasImpostorVision);
-    }
-    public static void HideRoleOptions(CustomRoles role)
-    {
-        if (Options.CustomRoleSpawnChances != null && Options.CustomRoleSpawnChances.TryGetValue(role, out var sp))
-            sp.SetHidden(true);
-        if (Options.CustomRoleCounts != null && Options.CustomRoleCounts.TryGetValue(role, out var cp))
-            cp.SetHidden(true);
     }
     public ISchrodingerCatOwner.TeamType SchrodingerCatChangeTo => ISchrodingerCatOwner.TeamType.Betrayer;
     public float CalculateKillCooldown() => KillCooldown;

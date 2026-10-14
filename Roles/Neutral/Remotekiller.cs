@@ -106,7 +106,7 @@ namespace TownOfHost.Roles.Neutral
                     _ = new LateTask(() =>
                     {
                         var pos = target.transform.position;
-                        if (CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 1))
+                        if (CustomRoleManager.OnCheckMurder(user, target, target, target, true, Killpower: 10))
                         {
                             Player.RpcSnapToForced(pos);
                         }
@@ -114,7 +114,7 @@ namespace TownOfHost.Roles.Neutral
                 }
                 else
                 {
-                    CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 1);
+                    CustomRoleManager.OnCheckMurder(user, target, target, target, true, Killpower: 1);
                 }
 
                 RPC.PlaySoundRPC(user.PlayerId, Sounds.KillSound);

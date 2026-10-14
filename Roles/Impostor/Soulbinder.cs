@@ -1,16 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
-using Rewired.Utils.Classes.Data;
-using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using UnityEngine;
 using static TownOfHost.PlayerCatch;
-using static TownOfHost.Roles.Crewmate.AllArounder;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Neutral;
 
@@ -87,8 +80,6 @@ public sealed class Soulbinder : RoleBase, IImpostor
             .SetValueFormat(OptionFormat.Pieces);
         OptionNumShortTasks = IntegerOptionItem.Create(RoleInfo, 17, OptionName.WorkhorseNumShortTasks, new(0, 99, 1), 1, false)
             .SetValueFormat(OptionFormat.Pieces);
-
-        SoulSlave.HideRoleOptions(CustomRoles.SoulSlave);
     }
     public float CalculateKillCooldown() => KillCooldown_;
 
@@ -201,7 +192,7 @@ public sealed class SoulSlave : RoleBase
             () => RoleTypes.GuardianAngel,
             CustomRoleTypes.Madmate,
             127200,
-            SetupOptionItem,
+            null,
             "sls",
             OptionSort: (6, 5),
             countType: CountTypes.OutOfGame
@@ -214,13 +205,6 @@ public sealed class SoulSlave : RoleBase
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
     }
 
-    static void SetupOptionItem() => HideRoleOptions(CustomRoles.SoulSlave);
-
-    public static void HideRoleOptions(CustomRoles role)
-    {
-        if (Options.CustomRoleSpawnChances?.TryGetValue(role, out var sp) == true) sp.SetHidden(true);
-        if (Options.CustomRoleCounts?.TryGetValue(role, out var cp) == true) cp.SetHidden(true);
-    }
     public override void ApplyGameOptions(IGameOptions opt)
     {
         AURoleOptions.GuardianAngelCooldown = Soulbinder.OptionSlaveAngelCool.GetFloat();

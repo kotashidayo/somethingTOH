@@ -5,7 +5,6 @@ using AmongUs.GameOptions;
 using UnityEngine;
 using HarmonyLib;
 using Hazel;
-
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
@@ -32,10 +31,10 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 true,
                 from: From.TownOfHost_K,
                 countType: CountTypes.Jackal,
-                assignInfo: new RoleAssignInfo(CustomRoles.JackalAlien, CustomRoleTypes.Neutral)
+                /*assignInfo: new RoleAssignInfo(CustomRoles.JackalAlien, CustomRoleTypes.Neutral)
                 {
                     AssignCountRule = new(1, 1, 1)
-                },
+                },*/
                 introSound: () => GetIntroSound(RoleTypes.Phantom),
                 Desc: () =>
                 {
@@ -115,12 +114,14 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         stopCount = true;
         // 時間切れ状態で会議を迎えたらはしご中でも構わずキルする
         if (AbductVictim != null && AbductTimer <= 0f)
-            CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim, Killpower: 1);
+        {
+            Player.RpcMurderPlayerV2(AbductVictim);
+        }
         if (MeetingKill)
         {
             if (AbductVictim != null)
             {
-                CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim, Killpower: 1);
+                Player.RpcMurderPlayerV2(AbductVictim);
                 RemoveVictim();
             }
         }
@@ -701,7 +702,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                     _ = new LateTask(() =>
                     {
                         var pos = target.transform.position;
-                        if (CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 1))
+                        if (CustomRoleManager.OnCheckMurder(user, target, target, target, true, Killpower: 10))
                         {
                             Player.RpcSnapToForced(pos);
                         }
@@ -709,7 +710,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 }
                 else
                 {
-                    CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 1);
+                    CustomRoleManager.OnCheckMurder(user, target, target, target, true, Killpower: 1);
                 }
 
                 RPC.PlaySoundRPC(user.PlayerId, Sounds.KillSound);

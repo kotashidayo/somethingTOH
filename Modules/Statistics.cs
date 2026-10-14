@@ -136,7 +136,7 @@ namespace TownOfHost
                 {
                     File.WriteAllText(PATH, "");
                 }
-                CustomRoleManager.CustomRoleIds.Add(19100, CustomRoles.Amanojaku);
+                CustomRoleManager.CustomRoleIds.Add(19115, CustomRoles.Amanojaku);
                 CustomRoleManager.CustomRoleIds.Add(22000, CustomRoles.AsistingAngel);
 
                 string Text = File.ReadAllText(PATH);

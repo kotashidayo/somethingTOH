@@ -1,9 +1,7 @@
-/*
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
-using TownOfHost.Modules;
 using TownOfHost.Patches;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
@@ -20,7 +18,7 @@ public sealed class Spider : RoleBase, IImpostor, IUsePhantomButton
             CustomRoles.Spider,
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
-            9500,
+            19600,
             SetupOptionItem,
             "sdr",
             OptionSort: (2, 12),
@@ -42,7 +40,7 @@ public sealed class Spider : RoleBase, IImpostor, IUsePhantomButton
     static OptionItem OptionTrapCooldown;
     static OptionItem OptionArmTime;
     static OptionItem OptionCatchDuration;
-
+    static OptionItem TrapKillCool;
     static float TrapCooldown;
     static float ArmTime;
     static float CatchDuration;
@@ -52,16 +50,19 @@ public sealed class Spider : RoleBase, IImpostor, IUsePhantomButton
         SpiderTrapCooldown,
         SpiderTrapArmTime,
         SpiderTrapCatchDuration,
+        SpiderTrapKillCool
     }
 
     static void SetupOptionItem()
     {
-        OptionTrapCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.SpiderTrapCooldown,
-            new(2.5f, 60f, 2.5f), 30f, false).SetValueFormat(OptionFormat.Seconds);
-        OptionArmTime = FloatOptionItem.Create(RoleInfo, 11, OptionName.SpiderTrapArmTime,
-            new(0f, 60f, 2.5f), 5f, false).SetValueFormat(OptionFormat.Seconds);
-        OptionCatchDuration = FloatOptionItem.Create(RoleInfo, 12, OptionName.SpiderTrapCatchDuration,
-            new(2.5f, 60f, 2.5f), 10f, false).SetValueFormat(OptionFormat.Seconds);
+        OptionTrapCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.SpiderTrapCooldown, OptionBaseCoolTime, 30f, false)
+            .SetValueFormat(OptionFormat.Seconds);
+        OptionArmTime = FloatOptionItem.Create(RoleInfo, 11, OptionName.SpiderTrapArmTime, OptionBaseCoolTime, 5f, false)
+            .SetValueFormat(OptionFormat.Seconds);
+        OptionCatchDuration = FloatOptionItem.Create(RoleInfo, 12, OptionName.SpiderTrapCatchDuration, OptionBaseCoolTime, 10f, false)
+            .SetValueFormat(OptionFormat.Seconds);
+        TrapKillCool = FloatOptionItem.Create(RoleInfo, 13, OptionName.SpiderTrapKillCool, OptionBaseCoolTime, 10f, false)
+            .SetValueFormat(OptionFormat.Seconds);
     }
 
     const float CatchDistance = 0.9f;
@@ -82,6 +83,7 @@ public sealed class Spider : RoleBase, IImpostor, IUsePhantomButton
     static readonly Dictionary<byte, float> CaughtRemaining = new();
     static readonly Dictionary<byte, float> SavedSpeed = new();
 
+
     public bool CanUseSabotageButton() => true;
     public bool CanUseImpostorVentButton() => true;
     bool IUsePhantomButton.IsPhantomRole => true;
@@ -91,7 +93,8 @@ public sealed class Spider : RoleBase, IImpostor, IUsePhantomButton
     void IUsePhantomButton.OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
         AdjustKillCooldown = true;
-        ResetCooldown = false;
+        ResetCooldown = true;
+        OnPetAction();
     }
 
     public override void Add()
@@ -288,7 +291,21 @@ public sealed class Spider : RoleBase, IImpostor, IUsePhantomButton
         if (!CaughtRemaining.TryGetValue(seen.PlayerId, out var remaining) || remaining <= 0f) return "";
         return $"<size=60%><color=#8B4513>クモの巣に引っかかった ({Mathf.CeilToInt(remaining)}s)</color></size>";
     }
-
+    public void OnMurderPlayerAsKiller(MurderInfo info)
+    {
+        var (killer, target) = info.AttemptTuple;
+        if (!Is(killer)) return;
+        if (!CaughtRemaining.TryGetValue(target.PlayerId, out var remaining) || remaining <= 0f)
+        {
+            Main.AllPlayerKillCooldown[killer.PlayerId] = Options.DefaultKillCooldown;
+            killer.SyncSettings();
+            killer.SetKillCooldown();
+            return;
+        }
+        Main.AllPlayerKillCooldown[killer.PlayerId] = TrapKillCool.GetFloat();
+        killer.SyncSettings();
+        killer.SetKillCooldown();
+    }
     void SendRpc()
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -345,4 +362,3 @@ public sealed class Spider : RoleBase, IImpostor, IUsePhantomButton
         }
     }
 }
-*/

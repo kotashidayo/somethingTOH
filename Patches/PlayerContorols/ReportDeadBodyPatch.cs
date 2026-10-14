@@ -76,12 +76,19 @@ namespace TownOfHost
             }
 
             if (!CheckMeeting(__instance, target)) return false;
-
-            PlayerControlRpcUseZiplinePatch.OnMeeting(__instance, target);
-
             //=============================================
             //以下、ボタンが押されることが確定したものとする。
             //=============================================
+            foreach (var p in PlayerCatch.AllAlivePlayerControls)
+            {
+                if (p.GetRoleClass() is Decolor decolor)
+                {
+                    decolor.OnReportDeadBody(__instance, target);
+                }
+            }
+
+            PlayerControlRpcUseZiplinePatch.OnMeeting(__instance, target);
+
             ShapeKiller.SetDummyReport(ref __instance, target);
 
             WaitMeeting(__instance, target);
@@ -377,6 +384,7 @@ namespace TownOfHost
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     if (!pc) continue;
+                    if (Decolor.DecoloredPlayers.Contains(pc.PlayerId) || Decolor.DecolorWaitPlayers.Contains(pc.PlayerId)) continue;
                     if (pc.shapeshifting) pc.RpcShapeshift(pc, false);
                     Camouflage.RpcSetSkin(pc, RevertToDefault: true, force: true);
                 }

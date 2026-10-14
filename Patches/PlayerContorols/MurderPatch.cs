@@ -167,11 +167,6 @@ namespace TownOfHost
                 }
                 else
                 {
-                    if (Main.CheckShapeshift.TryGetValue(target.PlayerId, out var shapeshifting) && shapeshifting)
-                    {
-                        //シェイプシフト強制解除
-                        target.RpcShapeshift(target, false);
-                    }
                     if (Camouflager.NowUse && Camouflager.id == target.PlayerId)
                     {
                         foreach (var p in PlayerCatch.AllPlayerControls)
@@ -181,6 +176,11 @@ namespace TownOfHost
                                 camo.SetCamouflage(true, target, true);
                             }
                         }
+                    }
+                    if (Main.CheckShapeshift.TryGetValue(target.PlayerId, out var shapeshifting) && shapeshifting)
+                    {
+                        //シェイプシフト強制解除
+                        target.RpcShapeshift(target, false);
                     }
                 }
                 //if (!Camouflager.NowUse) Camouflage.RpcSetSkin(target, ForceRevert: true, RevertToDefault: true);

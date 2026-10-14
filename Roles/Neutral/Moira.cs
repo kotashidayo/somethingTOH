@@ -1,14 +1,11 @@
-/*using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.PlayerCatch;
-using static TownOfHost.Translator;
-using static TownOfHost.UtilsRoleText;
 namespace TownOfHost.Roles.Neutral;
 
 public sealed class Moira : RoleBase, ISelfVoter
@@ -44,28 +41,31 @@ public sealed class Moira : RoleBase, ISelfVoter
         isRevealed = false;
         usedThisMeeting = false;
         swapHistory = new();
+        OriginalRole.Clear();
     }
 
     static OptionItem OptionMaxSwaps;
     static int MaxSwaps;
     static OptionItem OptionSwapVotes;
+    static OptionItem SokujiWin;
     static bool SwapVotes;
 
-    int remainingSwaps;
+    public int remainingSwaps;
     byte target1;
     byte target2;
     bool isRevealed;
     bool usedThisMeeting;
 
     List<(byte, byte, CustomRoles, CustomRoles)> swapHistory;
-    Dictionary<byte, CustomRoles> OriginalRole;
-    enum OptionName { MoiraMaxSwaps, MoiraSwapVotes }
+    Dictionary<byte, CustomRoles> OriginalRole = new();
+    enum OptionName { MoiraMaxSwaps, MoiraSwapVotes, MoiraSokuji }
 
     private static void SetupOptionItem()
     {
-        OptionMaxSwaps = IntegerOptionItem.Create(RoleInfo, 10, OptionName.MoiraMaxSwaps,
-            new(1, 10, 1), 3, false).SetValueFormat(OptionFormat.Times);
+        OptionMaxSwaps = IntegerOptionItem.Create(RoleInfo, 10, OptionName.MoiraMaxSwaps,new(1, 10, 1), 3, false)
+            .SetValueFormat(OptionFormat.Times);
         OptionSwapVotes = BooleanOptionItem.Create(RoleInfo, 11, OptionName.MoiraSwapVotes, false, false);
+        SokujiWin = BooleanOptionItem.Create(RoleInfo, 12, OptionName.MoiraSokuji, true, false);
     }
     public override void Add()
     {
@@ -74,7 +74,7 @@ public sealed class Moira : RoleBase, ISelfVoter
             {
                 OriginalRole.Add(p.PlayerId, p.GetCustomRole());
             }
-        }, 0.2f, "AI_Error_Task", true);
+        }, 0.2f, "", true);
     }
     bool ISelfVoter.CanUseVoted() => remainingSwaps > 0 && Player.IsAlive() && !usedThisMeeting;
 
@@ -197,7 +197,8 @@ public sealed class Moira : RoleBase, ISelfVoter
             {
                 Utils.SendMessage(
                 string.Format(GetString("MoiraExiledRevert"), UtilsName.GetPlayerColor(Player, true)), pc.PlayerId);
-                pc.RpcSetCustomRole(OriginalRole[pc.PlayerId]);
+                if (OriginalRole.TryGetValue(pc.PlayerId, out var orig))
+                    pc.RpcSetCustomRole(orig);
             }
         }
         SendRPC();
@@ -233,6 +234,10 @@ public sealed class Moira : RoleBase, ISelfVoter
 
         if (remainingSwaps <= 0 && !isRevealed)
         {
+            if (SokujiWin.GetBool())
+            {
+                Win();
+            }
             isRevealed = true;
             Utils.SendMessage(
                 string.Format(GetString("MoiraRevealed"), UtilsName.GetPlayerColor(Player, true)));
@@ -284,12 +289,15 @@ public sealed class Moira : RoleBase, ISelfVoter
         if (!Player.IsAlive()) return;
         if (remainingSwaps > 0) return;
 
+        Win();
+    }
+    void Win()
+    {
         if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Moira, Player.PlayerId))
         {
             CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
         }
     }
-
     public override string GetProgressText(bool comms = false, bool GameLog = false)
     {
         if (isRevealed) return $"<color={RoleInfo.RoleColorCode}>【公開済】</color>";
@@ -314,7 +322,15 @@ public sealed class Moira : RoleBase, ISelfVoter
             return $"{size}<color={color}>2人目に投票して入れ替え確定</color>";
         return $"{size}<color={color}>自投票→運命改変モード | 残り{remainingSwaps}回</color>";
     }
+    public override void OverrideDisplayRoleNameAsSeen(PlayerControl seer, ref bool enabled, ref UnityEngine.Color roleColor, ref string roleText, ref bool addon)
+    {
+        seer ??= Player;
+        if (seer == Player || remainingSwaps > 0) return;
 
+        enabled = true;
+        roleText = GetString("Moira");
+        addon = false;
+    }
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         seen ??= seer;
@@ -326,16 +342,6 @@ public sealed class Moira : RoleBase, ISelfVoter
         if (seen.PlayerId == target1) return $" <color={color}>①</color>";
         if (seen.PlayerId == target2) return $" <color={color}>②</color>";
         return "";
-    }
-
-    public override bool GetTemporaryName(ref string name, ref bool NoMarker, bool isForMeeting,
-        PlayerControl seer, PlayerControl seen = null)
-    {
-        seen ??= seer;
-        if (!isRevealed) return false;
-        if (!Is(seen)) return false;
-        name = $"<color={RoleInfo.RoleColorCode}>【モイラ】</color>{seen.Data.PlayerName}";
-        return true;
     }
 
     void SendRPC()
@@ -354,6 +360,7 @@ public sealed class Moira : RoleBase, ISelfVoter
             sender.Writer.WritePacked((int)r1);
             sender.Writer.WritePacked((int)r2);
         }
+        sender.Writer.Write(OriginalRole.Count);
         foreach (var (id, rl) in OriginalRole)
         {
             sender.Writer.Write(id);
@@ -378,11 +385,12 @@ public sealed class Moira : RoleBase, ISelfVoter
             var r2 = (CustomRoles)reader.ReadPackedInt32();
             swapHistory.Add((id1, id2, r1, r2));
         }
-        for (int i = 0; i < OriginalRole.Count; i++)
+        int oc = reader.ReadInt32();
+        for (int i = 0; i < oc; i++)
         {
             var id = reader.ReadByte();
             var rl = (CustomRoles)reader.ReadPackedInt32();
             OriginalRole.Add(id, rl);
         }
     }
-}*/
+}

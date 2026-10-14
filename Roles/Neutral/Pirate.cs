@@ -132,8 +132,6 @@ public sealed class Pirate : RoleBase, IKiller
             0, false, null,
             true, true, true, true, true,
             RemoveAddon);
-
-        Gang.HideRoleOptions(CustomRoles.Gang);
     }
 
     public PlayerControl GetGang() =>
@@ -292,7 +290,7 @@ public sealed class Gang : RoleBase, IAdditionalWinner
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             57500,
-            SetupOptionItem,
+            null,
             "gng",
             "#cc4b33",
             (6, 5),
@@ -311,13 +309,6 @@ public sealed class Gang : RoleBase, IAdditionalWinner
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
     }
 
-    static void SetupOptionItem() => HideRoleOptions(CustomRoles.Gang);
-
-    public static void HideRoleOptions(CustomRoles role)
-    {
-        if (Options.CustomRoleSpawnChances?.TryGetValue(role, out var sp) == true) sp.SetHidden(true);
-        if (Options.CustomRoleCounts?.TryGetValue(role, out var cp) == true) cp.SetHidden(true);
-    }
 
     public byte OwnerId;
     public bool CanVent;

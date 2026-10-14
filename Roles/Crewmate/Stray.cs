@@ -5,7 +5,6 @@ using Hazel;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 namespace TownOfHost.Roles.Crewmate;
 
@@ -94,24 +93,6 @@ public sealed class Stray : RoleBase, IKiller
         OptionMournerDeadCount = IntegerOptionItem.Create(RoleInfo, 51, OptionName.MournerDeadCount, new(1, 14, 1), 5, false).SetValueFormat(OptionFormat.Players);
         OptNeedTaskCount = IntegerOptionItem.Create(RoleInfo, 52, OptionName.OnmyojiWinTaskCount, new(1, 255, 1), 4, false).SetValueFormat(OptionFormat.Pieces);
         OptionCanSeeRoleCount = IntegerOptionItem.Create(RoleInfo, 53, OptionName.MournerSeeRoleCount, new(1, 14, 1), 2, false).SetValueFormat(OptionFormat.Players);
-
-        HideRoleOptions(CustomRoles.Hero);
-        HideRoleOptions(CustomRoles.Sinner);
-        HideRoleOptions(CustomRoles.Mourner);
-    }
-    internal static void HideRoleOptions(CustomRoles role)
-    {
-        if (Options.CustomRoleSpawnChances != null &&
-            Options.CustomRoleSpawnChances.TryGetValue(role, out var spawnOption))
-        {
-            spawnOption.SetHidden(true);
-        }
-
-        if (Options.CustomRoleCounts != null &&
-            Options.CustomRoleCounts.TryGetValue(role, out var countOption))
-        {
-            countOption.SetHidden(true);
-        }
     }
     bool IKiller.CanUseSabotageButton() => false;
     bool IKiller.CanUseImpostorVentButton() => false;
@@ -190,7 +171,7 @@ public sealed class Hero : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             39300,
-            SetupOptionItem,
+            null,
             "her",
             "#ffd700",
             (5, 6),
@@ -214,12 +195,6 @@ public sealed class Hero : RoleBase
         () => HasTask.ForRecompute
     )
     {
-    }
-    private static void SetupOptionItem()
-    {
-        Stray.HideRoleOptions(CustomRoles.Hero);
-        Stray.HideRoleOptions(CustomRoles.Sinner);
-        Stray.HideRoleOptions(CustomRoles.Mourner);
     }
     public override void CheckWinner(GameOverReason reason)
     {
@@ -259,7 +234,7 @@ public sealed class Sinner : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             39400,
-            SetupOptionItem,
+            null,
             "sin",
             "#4d0505",
             (5, 6),
@@ -293,12 +268,7 @@ public sealed class Sinner : RoleBase
     }
     bool IsExiled;
     bool IsKilled;
-    private static void SetupOptionItem()
-    {
-        Stray.HideRoleOptions(CustomRoles.Hero);
-        Stray.HideRoleOptions(CustomRoles.Sinner);
-        Stray.HideRoleOptions(CustomRoles.Mourner);
-    }
+
     public override void Add()
     {
         IsKilled = false;
@@ -363,7 +333,7 @@ public sealed class Mourner : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             39500,
-            SetupOptionItem,
+            null,
             "Mou",
             "#5f7285",
             (5, 6),
@@ -388,12 +358,6 @@ public sealed class Mourner : RoleBase
     public override void Add()
     {
         SeeCount = Stray.OptionCanSeeRoleCount.GetInt();
-    }
-    private static void SetupOptionItem()
-    {
-        Stray.HideRoleOptions(CustomRoles.Hero);
-        Stray.HideRoleOptions(CustomRoles.Sinner);
-        Stray.HideRoleOptions(CustomRoles.Mourner);
     }
     public override void CheckWinner(GameOverReason reason)
     {

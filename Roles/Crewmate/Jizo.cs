@@ -1,18 +1,8 @@
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
-using MS.Internal.Xml.XPath;
-using Rewired;
-using TownOfHost.Modules;
 using TownOfHost.Patches;
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Impostor;
-using TownOfHost.Roles.Madmate;
 using UnityEngine;
-using static Il2CppSystem.Threading.SemaphoreSlim;
-using static MonoMod.RuntimeDetour.DynamicHookGen;
-using static UnityEngine.GraphicsBuffer;
 
 namespace TownOfHost.Roles.Crewmate;
 
@@ -29,11 +19,7 @@ public sealed class Jizo : RoleBase
             SetupOptionItem,
             "jz",
             "#a9a9a9",
-            (6, 5),
-            assignInfo: new RoleAssignInfo(CustomRoles.Jizo, CustomRoleTypes.Crewmate)
-            {
-                AssignCountRule = new(1, 1, 1) 
-            }
+            (6, 5)
         );
 
     public Jizo(PlayerControl player)
@@ -60,6 +46,7 @@ public sealed class Jizo : RoleBase
         BomKilled = false;
         BomKilledRoom = null;
         BomKiller = null;
+        bomber = null;
 
         Notifyname = OptionNotifyName.GetBool();
     }
@@ -70,7 +57,7 @@ public sealed class Jizo : RoleBase
     public static OptionItem OptionKill;
     public static OptionItem OptionVent;
     public static OptionItem OptionNotifyName;
-    public static SystemTypes? UsedRoom = null;
+    public SystemTypes? UsedRoom = null;
 
     float Duration;
     bool IsUsed;
@@ -79,18 +66,19 @@ public sealed class Jizo : RoleBase
     int UseCount;
     Vector2 pos = Vector2.zero;
 
-    public static bool BomKilled;
-    public static SystemTypes? BomKilledRoom = null;
-    static PlayerControl BomKiller;
-    static bool BomDetectioned;
+    public bool BomKilled;
+    public SystemTypes? BomKilledRoom = null;
+    PlayerControl BomKiller;
+    public bool BomDetectioned;
 
-    public static bool Killed;
-    public static SystemTypes? KilledRoom = null;
-    public static SystemTypes? VentedRoom = null;
-    static PlayerControl Killer;
-    static bool Detectioned;
-    static bool vented;
-    static PlayerControl VentUser;
+    public bool Killed;
+    public SystemTypes? KilledRoom = null;
+    public SystemTypes? VentedRoom = null;
+    PlayerControl Killer;
+    public PlayerControl bomber;
+    bool Detectioned;
+    bool vented;
+    PlayerControl VentUser;
     int sendCount;
 
     bool Notifyname;
@@ -98,7 +86,6 @@ public sealed class Jizo : RoleBase
     {
         JizocooldownLeft = OptionCooldown.GetFloat(); //一応オプションから直接取得しておく
         PetActionManager.Register(Player.PlayerId, PetUsed);
-        RpcJizo(null);
         UsedRoom = null;
         KilledRoom = null;
         Killed = false;
@@ -107,20 +94,23 @@ public sealed class Jizo : RoleBase
         BomKilled = false;
         BomKilledRoom = null;
         BomKiller = null;
+        bomber = null;
         sendCount = 0;
+        RpcJizo(null);
     }
     public override void OnSpawn(bool initialState = false)
     {
         JizocooldownLeft = OptionCooldown.GetFloat(); //一応オプションから直接取得しておく
 
         Player.RpcResetAbilityCooldown(Sync: true);
-        RpcJizo(null);
         Killed = false;
 
         BomDetectioned = false;
         BomKilled = false;
         BomKilledRoom = null;
         BomKiller = null;
+        bomber = null;
+        RpcJizo(null);
     }
     enum OptionName
     {
@@ -160,11 +150,12 @@ public sealed class Jizo : RoleBase
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!Player.IsAlive()) return;
+        if (!AmongUsClient.Instance.AmHost) return;
+
         if (IsUsed)
         {
             Player.RpcSnapToForced(pos);
         }
-        if (!AmongUsClient.Instance.AmHost) return;
 
         if (JizocooldownLeft > 0f)
         {
@@ -180,51 +171,56 @@ public sealed class Jizo : RoleBase
             return;
         }
 
-        if (!IsUsed)
+        var room = Player.GetPlainShipRoom();
+        if (room == null) return; //部屋の外では使用不可
+
+        Logger.Info("注視開始", "Jizo");
+        IsUsed = true;
+        pos = Player.transform.position;
+        Player.RpcSnapToForced(pos);
+
+        JizocooldownLeft = Duration;
+        --UseCount;
+        Player.RpcResetAbilityCooldown(Sync: true);
+
+        RpcJizo(room.RoomId); //IsUsed/UsedRoom/クールダウン/使用回数をまとめて送信
+
+        _ = new LateTask(() =>
         {
-            var room = Player.GetPlainShipRoom();
+            IsUsed = false;
+            JizocooldownLeft = Cooldown;
+            Logger.Info("注視終了", "Jizo");
 
-            var roomName = room.RoomId;
-            RpcJizo(roomName);
-
-            Logger.Info("注視開始", "Jizo");
-            IsUsed = true;
-            pos = Player.transform.position;
-            Player.RpcSnapToForced(pos);
-
-            JizocooldownLeft = Duration;
-            --UseCount;
-            Player.RpcResetAbilityCooldown(Sync: true);
-
-            SendRPC();
-            _ = new LateTask(() =>
-            {
-                IsUsed = false;
-                UsedRoom = null;
-                JizocooldownLeft = Cooldown;
-                Logger.Info("注視終了", "Jizo");
-
-                SendRPC();
-            }, Duration, "Jizo_Use", true);
-        }
+            RpcJizo(null);
+        }, Duration, "Jizo_Use", true);
     }
+
+    /// <summary>
+    /// UsedRoomを更新して全クライアントへ同期する
+    /// </summary>
     private void RpcJizo(SystemTypes? roomType)
     {
         UsedRoom = roomType;
-        using var sender = CreateSender();
-        sender.Writer.Write((byte?)roomType ?? byte.MaxValue);
+        SendRPC();
     }
+    /// <summary>
+    /// 同期が必要な値をまとめて送信する
+    /// ReceiveRPCの読み込み順と必ず一致させること
+    /// </summary>
     void SendRPC()
     {
         using var sender = CreateSender();
         sender.Writer.Write(JizocooldownLeft);
         sender.Writer.Write(UseCount);
+        sender.Writer.Write(IsUsed);
+        sender.Writer.Write((byte?)UsedRoom ?? byte.MaxValue);
     }
 
     public override void ReceiveRPC(MessageReader reader)
     {
         JizocooldownLeft = reader.ReadSingle();
         UseCount = reader.ReadInt32();
+        IsUsed = reader.ReadBoolean();
         var roomId = reader.ReadByte();
 
         UsedRoom = roomId == byte.MaxValue ? null : (SystemTypes)roomId;
@@ -235,32 +231,40 @@ public sealed class Jizo : RoleBase
     /// </summary>
     public static void Checkroom(PlainShipRoom room, PlayerControl Player)
     {
-        if (room == null) return;
-        if (room.RoomId != UsedRoom) return;
-        if (Detectioned || BomDetectioned) return;
-        if (Killer != null || BomKiller != null) return;
-        if (!OptionKill.GetBool()) return;
-        Detectioned = true;
-        Killed = true;
-        KilledRoom = room.RoomId;
-        Killer = Player;
+        foreach (var jizo in PlayerCatch.AllAlivePlayerControls)
+        {
+            if (jizo.GetRoleClass() is not Jizo j) continue;
+            if (room == null) continue;
+            if (room.RoomId != j.UsedRoom) continue;
+            if (j.Detectioned || j.BomDetectioned) continue;
+            if (j.Killer != null || j.BomKiller != null) return;
+            if (!OptionKill.GetBool()) return;
+            j.Detectioned = true;
+            j.Killed = true;
+            j.KilledRoom = room.RoomId;
+            j.Killer = Player;
+        }
     }
     /// <summary>
     /// 地蔵が注視中で同じ部屋にいるかをチェックする(ボマー専用)
     /// </summary>
     public static void BomCheckroom(PlainShipRoom room, PlayerControl Player)
     {
-        if (room == null) return;
-        if (room.RoomId != UsedRoom) return;
-        if (BomKiller != null) return;
-        if (!OptionKill.GetBool()) return;
-        BomDetectioned = true;
-        BomKilledRoom = room.RoomId;
-        BomKiller = Player;
-        Bomber.IsDetectioned = true;
+        foreach (var jizo in PlayerCatch.AllAlivePlayerControls)
+        {
+            if (jizo.GetRoleClass() is not Jizo j) continue;
+            if (room == null) continue;
+            if (room.RoomId != j.UsedRoom) continue;
+            if (j.BomKiller != null) continue;
+            if (!OptionKill.GetBool()) continue;
+            j.BomDetectioned = true;
+            j.BomKilledRoom = room.RoomId;
+            j.BomKiller = Player;
+            j.bomber = Player;
+        }
     }
 
-    public static void BomClear()
+    public void BomClear()
     {
         BomDetectioned = false;
         BomKilled = false;
@@ -278,8 +282,6 @@ public sealed class Jizo : RoleBase
         JizocooldownLeft = Cooldown;
         IsUsed = false;
         Player.RpcResetAbilityCooldown(Sync: true);
-        SendRPC();
-        RpcJizo(null);
         KilledRoom = null;
         Killed = false;
         Detectioned = false;
@@ -288,6 +290,7 @@ public sealed class Jizo : RoleBase
         BomKilled = false;
         BomKilledRoom = null;
         BomKiller = null;
+        RpcJizo(null); //UsedRoom=nullにして全値を同期
     }
 
     public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __)
@@ -309,7 +312,7 @@ public sealed class Jizo : RoleBase
             }
             ++sendCount;
         }
-        if (vented || sendCount < 1)
+        if (vented && VentUser != null)
         {
             Utils.SendMessage(string.Format(GetString("JizoVentText"), GetString($"{VentedRoom.Value}")), Player.PlayerId);
             if (Notifyname)
@@ -322,21 +325,20 @@ public sealed class Jizo : RoleBase
             }
             ++sendCount;
         }
-        if (BomKilled || sendCount < 1)
+        if ((BomKilled || BomDetectioned) && BomKiller != null && BomKilledRoom.HasValue)
         {
-            Utils.SendMessage(string.Format(GetString("JizoKillText"), GetString($"{KilledRoom.Value}")), Player.PlayerId);
+            Utils.SendMessage(string.Format(GetString("JizoKillText"), GetString($"{BomKilledRoom.Value}")), Player.PlayerId);
             if (Notifyname)
             {
-                Utils.SendMessage(string.Format(GetString("JizoKillerText2"), UtilsName.GetPlayerColor(Player, true), Player), Killer.PlayerId);
+                Utils.SendMessage(string.Format(GetString("JizoKillerText2"), UtilsName.GetPlayerColor(Player, true), Player), BomKiller.PlayerId);
             }
             else
             {
-                Utils.SendMessage(string.Format(GetString("JizoKillerText")), Killer.PlayerId);
+                Utils.SendMessage(string.Format(GetString("JizoKillerText")), BomKiller.PlayerId);
             }
             ++sendCount;
         }
 
-        UsedRoom = null;
         KilledRoom = null;
 
         Killed = false;
@@ -353,12 +355,14 @@ public sealed class Jizo : RoleBase
         BomKilled = false;
         BomKilledRoom = null;
         BomKiller = null;
+
+        RpcJizo(null); //UsedRoom=nullをクライアントにも反映
     }
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
 
-        if (!IsUsed)
+        if (!IsUsed || UsedRoom == null)
         {
             return "";
         }
@@ -368,359 +372,18 @@ public sealed class Jizo : RoleBase
     {
         if (!OptionVent.GetBool()) return true;
         var user = physics.myPlayer;
-        if (Main.NormalOptions.MapId is 0)
+        var userRoom = user.GetPlainShipRoom();
+        if (userRoom == null) return true;
+        foreach (var jizo in PlayerCatch.AllAlivePlayerControls)
         {
-            if (ventId == 2 && UsedRoom == SystemTypes.Cafeteria)
+            if (jizo.GetRoleClass() is not Jizo j) continue;
+            if (userRoom.RoomId == j.UsedRoom)
             {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
+                j.vented = true;
+                j.VentUser = user;
+                j.Detectioned = true;
+                j.VentedRoom = j.UsedRoom;
             }
-            if (ventId == 7 && UsedRoom == SystemTypes.Weapons)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (UsedRoom == SystemTypes.Nav)
-            {
-                if (ventId == 12 || ventId == 13)
-                {
-                    vented = true;
-                    VentUser = user;
-                    Detectioned = true;
-                    VentedRoom = UsedRoom;
-                    return true;
-                }
-            }
-            if (ventId == 10 && UsedRoom == SystemTypes.Shields)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 0 && UsedRoom == SystemTypes.Admin)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 6 && UsedRoom == SystemTypes.MedBay)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 5 && UsedRoom == SystemTypes.Security)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 9 && UsedRoom == SystemTypes.LowerEngine)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 4 && UsedRoom == SystemTypes.UpperEngine)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (UsedRoom == SystemTypes.Reactor)
-            {
-                if (ventId == 11 || ventId == 8)
-                {
-                    vented = true;
-                    VentUser = user;
-                    Detectioned = true;
-                    VentedRoom = UsedRoom;
-                    return true;
-                }
-            }
-            return true;
-        }
-        if (Main.NormalOptions.MapId is 1)
-        {
-            if (ventId == 11 && UsedRoom == SystemTypes.Launchpad)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 8 && UsedRoom == SystemTypes.Launchpad)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 1 && UsedRoom == SystemTypes.Balcony)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 2 && UsedRoom == SystemTypes.Cafeteria)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 6 && UsedRoom == SystemTypes.Admin)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 5 && UsedRoom == SystemTypes.Office)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 10 && UsedRoom == SystemTypes.LockerRoom)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 9)
-            {
-                if (UsedRoom == SystemTypes.Decontamination || UsedRoom == SystemTypes.Decontamination2 || UsedRoom == SystemTypes.Decontamination3)
-                {
-                    vented = true;
-                    VentUser = user;
-                    Detectioned = true;
-                    VentedRoom = UsedRoom;
-                    return true;
-                }
-            }
-            if (ventId == 3 && UsedRoom == SystemTypes.Reactor)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 4 && UsedRoom == SystemTypes.Laboratory)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 7 && UsedRoom == SystemTypes.Greenhouse)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            return true;
-        }
-        if (Main.NormalOptions.MapId is 2)
-        {
-            if (ventId == 0 && UsedRoom == SystemTypes.Electrical)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 2 && UsedRoom == SystemTypes.LifeSupp)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 4 && UsedRoom == SystemTypes.Office)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 5 && UsedRoom == SystemTypes.Admin)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 6 && UsedRoom == SystemTypes.Laboratory)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            return true;
-        }
-        if (Main.NormalOptions.MapId is 4)
-        {
-            if (ventId == 11 && UsedRoom == SystemTypes.CargoBay)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-
-            if (ventId == 10 && UsedRoom == SystemTypes.Storage)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 9 && UsedRoom == SystemTypes.Showers)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (UsedRoom == SystemTypes.MainHall)
-            {
-                if (ventId == 5 || ventId == 6)
-                    vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 3 && UsedRoom == SystemTypes.Engine)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 4 && UsedRoom == SystemTypes.Kitchen)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 2 && UsedRoom == SystemTypes.ViewingDeck)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 1 && UsedRoom == SystemTypes.Cockpit)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (ventId == 0 && UsedRoom == SystemTypes.VaultRoom)
-            {
-                vented = true;
-                VentUser = user;
-                Detectioned = true;
-                VentedRoom = UsedRoom;
-                return true;
-            }
-            if (UsedRoom == SystemTypes.GapRoom)
-            {
-                if (ventId == 8 || ventId == 7)
-                {
-                    vented = true;
-                    VentUser = user;
-                    Detectioned = true;
-                    VentedRoom = UsedRoom;
-                    return true;
-                }
-            }
-            if (Main.NormalOptions.MapId is 5)
-            {
-                if (ventId == 4 && UsedRoom == SystemTypes.Laboratory)
-                {
-                    vented = true;
-                    VentUser = user;
-                    Detectioned = true;
-                    VentedRoom = UsedRoom;
-                    return true;
-                }
-                if (ventId == 1 && UsedRoom == SystemTypes.Kitchen)
-                {
-                    vented = true;
-                    VentUser = user;
-                    Detectioned = true;
-                    VentedRoom = UsedRoom;
-                    return true;
-                }
-                if (ventId == 5 && UsedRoom == SystemTypes.Reactor)
-                {
-                    vented = true;
-                    VentUser = user;
-                    Detectioned = true;
-                    VentedRoom = UsedRoom;
-                    return true;
-                }
-                if (ventId == 2 && UsedRoom == SystemTypes.ViewingDeck)
-                {
-                    vented = true;
-                    VentUser = user;
-                    Detectioned = true;
-                    VentedRoom = UsedRoom;
-                    return true;
-                }
-                return true;
-            }
-            return true;
         }
         return true;
     }

@@ -13,7 +13,6 @@ using TownOfHost.Roles.Madmate;
 using UnityEngine;
 using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.PlayerCatch;
-using static TownOfHost.Translator;
 namespace TownOfHost.Roles.Neutral;
 
 public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISelfVoter
@@ -181,14 +180,6 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
     public static bool GetTamaCountAsKillerOnlyWhenPromotionEnabled() => OptionTamaCountAsKillerOnlyWhenPromotionEnabled?.GetBool() ?? false;
     public static bool GetSidekickPromotion() => OptionSidekickPromotion?.GetBool() ?? false;
 
-    public static void HideRoleOptions(CustomRoles role)
-    {
-        if (Options.CustomRoleSpawnChances != null && Options.CustomRoleSpawnChances.TryGetValue(role, out var sp))
-            sp.SetHidden(true);
-        if (Options.CustomRoleCounts != null && Options.CustomRoleCounts.TryGetValue(role, out var cp))
-            cp.SetHidden(true);
-    }
-
     static void SetUpOptionItem()
     {
         OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
@@ -234,8 +225,6 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
 
         ObjectOptionitem.Create(RoleInfo, 37, "AddonOption", true, null).SetOptionName(() => "Sidekick Setting");
         RoleAddAddons.Create(RoleInfo, 38, NeutralKiller: true);
-
-        HideRoleOptions(CustomRoles.Tama);
     }
 
     public float CalculateKillCooldown() => KillCooldown;
@@ -727,7 +716,7 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
             float dot = Vector2.Dot(toTarget, dir);
             if (dot <= 0) continue;
             if ((toTarget - dir * dot).magnitude > 1.3f) continue;
-            CustomRoleManager.HadouHoOnCheckMurder(Player, target, target, target, true, deathReason: CustomDeathReason.Evaporation);
+            CustomRoleManager.HadouHoOnCheckMurder(Player, target, target, target, true, Killpower: 3 ,deathReason: CustomDeathReason.Evaporation);
             Jizo.Checkroom(Player.GetPlainShipRoom(), Player);
             if (OptionKillFlash.GetBool())
             {
@@ -756,7 +745,7 @@ public sealed class JackalHadouHo : RoleBase, ILNKiller, IUsePhantomButton, ISel
             if (dot <= 0) continue;
             if ((toTarget - dir * dot).magnitude > 4.0f) continue;
             Jizo.Checkroom(Player.GetPlainShipRoom(), Player);
-            CustomRoleManager.HadouHoOnCheckMurder(Player, target, target, target, true, deathReason: CustomDeathReason.Evaporation);
+            CustomRoleManager.HadouHoOnCheckMurder(Player, target, target, target, true, Killpower: 10, deathReason: CustomDeathReason.Evaporation);
             if (OptionKillFlash.GetBool())
             {
                 Player.KillFlash();
@@ -1102,7 +1091,7 @@ public sealed class Tama : RoleBase, IKiller
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
             554900,
-            SetupOptionItem,
+            null,
             "bul",
             "#00b4eb",
             (1, 6),
@@ -1113,8 +1102,7 @@ public sealed class Tama : RoleBase, IKiller
 
     private static void SetupOptionItem()
     {
-        JackalHadouHo.HideRoleOptions(CustomRoles.Tama);
-        RoleAddAddons.Create(RoleInfo, 10, NeutralKiller: true);
+        //RoleAddAddons.Create(RoleInfo, 10, NeutralKiller: true);
     }
 
     public Tama(PlayerControl player)

@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
-using MS.Internal.Xml.XPath;
 using TownOfHost.Patches;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
@@ -11,7 +9,6 @@ using TownOfHost.Roles.Madmate;
 using UnityEngine;
 using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.PlayerCatch;
-using static TownOfHost.Translator;
 using static TownOfHost.Utils;
 namespace TownOfHost.Roles.Neutral;
 
@@ -111,7 +108,6 @@ public sealed class Onmyoji : RoleBase, IKiller, ISelfVoter
         OptionShikigamiSuicideCooldown = FloatOptionItem.Create(RoleInfo, 21, OptionName.OnmyojiShikigamiSuicideCooldown, new(0f, 60f, 2.5f), 10f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OverrideTasksData.Create(RoleInfo, 30);
-        PavlovDog.HideRoleOptions(CustomRoles.Shikigami);
     }
 
     public static float GetShikigamiShiftCooldown() => OptionShikigamiShiftCooldown?.GetFloat() ?? 20f;
@@ -647,7 +643,7 @@ public sealed class Shikigami : RoleBase, IUsePhantomButton, IKillFlashSeeable
             () => RoleTypes.Phantom,
             CustomRoleTypes.Neutral,
             54300,
-            SetupOptionItem,
+            null,
             "skg",
             "#9b59b6",
             (6, 1),
@@ -681,7 +677,6 @@ public sealed class Shikigami : RoleBase, IUsePhantomButton, IKillFlashSeeable
         EnsurePetActionRegistered();
     }
 
-    private static void SetupOptionItem() { PavlovDog.HideRoleOptions(CustomRoles.Shikigami); }
 
     public override void OnSpawn(bool initialState)
     {

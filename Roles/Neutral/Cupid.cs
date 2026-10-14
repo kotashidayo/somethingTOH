@@ -5,8 +5,6 @@ using Hazel;
 using TownOfHost.Attributes;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using TownOfHost.Roles.Madmate;
-using UnityEngine;
 using static TownOfHost.PlayerCatch;
 
 namespace TownOfHost.Roles.Neutral;

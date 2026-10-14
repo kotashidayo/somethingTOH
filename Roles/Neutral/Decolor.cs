@@ -61,7 +61,7 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
     }
     public bool CanKill { get; private set; } = false;
     public static HashSet<byte> DecoloredPlayers = new();
-    static HashSet<byte> DecolorWaitPlayers = new();
+    public static HashSet<byte> DecolorWaitPlayers = new();
     //ディカラー個人の脱色待ちプレイヤー
     HashSet<byte> InstanceWaitPlayers = new();
     //ディカラー個人の脱色したプレイヤー
@@ -257,7 +257,6 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
         {
             Win();
         }
-        DecolorPlayer();
     }
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
@@ -269,6 +268,7 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
                 NotifyDecolored.Add(wait);
             }
         }
+        DecolorPlayer();
         DecolorWaitPlayers.Clear();
         InstanceWaitPlayers.Clear();
         if (!Player.IsAlive() && !Modosita)
@@ -322,6 +322,8 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
                 sender.SendMessage();
             }
         }
+        UtilsNotifyRoles.NotifyRoles(false, true);
+        UtilsNotifyRoles.NotifyMeetingRoles();
     }
     public static void Color(PlayerControl player)
     {
@@ -391,6 +393,8 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
                 sender.SendMessage();
             }
         }
+        UtilsNotifyRoles.NotifyRoles(false, true);
+        UtilsNotifyRoles.NotifyMeetingRoles();
     }
     static void RpcChColor(PlayerControl pc, byte Color, bool NonSkin = false)
     {

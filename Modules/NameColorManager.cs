@@ -70,7 +70,9 @@ namespace TownOfHost
                 || Sniper.KnowTargetRoleColor(target, isMeeting)
                 || ((seer.Is(CountTypes.Jackal) || seer.Is(CustomRoles.Jackaldoll)) && (target.Is(CountTypes.Jackal) || target.Is(CustomRoles.Jackaldoll) || (target.Is(CustomRoles.DollBetrayer) && (target.GetRoleClass() is DollBetrayer dl && dl.IsJackal() is true))))
                 || (seer.Is(CountTypes.MilkyWay) && target.Is(CountTypes.MilkyWay))
-                || (seer.Is(CustomRoles.Dracula) && target.Is(CustomRoles.Dracula));
+                || (seer.Is(CustomRoles.Dracula) && target.Is(CustomRoles.Dracula))
+                || (seer.GetRoleClass() is Moira moira && moira.remainingSwaps <= 0)
+                ;
         }
         public static bool TryGetData(PlayerControl seer, PlayerControl target, out string colorCode)
         {

@@ -120,7 +120,7 @@ public sealed class Samurai : RoleBase, IImpostor, IUsePhantomButton
             if (!target.IsAlive()) continue;
             if (target.GetCustomRole().IsImpostor() && !SuddenDeathMode.NowSuddenDeathMode) continue;
             if (SuddenDeathMode.NowSuddenDeathTemeMode && SuddenDeathMode.IsSameteam(target.PlayerId, Player.PlayerId)) continue;
-            if (CustomRoleManager.OnCheckMurder(Player, target, target, target, true, true, 1, CustomDeathReason.Kill))
+            if (CustomRoleManager.OnCheckMurder(Player, target, target, target, false, false, 10, CustomDeathReason.Kill))
             {
                 killCount++;
             }

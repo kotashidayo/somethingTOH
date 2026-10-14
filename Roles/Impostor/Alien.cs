@@ -9,7 +9,6 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
 using static TownOfHost.Modules.SelfVoteManager;
-using static UnityEngine.GraphicsBuffer;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -99,12 +98,12 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         stopCount = true;
         // 時間切れ状態で会議を迎えたらはしご中でも構わずキルする
         if (AbductVictim != null && AbductTimer <= 0f)
-            CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim, Killpower: 1);
+            Player.RpcMurderPlayerV2(AbductVictim);
         if (MeetingKill)
         {
             if (AbductVictim != null)
             {
-                CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim, Killpower: 1);
+                Player.RpcMurderPlayerV2(AbductVictim);
                 RemoveVictim();
             }
         }
@@ -215,7 +214,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                     Player.RpcMurderPlayer(Player);
                     continue;
                 }
-                CustomRoleManager.OnCheckMurder(Player, bomtarget, bomtarget, bomtarget, true, true, 2, CustomDeathReason.Bombed);
+                Player.RpcMurderPlayerV2(AbductVictim);
             }
             return;
         }
@@ -224,7 +223,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
             if (target != AbductVictim)
             {
                 //拉致中は拉致相手しか切れない
-                CustomRoleManager.OnCheckMurder(Player, AbductVictim, Player, AbductVictim, Killpower: 1);
+                Player.RpcMurderPlayerV2(AbductVictim);
                 Player.ResetKillCooldown();
                 info.DoKill = false;
             }
@@ -670,7 +669,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                     _ = new LateTask(() =>
                     {
                         var pos = target.transform.position;
-                        if (CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 1))
+                        if (CustomRoleManager.OnCheckMurder(user, target, target, target, true, Killpower: 10))
                         {
                             Player.RpcSnapToForced(pos);
                         }
@@ -678,7 +677,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                 }
                 else
                 {
-                    CustomRoleManager.OnCheckMurder(user, target, target, target, Killpower: 1);
+                    CustomRoleManager.OnCheckMurder(user, target, target, target, true, Killpower: 10);
                 }
 
                 RPC.PlaySoundRPC(user.PlayerId, Sounds.KillSound);

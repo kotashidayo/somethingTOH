@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using TownOfHost.Roles.Crewmate;
 using UnityEngine;
 using static TownOfHost.PlayerCatch;
 
@@ -81,25 +79,9 @@ public sealed class PavlovDog : PavlovDogBase
         OptionResetRampageTimerOnMeeting = BooleanOptionItem.Create(RoleInfo, 24, OptionName.PavlovDogResetRampageTimerOnMeeting, true, false);
 
         RoleAddAddons.Create(RoleInfo, 30, NeutralKiller: true);
-
-        HideRoleOptions(CustomRoles.PavlovOwner);
     }
 
 
-    public static void HideRoleOptions(CustomRoles role)
-    {
-        if (Options.CustomRoleSpawnChances != null &&
-            Options.CustomRoleSpawnChances.TryGetValue(role, out var spawnOption))
-        {
-            spawnOption.SetHidden(true);
-        }
-
-        if (Options.CustomRoleCounts != null &&
-            Options.CustomRoleCounts.TryGetValue(role, out var countOption))
-        {
-            countOption.SetHidden(true);
-        }
-    }
 
     public static bool IsPavlovTeamRole(CustomRoles role)
         => role is CustomRoles.PavlovDog or CustomRoles.PavlovOwner;
@@ -172,7 +154,7 @@ public sealed class PavlovOwner : RoleBase, IKiller, IAdditionalWinner, ISchrodi
             GetOwnerBaseRoleType,
             CustomRoleTypes.Neutral,
             77200,
-            SetupOptionItem,
+            null,
             "pvo",
             "#F4A96A",
             (6, 5),
@@ -211,10 +193,6 @@ public sealed class PavlovOwner : RoleBase, IKiller, IAdditionalWinner, ISchrodi
         UtilsNotifyRoles.NotifyRoles();
     }
 
-    private static void SetupOptionItem()
-    {
-        PavlovDog.HideRoleOptions(CustomRoles.PavlovOwner);
-    }
 
     public override void Add()
     {

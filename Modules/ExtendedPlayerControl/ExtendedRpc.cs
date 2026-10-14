@@ -1,24 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection; 
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using MS.Internal.Xml.XPath;
-using Rewired;
 using TownOfHost.Modules;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Impostor;
-using TownOfHost.Roles.Madmate;
 using TownOfHost.Roles.Neutral;
 using UnityEngine;
 using static TownOfHost.ExtendedPlayerControl;
 using static TownOfHost.Translator;
-using static UnityEngine.GraphicsBuffer;
 
 namespace TownOfHost
 {
@@ -468,13 +463,17 @@ namespace TownOfHost
         public static void RpcExileV2(this PlayerControl player)
         {
             if (player == null) return;
-            foreach (var p in PlayerCatch.AllPlayerControls)
+            /*foreach (var p in PlayerCatch.AllPlayerControls)
             {
                 if (p.GetRoleClass() is SilentKiller sk)
                 {
                     sk.Restore(player.PlayerId);
                 }
             }
+            if (player.GetRoleClass() is Sheriff sheriff)
+            {
+                sheriff.ForceTaskModeOnDeath();
+            }*/
             player.Exiled();
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.None, -1);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -489,6 +488,10 @@ namespace TownOfHost
                 {
                     sk.Restore(player.PlayerId);
                 }
+            }
+            if (player.GetRoleClass() is Sheriff sheriff)
+            {
+                sheriff.ForceTaskModeOnDeath();
             }
             CustomRoleManager.AllActiveRoles.Do(role => role.Value.CheckDead(player));
 
@@ -569,6 +572,10 @@ namespace TownOfHost
                 }
             }
             Decolor.Color(target);
+            if (target.GetRoleClass() is Sheriff sheriff)
+            {
+                sheriff.ForceTaskModeOnDeath();
+            }
             killer.RpcMurderPlayer(target, true);
         }
         public static void RpcMurderPlayerV2(this PlayerControl killer, PlayerControl target)
@@ -581,6 +588,10 @@ namespace TownOfHost
                 {
                     sg.Otosu(target, killer);
                 }
+            }
+            if (target.GetRoleClass() is Sheriff sheriff)
+            {
+                sheriff.ForceTaskModeOnDeath();
             }
             if (AmongUsClient.Instance.AmClient)
             {

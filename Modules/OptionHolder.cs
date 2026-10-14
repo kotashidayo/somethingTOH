@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
-using UnityEngine;
-
 using TownOfHost.Modules;
 using TownOfHost.Roles;
-using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Neutral;
+using TownOfHost.Roles.Core;
+using UnityEngine;
 
 namespace TownOfHost
 {
@@ -48,6 +47,43 @@ namespace TownOfHost
     {
         //static Task taskOptionsLoad;
         public static bool LoadError;
+        public static readonly List<CustomRoles> HideRoles = new()
+        {
+            // ～通常配役しないやつら～
+            CustomRoles.AlienHijack,
+            CustomRoles.Tama,
+            CustomRoles.PoisonedBakery,
+            CustomRoles.Sinner,
+            CustomRoles.Mourner,
+            CustomRoles.Hero,
+            CustomRoles.SoulSlave,
+            CustomRoles.Gang,
+            CustomRoles.Betrayer,
+            CustomRoles.Shikigami,
+            CustomRoles.PavlovOwner,
+            CustomRoles.Stand,
+            CustomRoles.DummyHunterPlayer,
+            CustomRoles.TaskPlayerB,
+            // ～封印～
+            CustomRoles.Moira,
+        };
+        /// <summary>
+        /// スキン変更するから封印するかもしれないやつら
+        /// </summary>
+        public static readonly List<CustomRoles> SetSkinRoles = new()
+        {
+            CustomRoles.Decolor,
+            CustomRoles.Camouflager,
+            CustomRoles.Monochromer,
+        };
+        /// <summary>
+        /// 封印するかもしれないやつら
+        /// </summary>
+        public static readonly List<CustomRoles> Fuuin = new()
+        {
+            CustomRoles.Amnesiac,
+            CustomRoles.Terrorist,
+        };
         [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize)), HarmonyPostfix]
         public static void OptionsLoadStart(TranslationController __instance)
         {
@@ -1542,8 +1578,7 @@ namespace TownOfHost
                     }
                     foreach (var info in RoleList.OrderBy(role => role.OptionSort.SortNumber))
                     {
-                        if (info.RoleName is CustomRoles.AlienHijack) continue;
-                        if (info.RoleName is CustomRoles.DummyHunterPlayer) continue;
+                        if (HideRoles.Contains(info.RoleName)) continue;
                         SetupRoleOptions(info);
                         info.OptionCreator?.Invoke();
                         if (roleTypes is CustomRoleTypes.Crewmate && info.RoleName is CustomRoles.Judge)

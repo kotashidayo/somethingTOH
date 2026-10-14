@@ -173,13 +173,13 @@ public static class MeetingHudPatch
 
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId].Clear();
 
-                if (Main.CheckShapeshift.TryGetValue(pc.PlayerId, out var shapeshifting) && shapeshifting && AmongUsClient.Instance.AmHost)
+                if (Main.CheckShapeshift.TryGetValue(pc.PlayerId, out var shapeshifting) && shapeshifting && AmongUsClient.Instance.AmHost && !Decolor.DecoloredPlayers.Contains(pc.PlayerId) && !Decolor.DecolorWaitPlayers.Contains(pc.PlayerId))
                 {
                     pc.RpcShapeshift(pc, false);
                 }
                 if (!pc.IsAlive() && !Assassin.NowUse)
                 {
-                    //if (AmongUsClient.Instance.AmHost) pc.RpcExileV3();
+                    if (AmongUsClient.Instance.AmHost) pc.RpcExileV3();
                 }//  会議時に生きてたぜリスト追加
                 else
                 {

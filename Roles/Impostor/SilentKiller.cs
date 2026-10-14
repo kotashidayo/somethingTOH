@@ -31,7 +31,7 @@ namespace TownOfHost.Roles.Impostor
         )
         {
             StopTime = OptStopTime.GetFloat();
-            HidePos = new Vector2(45f, 0f);   // RPCの座標は±50程度に丸められるため、範囲内に収める(100だと50に切り詰められる)
+            HidePos = new Vector2(45f, 45f);   // RPCの座標は±50程度に丸められるため、範囲内に収める(100だと50に切り詰められる)
             SyncTimer = 0f;
             RealPos.Clear();
             StopTimer.Clear();

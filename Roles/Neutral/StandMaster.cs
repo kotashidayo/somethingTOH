@@ -4,10 +4,8 @@ using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 using UnityEngine;
-using TownOfHost;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using TownOfHost.Roles.Madmate;
 using HarmonyLib;
 
 namespace TownOfHost.Roles.Neutral;
@@ -148,15 +146,6 @@ public sealed class StandMaster : RoleBase, ILNKiller, IUsePhantomButton
         OptionAddonAllowDebuff = BooleanOptionItem.Create(
             RoleInfo, 17, OptionName.StandAddonAllowDebuff, false, false, OptionEnableTaskAddon);
 
-        HideRoleOptions(CustomRoles.Stand);
-    }
-
-    public static void HideRoleOptions(CustomRoles role)
-    {
-        if (Options.CustomRoleSpawnChances != null && Options.CustomRoleSpawnChances.TryGetValue(role, out var spawnOption))
-            spawnOption.SetHidden(true);
-        if (Options.CustomRoleCounts != null && Options.CustomRoleCounts.TryGetValue(role, out var countOption))
-            countOption.SetHidden(true);
     }
 
     public override void Add()
@@ -523,7 +512,7 @@ public sealed class Stand : RoleBase, ILNKiller
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             54500,
-            SetupOptionItem,
+            null,
             "std",
             "#8B4513",
             (6, 4),
@@ -536,8 +525,6 @@ public sealed class Stand : RoleBase, ILNKiller
         OwnerId = byte.MaxValue;
         isFollowingDeath = false;
     }
-
-    static void SetupOptionItem() => StandMaster.HideRoleOptions(CustomRoles.Stand);
 
     public byte OwnerId;
     bool isFollowingDeath;

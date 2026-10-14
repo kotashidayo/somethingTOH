@@ -386,8 +386,6 @@ using System.Collections.Generic;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
-using static TownOfHost.PlayerCatch;
-using static TownOfHost.Translator;
 using static TownOfHost.Utils;
 
 namespace TownOfHost.Roles.Impostor;
@@ -401,7 +399,7 @@ public sealed class Swooper : RoleBase, IImpostor, IUsePhantomButton
             CustomRoles.Swooper,
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
-            19600,
+            19000,
             SetupOptionItem,
             "sw",
             OptionSort: (6, 14),

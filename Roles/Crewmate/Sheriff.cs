@@ -375,7 +375,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
         }
     }
 
-    private void ForceTaskModeOnDeath()
+    public void ForceTaskModeOnDeath()
     {
         diedTaskModeApplied = true;
         Taskmode = true;

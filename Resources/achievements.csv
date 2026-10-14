@@ -685,6 +685,11 @@
 "58102_Info","Get killed after reflecting a kill.","キル反射後、キルされる"
 "58102_Constraint","Kill at least one player","一人以上キルしていること"
 
+"19100_Title","","きたねえ花火だ"
+"19100_Info","","10回打ち上げる"
+"19101_Title","","宇宙まで飛んでいけ！"
+"19101_Info","","<20>回<打ち上げ>る"
+
 "100000_Title","Welcome to TownOfHost-Pko!","Welcome to TownOfHost-Pko!"
 "100000_Info","Play your first match","初めて試合を行う"
 "100001_Title","Exciting Game","わくわくですげーむ"

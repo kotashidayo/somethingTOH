@@ -15,7 +15,6 @@ using TownOfHost.Roles.AddOns.Common;
 using static TownOfHost.Utils;
 using static TownOfHost.Translator;
 using static TownOfHost.UtilsRoleText;
-using Rewired;
 
 namespace TownOfHost
 {

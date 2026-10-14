@@ -1,10 +1,8 @@
-using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 /// <Memo>
 /// 転がる設定ONの時、転がりながらひき殺しも考えた。

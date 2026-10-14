@@ -10,7 +10,6 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
 using static TownOfHost.Modules.SelfVoteManager;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Neutral;
 

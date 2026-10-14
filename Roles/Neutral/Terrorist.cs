@@ -49,8 +49,7 @@ public sealed class Terrorist : RoleBase
     {
         SoloWinOption.Create(RoleInfo, 9, defo: 1);
         OptionCanSuicideWin = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanTerroristSuicideWin, false, false);
-        // 20-23を使用
-        Tasks = OverrideTasksData.Create(RoleInfo, 20);
+        Tasks = OverrideTasksData.Create(RoleInfo, 11);
     }
 
     public override void ApplyGameOptions(IGameOptions opt)

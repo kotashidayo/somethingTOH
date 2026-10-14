@@ -7,7 +7,6 @@ using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Madmate;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 namespace TownOfHost.Roles.Impostor
 {
@@ -148,9 +147,11 @@ namespace TownOfHost.Roles.Impostor
                     var target = PlayerCatch.GetPlayerById(targetId);
                     if (target.IsAlive())
                     {
-                        if (IsDetectioned)
+                        foreach (var jp in PlayerCatch.AllAlivePlayerControls)
                         {
-                            Jizo.BomKilled = true;
+                            if (jp.GetRoleClass() is not Jizo jizo) continue;
+                            if (!jizo.BomDetectioned || jizo.bomber != _) continue;
+                            jizo.BomKilled = true;
                         }
                         var pos = target.transform.position;
                         var count = 0;

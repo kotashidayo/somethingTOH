@@ -80,7 +80,7 @@ dotnet_style_allow_multiple_blank_lines_experimental = false:suggestion
 dotnet_diagnostic.IDE0200.severity = none
 
 # 未使用のusingを情報レベルでお知らせ
-dotnet_diagnostic.IDE0005.severity = suggestion
+dotnet_diagnostic.IDE0005.severity = warning
 
 # プライマリコンストラクタを使用しない
 dotnet_diagnostic.IDE0290.severity = none

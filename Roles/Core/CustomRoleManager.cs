@@ -5,7 +5,6 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using Il2CppSystem.Text;
-using Rewired;
 using TownOfHost.Modules;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core.Interfaces;

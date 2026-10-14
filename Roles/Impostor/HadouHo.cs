@@ -8,7 +8,6 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Crewmate;
 using UnityEngine;
-using static UnityEngine.ParticleSystem.PlaybackState;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -288,7 +287,7 @@ public sealed class HadouHo : RoleBase, IImpostor, IUsePhantomButton
             var perp = toTarget - proj;
             if (perp.magnitude > 1.3f) continue;
             Jizo.Checkroom(Player.GetPlainShipRoom(), Player);
-            CustomRoleManager.HadouHoOnCheckMurder(Player, target, target, target, true, deathReason: CustomDeathReason.Evaporation);
+            CustomRoleManager.HadouHoOnCheckMurder(Player, target, target, target, true, Killpower: 3, deathReason: CustomDeathReason.Evaporation);
             if (OptionKillFlash.GetBool())
             {
                 Player.KillFlash();

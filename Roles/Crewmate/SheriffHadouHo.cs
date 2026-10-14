@@ -412,7 +412,7 @@ public sealed class SheriffHadouHo : RoleBase, IUsePhantomButton, IKiller
             var perp = toTarget - proj;
             if (perp.magnitude > 1.3f) continue;
             Jizo.Checkroom(Player.GetPlainShipRoom(), Player);
-            CustomRoleManager.HadouHoOnCheckMurder(Player, target, target, target, true, deathReason: CustomDeathReason.Evaporation);
+            CustomRoleManager.HadouHoOnCheckMurder(Player, target, target, target, true, Killpower: 3, deathReason: CustomDeathReason.Evaporation);
             if (OptionKillFlash.GetBool())
             {
                 Player.KillFlash();

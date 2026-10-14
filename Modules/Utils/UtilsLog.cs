@@ -14,8 +14,6 @@ using static TownOfHost.Utils;
 using static TownOfHost.Translator;
 using static TownOfHost.PlayerCatch;
 using static TownOfHost.UtilsRoleText;
-using TownOfHost.Attributes;
-using Rewired;
 
 namespace TownOfHost
 {

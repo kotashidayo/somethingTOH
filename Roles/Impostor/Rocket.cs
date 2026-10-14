@@ -1,17 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using Epic.OnlineServices.Presence;
-using Epic.OnlineServices.RTC;
 using Hazel;
-using Il2CppSystem.Reflection;
-using MS.Internal.Xml.XPath;
-using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Crewmate;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -24,7 +18,7 @@ public sealed class Rocket : RoleBase, IImpostor, IUsePhantomButton
             CustomRoles.Rocket,
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
-            19000,
+            19100,
             SetupOptionItem,
             "rkt",
             OptionSort: (4, 14),
@@ -43,7 +37,6 @@ public sealed class Rocket : RoleBase, IImpostor, IUsePhantomButton
 
         CustomRoleManager.LowerOthers.Add(GetLowerTextOthers);
     }
-
     static OptionItem OptionInitialGrabCooldown; static float InitialGrabCooldown;
     static OptionItem OptionSubsequentGrabCooldown; static float SubsequentGrabCooldown;
     static OptionItem OptionLaunchCooldown; static float LaunchCooldown;
@@ -63,7 +56,7 @@ public sealed class Rocket : RoleBase, IImpostor, IUsePhantomButton
     bool launchPending;
     float killCDOverride;
     int snapFrame = 0;
-
+    int count;
     static readonly Dictionary<byte, (string msg, float expireTime)> LaunchNotifications = new();
 
     static void SetupOptionItem()
@@ -93,6 +86,7 @@ public sealed class Rocket : RoleBase, IImpostor, IUsePhantomButton
     {
         killCDOverride = InitialGrabCooldown;
         Main.AllPlayerKillCooldown[Player.PlayerId] = killCDOverride;
+        count = 0;
     }
 
     public override void ApplyGameOptions(IGameOptions opt)
@@ -252,6 +246,7 @@ public sealed class Rocket : RoleBase, IImpostor, IUsePhantomButton
             }
             target.RpcExileV3();
             PlayerState.GetByPlayerId(target.PlayerId).SetDead();
+            ++count;
 
             UtilsGameLog.AddGameLog("Rocket",
                 $"{UtilsName.GetPlayerColor(Player)}が{UtilsName.GetPlayerColor(target)}を打ち上げた");
@@ -262,6 +257,9 @@ public sealed class Rocket : RoleBase, IImpostor, IUsePhantomButton
 
             NotifyLaunchToNearby(launchPos);
         }
+        using var sender = CreateSender();
+        sender.Writer.Write((byte)4);
+        sender.Writer.Write(count);
 
         UtilsNotifyRoles.NotifyRoles();
     }
@@ -522,6 +520,10 @@ public sealed class Rocket : RoleBase, IImpostor, IUsePhantomButton
         {
             CustomSound.Play(CustomSound.Firework);
         }
+        else if (rpcType == 4)
+        {
+            count = reader.ReadInt32();
+        }
     }
 
     public override string GetAbilityButtonText() =>
@@ -537,5 +539,14 @@ public sealed class Rocket : RoleBase, IImpostor, IUsePhantomButton
     {
         text = "Rocket_Ability";
         return true;
+    }
+    public static System.Collections.Generic.Dictionary<int, Achievement> achievements = new();
+    [Attributes.PluginModuleInitializer]
+    public static void Load()
+    {
+        var n1 = new Achievement(RoleInfo, 0, 10, 0, 2);
+        var l1 = new Achievement(RoleInfo, 1, 20, 0, 3);
+        achievements.Add(0, n1);
+        achievements.Add(1, l1);
     }
 }

@@ -1,23 +1,23 @@
-using System.Text;
-using System.Linq;
 using System.Data;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using HarmonyLib;
-using UnityEngine;
-
 using TownOfHost.Modules;
+using TownOfHost.Roles.AddOns.Common;
+using TownOfHost.Roles.AddOns.Impostor;
+using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Neutral;
-using TownOfHost.Roles.AddOns.Common;
-using TownOfHost.Roles.AddOns.Neutral;
-using TownOfHost.Roles.AddOns.Impostor;
-
-using static TownOfHost.Utils;
+using UnityEngine;
 using static TownOfHost.RandomSpawn;
+using static TownOfHost.Utils;
 using static TownOfHost.UtilsRoleText;
-using TownOfHost.Roles.Crewmate;
+using static UnityEngine.GraphicsBuffer;
+using static UnityEngine.ParticleSystem.PlaybackState;
 
 namespace TownOfHost
 {
@@ -373,11 +373,6 @@ namespace TownOfHost
                             {
                                 TargetPlayerName = $"<size=0>{TargetPlayerName}</size> ";
                                 name = $"<size=0>{name}</size>";
-                            }
-                            if (Decolor.DecoloredPlayers.Contains(target.PlayerId))
-                            {
-                                TargetPlayerName = $"<#C9CDD2>×</color><size=0>{TargetPlayerName}</size> ";
-                                name = $"<#C9CDD2>×</color><size=0>{name}</size>";
                             }
                             //全てのテキストを合成します。
                             var lineheight = string.Format("<line-height={0}%>", "85");

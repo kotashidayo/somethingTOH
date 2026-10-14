@@ -3,6 +3,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
 		<GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 		<Description>fork by Town Of Host</Description>
 		<Authors>tukasa0001(EmptyBottle), integral0131</Authors>
 		<langVersion>preview</langVersion>

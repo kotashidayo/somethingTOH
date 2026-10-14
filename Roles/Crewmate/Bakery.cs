@@ -211,15 +211,6 @@ public sealed class PoisonedBakery : RoleBase
             CustomRoles.PoisonedBakery,
             defo: 0,
             parent: Bakery.PoisonedBakeryChanceOption);
-        HideRoleOptions(CustomRoles.PoisonedBakery);
-    }
-
-    public static void HideRoleOptions(CustomRoles role)
-    {
-        if (Options.CustomRoleSpawnChances != null && Options.CustomRoleSpawnChances.TryGetValue(role, out var sp))
-            sp.SetHidden(true);
-        if (Options.CustomRoleCounts != null && Options.CustomRoleCounts.TryGetValue(role, out var cp))
-            cp.SetHidden(true);
     }
 
     public override void Add()
