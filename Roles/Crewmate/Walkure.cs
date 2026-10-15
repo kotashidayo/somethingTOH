@@ -3,10 +3,8 @@ using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 using UnityEngine;
-using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Madmate;
 using static TownOfHost.Modules.SelfVoteManager;
 
@@ -517,7 +515,7 @@ public sealed class Walkure : RoleBase, ISelfVoter, IKiller
 
     private void ReflectRoleChange(PlayerControl actor, RoleChangeSource source)
     {
-        if (!actor.IsAlive()) return;
+        /*if (!actor.IsAlive()) return;
 
         var state = PlayerState.GetByPlayerId(actor.PlayerId);
         if (state != null) state.DeathReason = CustomDeathReason.Suicide;
@@ -536,7 +534,7 @@ public sealed class Walkure : RoleBase, ISelfVoter, IKiller
             actor.RpcMurderPlayerV2(actor);
         }
 
-        Logger.Info($"{actor.GetNameWithRole().RemoveHtmlTags()} self-destructed by Walkure reflection ({source}).", "Walkure");
+        Logger.Info($"{actor.GetNameWithRole().RemoveHtmlTags()} self-destructed by Walkure reflection ({source}).", "Walkure");*/
     }
 
     private void SendRPC()

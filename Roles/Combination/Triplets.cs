@@ -6,7 +6,6 @@ using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Crewmate;
 using static TownOfHost.Options;
-using static UnityEngine.GraphicsBuffer;
 
 namespace TownOfHost;
 

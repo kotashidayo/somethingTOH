@@ -12,7 +12,7 @@ public sealed class Terrorist : RoleBase
             typeof(Terrorist),
             player => new Terrorist(player),
             CustomRoles.Terrorist,
-            () => OptCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
+            () => OptCanUseVent?.GetBool() == true ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             15400,
             SetupOptionItem,
@@ -36,6 +36,14 @@ public sealed class Terrorist : RoleBase
     )
     {
         canSuicideWin = OptionCanSuicideWin.GetBool();
+    }
+    public override void Add()
+    {
+        /*if (Options.CustomRoleSpawnChances[CustomRoles.Terrorist] != null)
+        {
+            Options.CustomRoleSpawnChances[CustomRoles.Terrorist].SetValue(0, true, false);
+        }*/
+        //Player.RpcSetCustomRole(CustomRoles.Jester);
     }
     private static OptionItem OptionCanSuicideWin;
     static OptionItem OptCanUseVent;

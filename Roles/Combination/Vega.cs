@@ -159,6 +159,7 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
             //Altair.RpcSetCustomRole(CustomRoles.Emptiness);
             Player.RpcSetCustomRole(CustomRoles.Monochromer);
             Altair.RpcSetCustomRole(CustomRoles.Monochromer);
+
             Options.CustomRoleSpawnChances[CustomRoles.Vega].SetValue(0, true, false);
             return;
         }

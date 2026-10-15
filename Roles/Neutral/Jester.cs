@@ -49,6 +49,8 @@ public sealed class Jester : RoleBase, IKiller
         SoloWinOption.Create(RoleInfo, 8, defo: 1);
         CanUseVent = BooleanOptionItem.Create(RoleInfo, 6, GeneralOption.CanVent, false, false);
         CanVentMove = BooleanOptionItem.Create(RoleInfo, 7, Option.MadmateCanMovedByVent, false, false, CanUseVent);
+
+        //消してもいいかなあ...テロとかいう壊れいるから...
         // ★ タスク完了を勝利条件にするか
         OptionRequireTask = BooleanOptionItem.Create(RoleInfo, 10, Option.JesterRequireTask, false, false);
         // ★ タスク数独自設定（MadJesterと同様）

@@ -23,6 +23,10 @@ public sealed class Betrayer : RoleBase, ILNKiller, ISchrodingerCatOwner
             (2, 0),
             true,
             from: From.TownOfHost_K,
+            assignInfo: new RoleAssignInfo(CustomRoles.Betrayer, CustomRoleTypes.Neutral)
+            {
+                IsInitiallyAssignableCallBack = () => false
+            },
             countType: CountTypes.Betrayer
         );
     public Betrayer(PlayerControl player)

@@ -4,7 +4,6 @@ using TownOfHost.Roles;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Madmate;
 
 namespace TownOfHost
 {
@@ -15,7 +14,7 @@ namespace TownOfHost
         /// <summary>すべての属性</summary>
         public static readonly CustomRoles[] AllAddOns = EnumHelper.GetAllValues<CustomRoles>().Where(role => role > CustomRoles.NotAssigned).ToArray();
         /// <summary>スタンダードモードで出現できるすべての役職</summary>
-        public static readonly CustomRoles[] AllStandardRoles = AllRoles.Where(role => role is not (CustomRoles.HASFox or CustomRoles.HASTroll or CustomRoles.TaskPlayerB)).ToArray();
+        public static readonly CustomRoles[] AllStandardRoles = AllRoles.Where(role => role is not (CustomRoles.HASFox or CustomRoles.HASTroll or CustomRoles.TaskPlayerB or CustomRoles.Moira)).ToArray();
         /// <summary>HASモードで出現できるすべての役職</summary>
         public static readonly CustomRoles[] AllHASRoles = { CustomRoles.HASFox, CustomRoles.HASTroll };
         public static readonly CustomRoleTypes[] AllRoleTypes = EnumHelper.GetAllValues<CustomRoleTypes>();

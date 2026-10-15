@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Crewmate;
 using static TownOfHost.Options;
 
 namespace TownOfHost
@@ -139,6 +140,13 @@ namespace TownOfHost
                     .SetParentRole(parent?.ParentRole ?? role)
                     .SetEnabled(show);
                 }
+                /*else if (role is CustomRoles.Shyboy)
+                {
+                    OptionWin = IntegerOptionItem.Create(IdStart, "SoloWinOption", new(0, 50, 1), defo, tab, false)
+                    //.SetParent(Shyboy.OptIsNeutral)
+                    .SetParentRole(parent?.ParentRole ?? role);
+                    //.SetEnabled(() => Shyboy.OptIsNeutral.GetBool());
+                }*/
                 else
                 {
                     OptionWin = IntegerOptionItem.Create(IdStart, "SoloWinOption", new(0, 50, 1), defo, tab, false)

@@ -4,7 +4,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Neutral;
 using UnityEngine;
 
 namespace TownOfHost.Roles.Crewmate;
@@ -42,13 +41,10 @@ public sealed class Bakery : RoleBase
 
     public static void SetupOptionItem()
     {
-        PoisonedBakeryChanceOption = FloatOptionItem.Create(
-            RoleInfo, 12, "PoisonedBakeryRole77",
-            new(0f, 100f, 1f), 25f, false
-        ).SetValueFormat(OptionFormat.Percent);
+        PoisonedBakeryChanceOption = FloatOptionItem.Create(RoleInfo, 12, "PoisonedBakeryRole77",new(0f, 100f, 1f), 25f, false)
+            .SetValueFormat(OptionFormat.Percent);
 
-        ObjectOptionitem.Create(RoleInfo, 20, "PoisonedBakeryOption", true, "")
-            .SetOptionName(() => "PoisonedBakery Option");
+        ObjectOptionitem.Create(RoleInfo, 20, "PoisonedBakeryOption", true, "").SetOptionName(() => "PoisonedBakery Option");
     }
 
     public override void Add()

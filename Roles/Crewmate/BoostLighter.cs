@@ -1,9 +1,7 @@
 using AmongUs.GameOptions;
 using Hazel;
-using TownOfHost.Modules;
 using TownOfHost.Patches;
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
 
 namespace TownOfHost.Roles.Crewmate;

@@ -3,7 +3,6 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using UnityEngine;
 using static TownOfHost.PlayerCatch;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class PokerFace : RoleBase

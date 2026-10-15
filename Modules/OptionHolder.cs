@@ -82,7 +82,7 @@ namespace TownOfHost
         public static readonly List<CustomRoles> Fuuin = new()
         {
             CustomRoles.Amnesiac,
-            CustomRoles.Terrorist,
+            CustomRoles.Workaholic,
         };
         [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize)), HarmonyPostfix]
         public static void OptionsLoadStart(TranslationController __instance)
@@ -1049,7 +1049,7 @@ namespace TownOfHost
             CommsDonttouch = BooleanOptionItem.Create(108104, "CommsDonttouch", false, TabGroup.MainSettings, false).SetParent(CommsSpecialSettings);
             CommsDonttouchTime = FloatOptionItem.Create(108105, "CommsDonttouchTime", new(0f, 180f, 0.5f), 3.0f, TabGroup.MainSettings, false).SetParent(CommsDonttouch)
                 .SetValueFormat(OptionFormat.Seconds);
-            CommsCamouflage = BooleanOptionItem.Create(108106, "CommsCamouflage", false, TabGroup.MainSettings, false).SetParent(CommsSpecialSettings).SetEnabled(() => false);
+            CommsCamouflage = BooleanOptionItem.Create(108106, "CommsCamouflage", false, TabGroup.MainSettings, false).SetParent(CommsSpecialSettings).SetEnabled(() => /*false*/true);
 
             // 停電の特殊設定
             LightsOutSpecialSettings = BooleanOptionItem.Create(108107, "LightsOutSpecialSettings", false, TabGroup.MainSettings, false).SetParent(Sabotage)
@@ -1578,7 +1578,14 @@ namespace TownOfHost
                     }
                     foreach (var info in RoleList.OrderBy(role => role.OptionSort.SortNumber))
                     {
-                        if (HideRoles.Contains(info.RoleName)) continue;
+                        if (HideRoles.Contains(info.RoleName))
+                        {
+                            /*if (CustomRoleSpawnChances[info.RoleName] != null)
+                            {
+                                CustomRoleSpawnChances[info.RoleName].SetValue(0, true, false);
+                            }*/
+                            continue;
+                        }
                         SetupRoleOptions(info);
                         info.OptionCreator?.Invoke();
                         if (roleTypes is CustomRoleTypes.Crewmate && info.RoleName is CustomRoles.Judge)

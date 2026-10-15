@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Hazel;
 using TownOfHost.Attributes;
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Neutral;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost
 {
@@ -112,6 +112,10 @@ namespace TownOfHost
             string callerClassName = callerMethod.DeclaringType.FullName;
             Logger.Info($"RASACW {WinnerTeam} =>? {winner}, Call:{callerClassName}.{callerMethodName}", "CustomWinner");
 
+            /*if (winner == CustomWinner.Shyboy && Shyboy.OptIsNeutral?.GetBool() == false)
+            {
+                return false;
+            }*/
             if (SoloWinOption.AllData.TryGetValue(hantrole is CustomRoles.Betrayer or CustomRoles.DollBetrayer || winner is CustomWinner.Betrayer ? CustomRoles.MadBetrayer : hantrole is CustomRoles.NotAssigned ? (CustomRoles)winner : hantrole, out var data))
             {
                 //現在値より設定値が大きい

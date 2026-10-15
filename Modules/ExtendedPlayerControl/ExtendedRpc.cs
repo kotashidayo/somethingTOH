@@ -29,7 +29,9 @@ namespace TownOfHost
         /// <param name="log">true→役職上書き null→役職変更表示 false→なんもしない</param>
         public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool setRole = true, bool? log = false)
         {
-            if (player.GetCustomRole() == role) return;
+            //HideRolesに入れてると出現率とかバグるから。
+            if (player.GetCustomRole() == role || Options.HideRoles.Contains(role)) return;
+
             var roleClass = player.GetRoleClass();
             var roleInfo = role.GetRoleInfo();
             var beforeRole = player.GetCustomRole();
