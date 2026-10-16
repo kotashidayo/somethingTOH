@@ -20,7 +20,8 @@ public sealed class Romeo : RoleBase
             assignInfo: new RoleAssignInfo(CustomRoles.Romeo, CustomRoleTypes.Neutral)
             {
                 AssignCountRule = new(1, 1, 1),
-                AssignUnitRoles = [CustomRoles.Romeo, CustomRoles.Juliet]
+                AssignUnitRoles = [CustomRoles.Romeo, CustomRoles.Juliet],
+                IsInitiallyAssignableCallBack = () => false
             },
             introSound: () => GetIntroSound(RoleTypes.Phantom),
             combination: CombinationRoles.RomeoJuliet,

@@ -66,6 +66,8 @@ namespace TownOfHost
             CustomRoles.TaskPlayerB,
             // ～封印～
             CustomRoles.Moira,
+            CustomRoles.Romeo,
+            CustomRoles.Juliet
         };
         /// <summary>
         /// スキン変更するから封印するかもしれないやつら

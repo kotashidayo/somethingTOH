@@ -20,7 +20,8 @@ public sealed class Juliet : RoleBase
             assignInfo: new RoleAssignInfo(CustomRoles.Juliet, CustomRoleTypes.Neutral)
             {
                 AssignCountRule = new(1, 1, 1),
-                AssignUnitRoles = [CustomRoles.Romeo, CustomRoles.Juliet]
+                AssignUnitRoles = [CustomRoles.Romeo, CustomRoles.Juliet],
+                IsInitiallyAssignableCallBack = () => false
             },
             combination: CombinationRoles.RomeoJuliet,
             tab: TabGroup.Combinations,
