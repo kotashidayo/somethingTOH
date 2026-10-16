@@ -4,6 +4,12 @@ namespace TownOfHost
 {
     public static class UtilsName
     {
+        public static string GetName(this PlayerControl player, bool bold = false)
+        {
+            if (player == null) return "";
+            var name = Main.AllPlayerNames.TryGetValue(player.PlayerId, out var N) ? N : player.Data.PlayerName;
+            return name;
+        }
         public static string GetPlayerColor(this PlayerControl player, bool bold = false)
         {
             if (player == null) return "";

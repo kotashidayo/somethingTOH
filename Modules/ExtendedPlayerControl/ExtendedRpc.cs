@@ -759,10 +759,14 @@ namespace TownOfHost
         public static void OnlySeeMyPet(this PlayerControl pc, string petid = null)
         {
             return;
-            /*
-            petid ??= Camouflage.PlayerSkins.TryGetValue(pc.PlayerId, out var outfit) ? outfit.PetId : "";
+            
+            //petid ??= Camouflage.PlayerSkins.TryGetValue(pc.PlayerId, out var outfit) ? outfit.PetId : "";
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
-            //pc.RpcSetPet("");
+
+            if (pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
+            {
+                pc.RpcSetPet("pet_EmptyPet");
+            }
 
             foreach (var ap in PlayerCatch.AllPlayerControls)
             {
@@ -775,17 +779,13 @@ namespace TownOfHost
                 writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
-            /*
-            if (pc.IsAlive() && pc.GetClient() != null)
-            {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.None, pc.GetClientId());
-                writer.Write(petid);
-                writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-            }*/
-
-            //pc.RawSetPet(pc.PlayerId == PlayerControl.LocalPlayer.PlayerId ? petid : "pet_EmptyPet", pc.Data.DefaultOutfit.ColorId);
+            
+            pc.RawSetPet(pc.PlayerId == PlayerControl.LocalPlayer.PlayerId ? petid : "pet_EmptyPet", pc.Data.DefaultOutfit.ColorId);
         }
-        public static void AllPlayerOnlySeeMePet() => PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMyPet(Camouflage.PlayerSkins.TryGetValue(pc.PlayerId, out var outfit) ? outfit.PetId : ""));
+        public static void AllPlayerOnlySeeMePet()
+        {
+            //PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMyPet(Camouflage.PlayerSkins.TryGetValue(pc.PlayerId, out var outfit) ? outfit.PetId : ""));
+            //PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMyPet(""));
+        }
     }
 }

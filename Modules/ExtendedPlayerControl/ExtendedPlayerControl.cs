@@ -15,7 +15,6 @@ using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Common;
 
 using static TownOfHost.Translator;
-using TownOfHost.Roles.Madmate;
 
 namespace TownOfHost
 {

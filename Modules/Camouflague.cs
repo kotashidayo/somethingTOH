@@ -12,7 +12,10 @@ namespace TownOfHost
             instance.HatId = hatId;
             instance.SkinId = skinId;
             instance.VisorId = visorId;
-            //instance.PetId = petId;
+            /*if (instance.PetId != null)
+            {
+                instance.PetId = petId;
+            }*/
             return instance;
         }
         public static bool Compare(this NetworkedPlayerInfo.PlayerOutfit instance, NetworkedPlayerInfo.PlayerOutfit targetOutfit)
@@ -27,8 +30,11 @@ namespace TownOfHost
         }
         public static string GetString(this NetworkedPlayerInfo.PlayerOutfit instance)
         {
-            return $"{instance.PlayerName} Color:{instance.ColorId} {instance.HatId} {instance.SkinId} {instance.VisorId}";
-            //return $"{instance.PlayerName} Color:{instance.ColorId} {instance.HatId} {instance.SkinId} {instance.VisorId} {instance.PetId}";
+            /*if (instance.PetId == null)
+            {
+                return $"{instance.PlayerName} Color:{instance.ColorId} {instance.HatId} {instance.SkinId} {instance.VisorId}";
+            }*/
+            return $"{instance.PlayerName} Color:{instance.ColorId} {instance.HatId} {instance.SkinId} {instance.VisorId} {instance.PetId}";
         }
     }
     public static class Camouflage

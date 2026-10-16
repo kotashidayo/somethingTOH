@@ -1438,6 +1438,8 @@ public enum CustomRoles
     Moira,
     Frust,
     Decolor,
+    Romeo,
+    Juliet,
     //DEBUG only Neutral.
     //HideAndSeek
     HASFox,

@@ -829,6 +829,20 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+            {
+                var news = new ModNews
+                {
+                    Number = 100108,
+                    Title = "正式リリースから半年らしいよ",
+                    SubTitle = "<color=#FF9631>Town Of Host-Pko v5.38.24.102</color>",
+                    ShortTitle = "<color=#FF9631>●TOH-Pko v5.38.24.102</color>",
+                    Text = "★バグ修正★\r\n・狩人がキルできないバグを修正\r\n・一部状況でクラッシュするバグを修正\r\n・役職が変化してマーリンになるとインポスターが見れないバグを修正\r\n・MODクライアントがキックされるバグを修正\r\n・空虚者がアサインされないバグを修正\r\n・一部役職の存在通知が天秤会議などの特殊会議でも送信されるバグを修正\r\n・シャイボーイの矢印が見えないバグを修正\r\n・カモフラージャー系統の能力使用中にシェイプが使えるバグを修正\r\n\r\n★追加要素★\r\n・爆ぜ師に失敗可能回数を追加\r\n\r\n★新役職★\r\n:TabIcon_CrewmateRoles: ブラインダー From: TownOfHost_Y\r\n:TabIcon_NeutralRoles: ディカラー From: UchuAddon(シトラス)\r\n:TabIcon_Addons: カルテ\r\n\r\n★仕様変更★\r\n・波動砲のキルパワーを変更\r\n・爆ぜ師の勝利条件を設定数ラバーズをキルしていることのみに変更\r\n\r\n★その他★\r\n・爆ぜ師復活\r\n・シャイボーイ復活\r\n・シャイボーイの爆破常時化"
+                    ,
+                    Date = "2026-6-09"
+                };
+                AllModNews.Add(news);
+            }
+
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }

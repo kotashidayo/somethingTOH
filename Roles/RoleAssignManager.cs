@@ -538,7 +538,7 @@ namespace TownOfHost.Roles
         public Func<bool> IsInitiallyAssignableCallBack { get; init; }
         public bool IsInitiallyAssignable => IsInitiallyAssignableCallBack.Invoke();
         /// <summary>
-        /// 人数設定の最小人数, 最大人数, 一単位数
+        /// 人数設定の最小人数, 最大人数, 単位数
         /// </summary>
         public IntegerValueRule AssignCountRule { get; init; }
         /// <summary>

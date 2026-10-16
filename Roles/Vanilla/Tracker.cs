@@ -1,5 +1,4 @@
 using AmongUs.GameOptions;
-
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Vanilla;
@@ -12,8 +11,9 @@ public sealed class Tracker : RoleBase
             player => new Tracker(player),
             RoleTypes.Tracker,
            SetUpCustomOption,
-           "#5f7c96"
-            , from: From.AmongUs
+           "#5f7c96",
+           from: From.AmongUs
+           //from: From.TOR_GM_Haoming_Edition
         );
     public Tracker(PlayerControl player)
     : base(
@@ -24,6 +24,12 @@ public sealed class Tracker : RoleBase
     public static OptionItem TrackerCooldown;
     public static OptionItem TrackerDelay;
     public static OptionItem TrackerDuration;
+    public static OptionItem OptArrow;
+    enum Op
+    {
+        TrackerArrow
+    }
+
     public static void SetUpCustomOption()
     {
         TrackerCooldown = FloatOptionItem.Create(RoleInfo, 303, "TrackerCooldown", new(0f, 180f, 0.5f), 15f, false)
@@ -32,6 +38,10 @@ public sealed class Tracker : RoleBase
                 .SetValueFormat(OptionFormat.Seconds);
         TrackerDuration = FloatOptionItem.Create(RoleInfo, 305, "TrackerDuration", new(0f, 180f, 1f), 5f, false)
                 .SetValueFormat(OptionFormat.Seconds).SetZeroNotation(OptionZeroNotation.Infinity);
+
+        //トラッカーバニラなの本当にめんどくさいわ。
+        //正直バニラでトラッカー作らんでほしかった(
+        //OptArrow = BooleanOptionItem.Create(RoleInfo, 306, Op.TrackerArrow, true, false);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {

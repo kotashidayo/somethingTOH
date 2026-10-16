@@ -227,7 +227,8 @@ public class SimpleRoleInfo
                 roleName = CustomRoles.Tracker;
                 customRoleType = CustomRoleTypes.Crewmate;
                 configId = 300;
-                OptionSort = (0, 3);
+                //OptionSort = (0, 3);
+                OptionSort = (6, 10);
                 break;
             case RoleTypes.Noisemaker:
                 roleName = CustomRoles.Noisemaker;

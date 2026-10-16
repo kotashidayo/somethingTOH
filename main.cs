@@ -60,13 +60,13 @@ namespace TownOfHost
 
         public const string PluginGuid = "com.satokazoku.TownOfHost-Pko";
 
-        public const string BepInExPluginVersion = "5.37.24.102";
-        public const string PluginVersion = "5.37.24.102";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
-        public const string PluginShowVersion = "5.37.24.102";
+        public const string BepInExPluginVersion = "5.38.24.102";
+        public const string PluginVersion = "5.38.24.102";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
+        public const string PluginShowVersion = "5.38.24.102";
         public const string ModVersion = ".24.102";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
-        public static readonly bool DebugVersion = true;
+        public static readonly bool DebugVersion = false;
 
         // サポートされている最低のAmongUsバージョン(Readmeも変える)
         public static readonly string LowestSupportedVersion = "2026.9.29";
@@ -75,7 +75,7 @@ namespace TownOfHost
         /// <summary>
         /// バージョンの下にGitのブランチ名・コミットハッシュを表示するかどうか。基本false。
         /// </summary>
-        public static readonly bool showbranch = true;
+        public static readonly bool showbranch = false;
         public Harmony Harmony { get; } = new Harmony(PluginGuid);
         public static Version version = Version.Parse(PluginVersion);
         public static BepInEx.Logging.ManualLogSource Logger;
@@ -530,6 +530,7 @@ namespace TownOfHost
         TaskPlayerB = CustomRoles.TaskPlayerB,
         Moira = CustomRoles.Moira,
         Decolor = CustomRoles.Decolor,
+        Romeo = CustomRoles.Romeo,
         SuddenDeathRed = 1000, SuddenDeathBlue = 1001, SuddenDeathYellow = 1002, SuddenDeathGreen = 1003, SuddenDeathPurple = 1004
     }
     /*public enum CustomRoles : byte
@@ -572,6 +573,7 @@ namespace TownOfHost
         VegaandAltair,
         AbuserandVictim,
         PokerFace,
-        TheThreeLittlePigs
+        TheThreeLittlePigs,
+        RomeoJuliet
     }
 }

@@ -153,7 +153,7 @@ public sealed class PavlovOwner : RoleBase, IKiller, IAdditionalWinner, ISchrodi
             CustomRoles.PavlovOwner,
             GetOwnerBaseRoleType,
             CustomRoleTypes.Neutral,
-            77200,
+            77300,
             null,
             "pvo",
             "#F4A96A",

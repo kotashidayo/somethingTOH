@@ -11,6 +11,4 @@ public interface ISelfVoter
     /// </summary>
     /// <returns></returns>
     public bool CanUseVoted() => false;
-
-    public bool IsCantUse() => false;
 }

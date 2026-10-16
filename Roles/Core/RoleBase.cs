@@ -211,7 +211,7 @@ public abstract class RoleBase : IDisposable
     public virtual bool CheckShapeshift(PlayerControl target, ref bool shouldAnimate) => true;
 
     /// <summary>
-    /// 透明化 発動前に呼ばれる関数
+    /// 透明化発動前に呼ばれる関数
     /// falseを返すと透明化をなかったことにできる
     /// 自分自身について呼ばれるため本人確認不要
     /// Host以外も呼ばれるので注意
@@ -441,7 +441,7 @@ public abstract class RoleBase : IDisposable
     /// <returns>構築したMark</returns>
     public virtual string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false) => "";
     /// <summary>
-    /// seerが自分であるときのLowerTex
+    /// seerが自分であるときのLowerText
     /// seer,seenともに自分以外であるときに表示したい場合は同じ引数でstaticとして実装し
     /// CustomRoleManager.LowerOthersに登録する
     /// </summary>
@@ -452,7 +452,7 @@ public abstract class RoleBase : IDisposable
     /// <returns>構築したLowerText</returns>
     public virtual string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false) => "";
     /// <summary>
-    /// seer自分であるときのSuffix
+    /// seerが自分であるときのSuffix
     /// seer,seenともに自分以外であるときに表示したい場合は同じ引数でstaticとして実装し
     /// CustomRoleManager.SuffixOthersに登録する
     /// </summary>
@@ -461,7 +461,6 @@ public abstract class RoleBase : IDisposable
     /// <param name="isForMeeting">会議中フラグ</param>
     /// <returns>構築したMark</returns>
     public virtual string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false) => "";
-
     public virtual bool AllEnabledColor => false;
     /// <summary>
     /// アビリティボタンのテキストを変更します
@@ -592,7 +591,7 @@ public abstract class RoleBase : IDisposable
         RoleManager.Instance.AllRoles.ToArray().Where((role) => role.Role == roleType).FirstOrDefault().IntroSound;
     public static FloatValueRule OptionBaseCoolTime => new(0, 180, 0.5f);
 
-    //一々Translator参照戦でいいから多分楽 
+    //一々Translator参照せんでいいから多分楽 
     public static string GetString(StringNames stringName)
             => DestroyableSingleton<TranslationController>.Instance.GetString(stringName, new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<Il2CppSystem.Object>(0));
     public static string GetString(string str, Dictionary<string, string> replacementDic = null) => Translator.GetString(str, replacementDic);
