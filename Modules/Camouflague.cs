@@ -87,7 +87,9 @@ namespace TownOfHost
                 || target.Data.DefaultOutfit.Pointer == System.IntPtr.Zero) return;
             if ((!AmongUsClient.Instance.AmHost && !(Options.CommsCamouflage.GetBool() || (force is null or true)))
             || (GameStates.IsLobby)
-            || (target == null)) return;
+            || (target == null)
+            || (Options.UseChSkin.GetBool() is false)
+            ) return;
 
             if (Options.CurrentGameMode != CustomGameMode.Standard) return;
 

@@ -30,6 +30,10 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
             (0, 0),
             true,
             introSound: () => GetIntroSound(RoleTypes.Shapeshifter),
+            assignInfo: new RoleAssignInfo(CustomRoles.Decolor, CustomRoleTypes.Neutral)
+            {
+                IsInitiallyAssignableCallBack = () => Options.UseChSkin.GetBool()
+            },
             from: From.UchuAddon
         );
     public Decolor(PlayerControl player)
@@ -323,7 +327,7 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
             }
         }
         UtilsNotifyRoles.NotifyRoles(false, true);
-        UtilsNotifyRoles.NotifyMeetingRoles();
+        //UtilsNotifyRoles.NotifyMeetingRoles();
     }
     public static void Color(PlayerControl player)
     {
@@ -394,7 +398,7 @@ public sealed class Decolor : RoleBase, IKiller, IUsePhantomButton
             }
         }
         UtilsNotifyRoles.NotifyRoles(false, true);
-        UtilsNotifyRoles.NotifyMeetingRoles();
+        //UtilsNotifyRoles.NotifyMeetingRoles();
     }
     static void RpcChColor(PlayerControl pc, byte Color, bool NonSkin = false)
     {

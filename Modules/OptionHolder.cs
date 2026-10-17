@@ -195,6 +195,7 @@ namespace TownOfHost
         public static OptionItem ExCallMeetingBlackout;
         public static OptionItem ExIntroWeight;
         public static OptionItem ExChatMonochrome;
+        public static OptionItem UseChSkin;
 
         //幽霊役職
         public static OptionItem GhostRoleOption;
@@ -752,6 +753,9 @@ namespace TownOfHost
                 .SetInfo(Translator.GetString("ExIntroWeightInfo"));
             ExChatMonochrome = BooleanOptionItem.Create(105015, "ExChatMonochrome", false, TabGroup.MainSettings, false)
                 .SetParent(ExperimentalMode);
+            UseChSkin = BooleanOptionItem.Create(105016, "UseChSkin", false, TabGroup.MainSettings, false)
+                .SetParent(ExperimentalMode)
+                .SetInfo(Translator.GetString("ChInfo"));
 
             //9人以上部屋で落ちる現象の対策
             FixSpawnPacketSize = BooleanOptionItem.Create(105010, "FixSpawnPacketSize", false, TabGroup.MainSettings, true)
@@ -780,6 +784,14 @@ namespace TownOfHost
                 .SetHeader(true).SetValueFormat(OptionFormat.Seconds);
             DefaultEngineerInVentMaxTime = FloatOptionItem.Create(102504, "DefaultEngineerInVentMaxTime", new(0, 180, 1), 5, TabGroup.CrewmateRoles, false)
                 .SetValueFormat(OptionFormat.Seconds).SetZeroNotation(OptionZeroNotation.Infinity);
+            /*if (UseChSkin.GetBool())
+            {
+                ObjectOptionitem.Create(1_300_121, "Exr", true, null, TabGroup.NeutralRoles).SetOptionName(() => Translator.GetString("Experimental")).SetColorcode("#9a8adbff");
+            }
+            else
+            {
+                ObjectOptionitem.Create(1_300_118, "Mor", true, null, TabGroup.NeutralRoles).SetOptionName(() => Translator.GetString("ModRole")).SetColorcode("#bd987bff");
+            }*/
             ObjectOptionitem.Create(1_300_121, "Exr", true, null, TabGroup.NeutralRoles).SetOptionName(() => Translator.GetString("Experimental")).SetColorcode("#9a8adbff");
 
             CreateRoleOption(sortedRoleInfo, CustomRoleTypes.Neutral);
@@ -1588,6 +1600,8 @@ namespace TownOfHost
                             }*/
                             continue;
                         }
+                        //if (!UseChSkin.GetBool() && SetSkinRoles.Contains(info.RoleName)) continue;
+
                         SetupRoleOptions(info);
                         info.OptionCreator?.Invoke();
                         if (roleTypes is CustomRoleTypes.Crewmate && info.RoleName is CustomRoles.Judge)

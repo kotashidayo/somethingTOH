@@ -21,7 +21,8 @@ public sealed class Monochromer : RoleBase
             (0, 1),
             assignInfo: new RoleAssignInfo(CustomRoles.Monochromer, CustomRoleTypes.Neutral)
             {
-                AssignCountRule = new(0, 15, 1)
+                AssignCountRule = new(0, 15, 1),
+                IsInitiallyAssignableCallBack = () => Options.UseChSkin.GetBool()
             },
             from: From.TownOfHost_K
         );

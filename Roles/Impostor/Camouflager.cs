@@ -1,14 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using HarmonyLib;
 using Hazel;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Neutral;
 using UnityEngine;
-using static Il2CppSystem.Threading.SemaphoreSlim;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -25,6 +22,10 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
         SetupOptionItem,
         "Mo",
         OptionSort: (0, 10),
+        assignInfo: new RoleAssignInfo(CustomRoles.Camouflager, CustomRoleTypes.Impostor)
+        {
+            IsInitiallyAssignableCallBack = () => Options.UseChSkin.GetBool()
+        },
         //OptionSort: (6, 0),
         from: From.TheOtherRoles
     );

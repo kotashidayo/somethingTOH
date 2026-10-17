@@ -1418,6 +1418,8 @@
 "ExIntroWeight","Intro communication","イントロの通信量分割"
 "ExIntroWeightInfo","Enable only when the intro disconnect occurs","イントロ落ちがでたときのみ有効に"
 "ExChatMonochrome","Chat Delete Color","一部のシステムメッセージの色を無くす"
+"UseChSkin","Use Change Skin Role","スキン等を変更する役職を使用する"
+"ChInfo","","<#ff1919>アンチチートが発生する可能性あり</color>"
 "UseZoom","UseZoom (ModClient Only)","ズームを有効にする(ModClient Only)"
 "SoloWinOption","%role%SoloWin","%role%の勝利優先順位"
 "VictimSoloWinOption","<color=#6f8fa8>Victim</color>SoloWin","<color=#6f8fa8>被虐者</color>の勝利優先順位"

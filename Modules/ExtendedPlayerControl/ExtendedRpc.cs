@@ -31,6 +31,7 @@ namespace TownOfHost
         {
             //HideRolesに入れてると出現率とかバグるから。
             if (player.GetCustomRole() == role || Options.HideRoles.Contains(role)) return;
+            if (!Options.UseChSkin.GetBool() && Options.SetSkinRoles.Contains(role)) return;
 
             var roleClass = player.GetRoleClass();
             var roleInfo = role.GetRoleInfo();
@@ -756,6 +757,7 @@ namespace TownOfHost
             sender.EndMessage();
             sender.SendMessage();
         }
+#pragma warning disable CS0162
         public static void OnlySeeMyPet(this PlayerControl pc, string petid = null)
         {
             return;
@@ -784,8 +786,10 @@ namespace TownOfHost
         }
         public static void AllPlayerOnlySeeMePet()
         {
-            //PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMyPet(Camouflage.PlayerSkins.TryGetValue(pc.PlayerId, out var outfit) ? outfit.PetId : ""));
-            //PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMyPet(""));
+            return;
+            PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMyPet(Camouflage.PlayerSkins.TryGetValue(pc.PlayerId, out var outfit) ? outfit.PetId : ""));
+            PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMyPet(""));
         }
+#pragma warning restore CS0162
     }
 }
