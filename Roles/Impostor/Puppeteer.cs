@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using Epic.OnlineServices.Presence;
 using Hazel;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
-using static ShipStatus;
 using static TownOfHost.OverrideKilldistance;
 
 namespace TownOfHost.Roles.Impostor;

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
 using AmongUs.GameOptions;
-using Epic.OnlineServices.Presence;
 using Hazel;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;

@@ -239,6 +239,13 @@ namespace TownOfHost
                             pc.RpcSetRole(RoleTypes.Crewmate);
                             continue;
                         }
+                        if (Main.GameMasters.Contains(pc.PlayerId))
+                        {
+                            pc.RpcSetCustomRole(CustomRoles.GM);
+                            pc.RpcSetRole(RoleTypes.Crewmate, false);
+                            pc.Data.IsDead = true;
+                            continue;
+                        }
                         AllPlayers.Add(pc);
                     }
 

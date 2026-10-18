@@ -1,14 +1,6 @@
 using System.Linq;
 using AmongUs.GameOptions;
-using Epic.OnlineServices.Presence;
-using Hazel;
-using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Core.Interfaces;
-using TownOfHost.Roles.Crewmate;
-using TownOfHost.Roles.Impostor;
-using TownOfHost.Roles.Neutral;
-using static UnityEngine.GraphicsBuffer;
 
 namespace TownOfHost.Roles.Madmate;
 

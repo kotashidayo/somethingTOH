@@ -501,12 +501,14 @@ namespace TownOfHost
                 if (!(GameModeManager.IsStandardClass() && Main.SetRoleOverride))
                     _ = new LateTask(() => PlayerCatch.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
-                if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
+                foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
-                    PlayerControl.LocalPlayer.RpcExileV3(false);
-                    PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).SetDead();
+                    if (pc.Is(CustomRoles.GM))
+                    {
+                        pc.RpcExileV3(false);
+                        PlayerState.GetByPlayerId(pc.PlayerId).SetDead();
+                    }
                 }
-
                 if (RandomSpawn.IsRandomSpawn())
                 {
                     RandomSpawn.SpawnMap map;

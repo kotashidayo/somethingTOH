@@ -16,10 +16,8 @@ using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Descriptions;
 using TownOfHost.Roles.Impostor;
-using TownOfHost.Roles.Madmate;
 using TownOfHost.Roles.Neutral;
 using UnityEngine;
-using UnityEngine.SocialPlatforms;
 using static TownOfHost.PlayerCatch;
 using static TownOfHost.Translator;
 using static TownOfHost.Utils;
@@ -1947,11 +1945,37 @@ namespace TownOfHost
                         canceled = true;
                         ExecuteRoleChangeCommand(PlayerControl.LocalPlayer, args);
                         break;
+                    case "/removegm":
+                    case "/rg":
+                        canceled = true;
+                        if (args.Length < 2 || !byte.TryParse(args[1], out byte gmr)) break;
+                        if (!Main.GameMasters.Contains(gmr)) break;
+                        Main.GameMasters.Remove(gmr);
+                        var gmp = PlayerCatch.GetPlayerById(gmr);
+                        var gmn = UtilsName.GetPlayerColor(gmr, UseMain: false) ?? "ﾇﾙﾎﾟｯ";
+                        if (string.IsNullOrEmpty(gmn)) gmn = "ﾇﾙﾎﾟｯ";
+                        SendMessage($"{gmn}をゲームマスターから除外しました。");
+                        break;
+                    case "/setgm":
+                    case "/sg":
+                        canceled = true;
+                        if (args.Length < 2 || !byte.TryParse(args[1], out byte gmId))
+                            break;
+                        var gamemaster = PlayerCatch.GetPlayerById(gmId);
+                        if (gamemaster == null)
+                        {
+                            SendMessage("プレイヤーが見つかりません。");
+                            break;
+                        }
+                        Main.GameMasters.Add(gmId);
+                        var gmname = UtilsName.GetPlayerColor(gmId, UseMain: false) ?? "ﾇﾙﾎﾟｯ";
+                        if (string.IsNullOrEmpty(gmname)) gmname = "ﾇﾙﾎﾟｯ";
+                        SendMessage($"{gmname}は次の試合ゲームマスターになります。");
+                        break;
                     case "/crr":
                         canceled = true;
                         Main.ChangeRoles.Clear();
                         SendMessage("全プレイヤーの役職固定をリセットしました。");
-
                         break;
                     case "/st":
                     case "/setteam":

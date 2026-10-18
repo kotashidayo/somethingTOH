@@ -262,6 +262,12 @@ class TaskBattle
         }
         foreach (var pc in PlayerCatch.AllPlayerControls)
         {
+            if (Main.GameMasters.Contains(pc.PlayerId))
+            {
+                pc.RpcSetCustomRole(CustomRoles.GM);
+                pc.RpcSetRole(RoleTypes.Crewmate, false);
+                pc.Data.IsDead = true;
+            }
             if (Options.EnableGM.GetBool() && pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
             {
                 PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);

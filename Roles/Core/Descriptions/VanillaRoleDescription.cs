@@ -1,5 +1,4 @@
 using AmongUs.GameOptions;
-using Epic.OnlineServices.Presence;
 using TownOfHost.Roles.Vanilla;
 
 namespace TownOfHost.Roles.Core.Descriptions;
@@ -19,10 +18,8 @@ public class VanillaRoleDescription : RoleDescription
     private readonly RoleTypes vanillaRoleType;
     public const string BlurbSuffix = "InfoSp";
     public override string Blurb => Main.ChangeIntro.Value &&
-        vanillaRoleType is not RoleTypes.Crewmate &&
         vanillaRoleType is not RoleTypes.Detective &&
-        vanillaRoleType is not RoleTypes.Judge &&
-        vanillaRoleType is not RoleTypes.Impostor
+        vanillaRoleType is not RoleTypes.Judge
         ? Translator.GetString(BlurbKey) : DestroyableSingleton<RoleManager>.Instance.GetRole(vanillaRoleType).Blurb;
     public override string Description
     {

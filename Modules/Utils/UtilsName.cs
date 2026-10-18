@@ -17,12 +17,26 @@ namespace TownOfHost
             return ColorString(Main.PlayerColors[player.PlayerId], $"{name}");
         }
 
-        public static string GetPlayerColor(this byte player, bool bold = false)
+        public static string GetPlayerColor(this byte player, bool bold = false, bool UseMain = true)
         {
             var pc = PlayerCatch.GetPlayerById(player);
             if (pc == null) return "";
-            var name = Main.AllPlayerNames.TryGetValue(player, out var N) ? N : pc.Data.PlayerName;
-            return ColorString(Main.PlayerColors[player], $"{name}");
+            string name;
+            if (UseMain)
+            {
+                name = Main.AllPlayerNames.TryGetValue(player, out var N) ? N : pc.Data.PlayerName;
+            }
+            else
+            {
+                name = pc.Data.PlayerName;
+            }
+
+            // キーが無い場合はプレイヤーの現在の色(Data.DefaultOutfit.ColorId)から取得
+            if (!Main.PlayerColors.TryGetValue(player, out var color))
+            {
+                color = Palette.PlayerColors[pc.Data.DefaultOutfit.ColorId];
+            }
+            return ColorString(color, $"{name}");
         }
 
         public static string GetPlayerColor(this NetworkedPlayerInfo player, bool bold = false)

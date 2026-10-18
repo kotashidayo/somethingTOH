@@ -1,13 +1,9 @@
 using AmongUs.GameOptions;
-using Epic.OnlineServices.Presence;
 using Hazel;
-using MS.Internal.Xml.XPath;
-using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Madmate;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -23,7 +19,6 @@ public sealed class DoubleKiller : RoleBase, IImpostor, IUsePhantomButton
             8000,
             SetUpOptionItem,
             "dk",
-            //OptionSort: (0, 10),
             OptionSort: (3, 15),
             from: From.SuperNewRoles
         );

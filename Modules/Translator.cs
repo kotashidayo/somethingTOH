@@ -123,17 +123,60 @@ namespace TownOfHost
             //InfoLongは万が一引くと困るので何もしない
             var ch = res;
             if (str is "CakeshopInfo" or "Cakeshop" && !Event.CheckRole(CustomRoles.Cakeshop)) return muokuka;
-            //if (str is "VegaInfoLong" or "VegaInfo" or "Vega" && !Event.CheckRole(CustomRoles.Vega)) return res;
-            //if (str is "AltairInfoLong" or "AltairInfo" or "Altair" && !Event.CheckRole(CustomRoles.Altair)) return res;
+            //if (str is "VegaInfoLong" or "VegaInfo" or "Vega" && !Event.CheckRole(CustomRoles.Vega)) return muokuka;
+            //if (str is "AltairInfoLong" or "AltairInfo" or "Altair" && !Event.CheckRole(CustomRoles.Altair)) return muokuka;
             if (str is "MadPukupuku" or "MadPukupukuInfo" && !Event.CheckRole(CustomRoles.MadPukupuku)) return muokuka;
             if (str is "Sweetgifter" or "SweetgifterInfo" && !Event.CheckRole(CustomRoles.Sweetgifter)) return muokuka;
 
-            if (str.StartsWith("Amateras") && !Event.CheckRole(CustomRoles.Amateras)) return res;
+            if (str.StartsWith("Amateras") && !Event.CheckRole(CustomRoles.Amateras) && str is not "AmaterasInfoLong") return muokuka;
             if (translateMaps.TryGetValue(str, out var dic) && (!dic.TryGetValue((int)langId, out res) || res == "")) //strに該当する&無効なlangIdかresが空
             {
                 res = $"*{dic[0]}";
             }
             if (str == $"Chameleon") res = Main.UseingJapanese ? "カメレオン" : "Chameleon";
+
+            if (Main.ChangeIntro.Value)
+            {
+                res = str switch
+                {
+                    "JesterInfo" => "最高の道化を目指して",
+                    "MayorInfo" => "歯向かう者に粛清を",
+                    "TrapperInfo" => "これが置き土産だ…!",
+                    "MadSnitchInfo" => "ご主人を把握して援助しよう",
+                    "TimeManagerInfo" => "議論時間それで足りてる？",
+                    "MafiaInfo" => "来たるその時まで牙を隠せ",
+                    "SheriffInfo" => "正義の名の元に。",
+                    "WitchInfo" => "この呪い  君達には解けるかな？",
+                    "ArsonistInfo" => "さぁ、火遊びの時間だ",
+                    "SabotageMasterInfo" => "機械修理は得意なんだ",
+                    "VampireInfo" => "お前はもう死んでいる...",
+                    "MadGuardianInfo" => "おっと…守りたい主人がいるんだ",
+                    "PenguinInfo" => "ぺちぺち！ずるずる！",
+                    "MadmateInfo" => "影からインポスターを助けよう",
+                    "ShapeMasterInfo" => "隣り合わせの鏡",
+                    "SniperInfo" => "その凶弾は全てを貫く",
+                    "OpportunistInfo" => "正義は俺が決めるんだ",
+                    "EvilTrackerInfo" => "いくら逃げても無駄だよ",
+                    "BaitInfo" => "最期に、メガホンを手に…",
+                    "MadBaitInfo" => "この死体は見覚えないぞ？",
+                    "PuppeteerInfo" => "君は僕の操り人形",
+                    "WarlockInfo" => "どこからその呪いを…？",
+                    "SeerInfo" => "ん？誰か死んだ...？",
+
+                    "JackalMafiaInfo" => "己の刃のみを信じろ",
+                    "ImpostorInfoSp" => "全てはここから始まった...",
+                    "CrewmateInfoSp" => "タスクをし、人外を全員追放しよう",
+                    "JackaldollInfo" => "ご主人様と一緒に勝利しよう",
+                    "MadJesterInfo" => "狂気は道化と同化する",
+                    "MadWorkerInfo" => "主人を助けるブラックバイト",
+                    "MadTellerInfo" => "主の敵を炙り出せ！",
+                    "MadTrackerInfo" => "クルーの道標を主人の助けに",
+                    "HunterInfo" => "実は私もこっち側よ",
+                    "HadouHoInfo" => "閃光は死のお告げ",
+                    "SheriffHadouHoInfo" => "この大砲で船員を勝利へ導こう",
+                    _ => res
+                };
+            }
             if (langId == SupportedLangs.Japanese && Main.CustomName.Value)
             {
                 //このソースコ―ドを見た人へ。口外しないでもらえると嬉しいです...
@@ -277,59 +320,6 @@ namespace TownOfHost
                         _ => res
                     };
                 }*/
-                if (Main.ChangeIntro.Value)
-                {
-                    res = str switch
-                    {
-                        "JesterInfo" => "最高の道化を目指して",
-
-                        "MayorInfo" => "歯向かう者に粛清を",
-
-                        "TrapperInfo" => "これが置き土産だ…!",
-
-                        "MadSnitchInfo" => "ご主人を把握して援助しよう",
-
-                        "TimeManagerInfo" => "議論時間それで足りてる？",
-
-                        "MafiaInfo" => "来たるその時まで牙を隠せ",
-
-                        "SheriffInfo" => "正義の名の元に。",
-
-                        "WitchInfo" => "この呪い  君達には解けるかな？",
-
-                        "ArsonistInfo" => "さぁ、火遊びの時間だ",
-
-                        "SabotageMasterInfo" => "機械修理は得意なんだ",
-
-                        "VampireInfo" => "お前はもう死んでいる...",
-
-                        "MadGuardianInfo" => "おっと…守りたい主人がいるんだ",
-
-                        "PenguinInfo" => "ぺちぺち！ずるずる！",
-
-                        "MadmateInfo" => "影からインポスターを助けよう",
-
-                        "ShapeMasterInfo" => "隣り合わせの鏡",
-
-                        "SniperInfo" => "その凶弾は全てを貫く",
-
-                        "OpportunistInfo" => "正義は俺が決めるんだ",
-
-                        "EvilTrackerInfo" => "いくら逃げても無駄だよ",
-
-                        "BaitInfo" => "最期に、メガホンを手に…",
-
-                        "MadBaitInfo" => "この死体は見覚えないぞ？",
-
-                        "PuppeteerInfo" => "君は僕の操り人形",
-
-                        "WarlockInfo" => "どこからその呪いを…？",
-
-                        "SeerInfo" => "ん？誰か死んだ...？",
-
-                        _ => res
-                    };
-                }
             }
             if (!translateMaps.ContainsKey(str)) //translateMapsにない場合、StringNamesにあれば取得する
             {

@@ -3,6 +3,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
+using TownOfHost.Patches;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Vanilla;
@@ -38,6 +39,10 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
                 if (OptionEatShape.GetBool())
                     shape = GetString("VultrueDescEatShape");
 
+                if (OptionCanReport.GetBool())
+                {
+                    return string.Format(GetString("VultureDescReport"), solo, add, shape);
+                }
                 return string.Format(GetString("VultureDesc"), solo, add, shape);
             }
         );
@@ -50,7 +55,7 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
     {
         EatCount = 0;
         turneat = 0;
-        staticAtePlayers.Clear();
+        staticEatedPlayers.Clear();
         Viperkilledplayers = new();
 
         OptAddWinEatcount = OptionAddWinEatCount.GetInt();
@@ -61,8 +66,31 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
         OptVentInTime = OptionVentIntime.GetFloat();
         OptVentCooldown = OptionVentCooldown.GetFloat();
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
+        Canreport = OptionCanReport.GetBool();
+        NowReportMode = false;
 
         MyTaskState.NeedTaskCount = OptKillflashTaskcount < OptOnikuArrowtaskcount ? OptOnikuArrowtaskcount : OptKillflashTaskcount;
+    }
+    public override void Add()
+    {
+        PetActionManager.Register(Player.PlayerId, OnPetUsed);
+    }
+
+    public override void OnDestroy()
+    {
+        PetActionManager.Unregister(Player.PlayerId);
+    }
+    void OnPetUsed()
+    {
+        if (!Canreport)
+        {
+            NowReportMode = false;
+            return;
+        }
+        NowReportMode = !NowReportMode;
+        //Player.RpcProtectedMurderPlayer(Player);
+        UtilsNotifyRoles.NotifyRoles(false, false, true, Player);
+        SendModeRPC();
     }
     static OptionItem OptionAddWinEatCount; static int OptAddWinEatcount;//追加勝利に必要なつまみ数
     static OptionItem OptionWinEatCount; static int OptWinEatcount; //勝利に必要なつまみ食い数
@@ -72,11 +100,12 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
     static OptionItem OptionCanUseVent;//ベント使えるか
     static OptionItem OptionVentCooldown; static float OptVentCooldown;//ベントクール
     static OptionItem OptionVentIntime; static float OptVentInTime;//ベント最大
-
+    static OptionItem OptionCanReport; static bool Canreport; //レポできる、ペットで切替
+    bool NowReportMode;
     int EatCount;//食べたかず
     Dictionary<byte, Vector2> DiePlayerPos = new();//死体の矢印
     Dictionary<byte, float> Viperkilledplayers = new();//とける予定の死体
-    static List<byte> staticAtePlayers = new();//食べられたおにく
+    static List<byte> staticEatedPlayers = new();//食べられたおにく
     int turneat;
     enum OptionName
     {
@@ -84,7 +113,8 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
         VultrueCanSeeOnikuArrowTaskCount,
         VultrueWinEatcount,
         VultrueAddWinEatcount,
-        VultrueEatShape
+        VultrueEatShape,
+        VultrueCanReport
     }
 
     private static void SetupOptionItem()
@@ -96,6 +126,7 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
         OptionCanUseVent = BooleanOptionItem.Create(RoleInfo, 14, GeneralOption.CanVent, true, false);
         OptionVentCooldown = FloatOptionItem.Create(RoleInfo, 15, StringNames.EngineerCooldown, OptionBaseCoolTime, 15, false, OptionCanUseVent).SetValueFormat(OptionFormat.Seconds);
         OptionVentIntime = FloatOptionItem.Create(RoleInfo, 16, StringNames.EngineerInVentCooldown, OptionBaseCoolTime, 5, false, OptionCanUseVent).SetZeroNotation(OptionZeroNotation.Infinity).SetValueFormat(OptionFormat.Seconds);
+        OptionCanReport = BooleanOptionItem.Create(RoleInfo, 17, OptionName.VultrueCanReport, true, false);
         OptionKillflashtaskcount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.VultrueCanSeeKillFlushTaskCount, new(0, 255, 1), 3, false);
         OptionOnikuArrowtskcount = IntegerOptionItem.Create(RoleInfo, 13, OptionName.VultrueCanSeeOnikuArrowTaskCount, new(0, 255, 1), 5, false);
 
@@ -108,14 +139,14 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
     }
     public override bool CancelReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, ref DontReportreson reason)
     {
-        if (reporter.PlayerId == Player.PlayerId && target != null && !staticAtePlayers.Contains(target?.PlayerId ?? 250))
+        if (reporter.PlayerId == Player.PlayerId && target != null && !staticEatedPlayers.Contains(target?.PlayerId ?? 250) && (!NowReportMode || !Canreport))
         {
             UtilsGameLog.AddGameLog("Vultrue", $"{UtilsName.GetPlayerColor(Player)}: {UtilsName.GetPlayerColor(target)}をつまみぐい！");
             Logger.Info($"{EatCount + 1}個目のお食事", "Vulture");
             reason = DontReportreson.Eat;
             EatCount++;
             turneat++;
-            staticAtePlayers.Add(target.PlayerId);
+            staticEatedPlayers.Add(target.PlayerId);
             DiePlayerPos.Where(poss => poss.Key == target.PlayerId).Do(poss => GetArrow.Remove(Player.PlayerId, poss.Value));
             RpcEatPlayer(target.PlayerId);
             Achievements.RpcCompleteAchievement(Player.PlayerId, 1, achievements[0]);
@@ -157,7 +188,7 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
 
             return true;
         }
-        if (reporter?.PlayerId != target?.PlayerId && target != null && staticAtePlayers.Contains(target?.PlayerId ?? 250))
+        if (reporter?.PlayerId != target?.PlayerId && target != null && staticEatedPlayers.Contains(target?.PlayerId ?? 250))
         {
             reason = DontReportreson.Eat;
             Logger.Info($"{target?.PlayerName ?? "???"}は食事済みだからキャンセル", "Vulture");
@@ -190,7 +221,15 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
         return OptKillflashTaskcount <= MyTaskState.CompletedTasksCount;
     }
     //現在の食事状況を
-    public override string GetProgressText(bool comms = false, bool GameLog = false) => $" <color={RoleInfo.RoleColorCode}>({EatCount}/{OptWinEatcount})</color>";
+    public override string GetProgressText(bool comms = false, bool GameLog = false)
+    {
+        if (Canreport)
+        {
+            var mode = NowReportMode ? GetString("VultrueModerepo")  : GetString("VultrueModeeat");
+            return $" <color={RoleInfo.RoleColorCode}>({EatCount}/{OptWinEatcount}){mode}</color>";
+        }
+        return $" <color={RoleInfo.RoleColorCode}>({EatCount}/{OptWinEatcount})</color>";
+    }
     //死体位置の矢印表示
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
@@ -223,14 +262,14 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
         seen ??= seer;
         if (isForMeeting)
         {
-            if (staticAtePlayers.Contains(seen.PlayerId)) return $"<color={RoleInfo.RoleColorCode}>×</color>";
+            if (staticEatedPlayers.Contains(seen.PlayerId)) return $"<color={RoleInfo.RoleColorCode}>×</color>";
         }
         return "";
     }
     public override void AfterMeetingTasks()
     {
         Viperkilledplayers.Clear();
-        staticAtePlayers.Clear();
+        staticEatedPlayers.Clear();
     }
     public bool CheckWin(ref CustomRoles winnerRole)
     {
@@ -286,7 +325,12 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
         using var sender = CreateSender();
         sender.Writer.WritePacked((int)RPC_Types.ClearDiePlayerPos);
     }
-
+    void SendModeRPC()
+    {
+        using var sender = CreateSender();
+        sender.Writer.WritePacked((int)RPC_Types.SwitchMode);
+        sender.Writer.Write(NowReportMode);
+    }
     public override void ReceiveRPC(MessageReader reader)
     {
         switch ((RPC_Types)reader.ReadPackedInt32())
@@ -294,7 +338,7 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
             case RPC_Types.EatPlayer:
                 EatCount = reader.ReadInt32();
                 var targetId = reader.ReadByte();
-                staticAtePlayers.Add(targetId);
+                staticEatedPlayers.Add(targetId);
                 DiePlayerPos.Where(poss => poss.Key == targetId).Do(poss => GetArrow.Remove(Player.PlayerId, poss.Value));
                 break;
             case RPC_Types.AddDiePlayerPos:
@@ -306,6 +350,10 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
                 DiePlayerPos.Do(oniku => GetArrow.Remove(Player.PlayerId, oniku.Value));
                 DiePlayerPos.Clear();
                 break;
+            case RPC_Types.SwitchMode:
+                NowReportMode = reader.ReadBoolean();
+                break;
+
         }
     }
 
@@ -313,7 +361,8 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
     {
         EatPlayer,
         AddDiePlayerPos,
-        ClearDiePlayerPos
+        ClearDiePlayerPos,
+        SwitchMode,
     }
     public static Dictionary<int, Achievement> achievements = new();
     [Attributes.PluginModuleInitializer]

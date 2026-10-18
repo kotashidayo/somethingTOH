@@ -144,6 +144,7 @@ namespace TownOfHost
         public static List<byte> meetingdeadlist = new();
         public static Dictionary<CustomRoles, string> roleColors;
         public static Dictionary<byte, List<uint>> AllPlayerTask = new();
+        public static HashSet<byte> GameMasters = new();
         public static List<byte> winnerList;
         public static List<int> clientIdList;
         public static List<byte> DisableTaskPlayerList;

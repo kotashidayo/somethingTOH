@@ -324,7 +324,7 @@ namespace TownOfHost
                     + $"\n/cmd /addwhite(aw) - {GetString("Command.addwhite")}"
                     + $"\n/cmd /set rule(s r) - {GetString("Command.set_rule")}"
                     + $"\n/cmd /mod id|name|color - {GetString("Command.modadd")}"
-                  //+ $"\n/cmd /mod delete id|name|color - {GetString("Command.moddel")}"
+                    //+ $"\n/cmd /mod delete id|name|color - {GetString("Command.moddel")}"
                     + $"\n/cmd /gc - {GetString("Command.globalconnect")}"
                     + $"\n/cmd /fe - {GetString("Command.fe")}"
                     + $"\n/cmd /sw - {GetString("Command.sw")}"
@@ -333,7 +333,9 @@ namespace TownOfHost
                     + $"\n/cmd /kf - {GetString("Command.kf")}"
                     + $"\n/cmd /mf - {GetString("Command.mf")}"
                     + $"\n/cmd /ban - {GetString("Command.ban")}"
-                    + $"\n/cmd /kick - {GetString("Command.kick")}";
+                    + $"\n/cmd /kick - {GetString("Command.kick")}"
+                    + $"\n/cmd /setgm(sg) - {GetString("Command.Sg")}"
+                    + $"\n/cmd /removegm(rg) - {GetString("Command.Rg")}";
 
                 if (Options.OptionStreamerSetting.GetBool())
                 {
