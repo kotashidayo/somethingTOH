@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using TownOfHost.Roles.AddOns.Crewmate;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost
@@ -89,10 +91,14 @@ namespace TownOfHost
                 NumShortTasks = data.numShortTasks.GetInt();    // 割り当てるショートタスクの数
                                                                 // ロングとショートは常時再割り当てが行われる。
             }
+            var Toilet = (Event.April || Event.Special) && ToiletFan.OptionOnlyAirship.GetBool() && ToiletFan.OptionTask.GetBool();
+
             if (pc.Is(CustomRoles.Workhorse))
                 (hasCommonTasks, NumCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
             if (pc.Is(CustomRoles.SoulSlave))
                 (hasCommonTasks, NumCommonTasks, NumLongTasks, NumShortTasks) = SoulSlave.TaskData;
+            if (pc.Is(CustomRoles.ToiletFan) && Toilet)
+                (hasCommonTasks, NumCommonTasks, NumLongTasks, NumShortTasks) = ToiletFan.TaskData;
             if (pc.Is(CustomRoles.Gang))
             {
                 hasCommonTasks = true;
@@ -129,7 +135,8 @@ namespace TownOfHost
             //変更点がない場合
             if (!(Options.CurrentGameMode == CustomGameMode.TaskBattle) &&
                 !Options.CommnTaskResetAssing.GetBool() && hasCommonTasks && NumCommonTasks == Main.NormalOptions.NumCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks
-                && !Options.UploadDataIsLongTask.GetBool())
+                && !Options.UploadDataIsLongTask.GetBool()
+                && (!Toilet))
             {
                 if (GameModeManager.IsStandardClass())
                     if (!Main.IsroleAssigned)
@@ -139,6 +146,7 @@ namespace TownOfHost
                     }
                 return;
             }
+
             //割り当て可能なタスクのIDが入ったリスト
             //本来のRpcSetTasksの第二引数のクローン
             Il2CppSystem.Collections.Generic.List<byte> TasksList = new();
@@ -152,6 +160,8 @@ namespace TownOfHost
             int defaultCommonTasksNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
             if (hasCommonTasks && !Options.CommnTaskResetAssing.GetBool() && Options.CurrentGameMode is not CustomGameMode.TaskBattle) TasksList.RemoveRange(defaultCommonTasksNum, TasksList.Count - defaultCommonTasksNum);
             else TasksList.Clear();
+
+
 
             //割り当て済みのタスクが入れられるHashSet
             //同じタスクが複数割り当てられるのを防ぐ
@@ -194,6 +204,16 @@ namespace TownOfHost
             // ↓ DLがAllLongの時にシャッフルされないから・・・
             Shuffle<NormalPlayerTask>(LongTasks);
             Shuffle<NormalPlayerTask>(ShortTasks);
+
+            if (pc.Is(CustomRoles.ToiletFan) && Toilet)
+            {
+                TasksList.Clear();
+                ShortTasks.Clear();
+
+                var toiletTask = ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.CleanToilet);
+                if (toiletTask != null)
+                    ShortTasks.Add(toiletTask);
+            }
 
             //実際にAmong Us側で使われているタスクを割り当てる関数を使う。
             ShipStatus.Instance.AddTasksFromList(

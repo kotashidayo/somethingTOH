@@ -1,5 +1,5 @@
 using AmongUs.GameOptions;
-
+using TownOfHost.Patches;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
@@ -42,22 +42,47 @@ public sealed class ToiletFan : RoleBase
         AURoleOptions.EngineerCooldown = Cooldown;
         AURoleOptions.EngineerInVentMaxTime = 1;
     }
+    public override void Add()
+    {
+        if (Main.NormalOptions.MapId != 4 && OptionOnlyAirship.GetBool())
+        {
+            Player.RpcSetCustomRole(CustomRoles.Bakery);
+        }
+        PetActionManager.Register(Player.PlayerId, Open);
+    }
+    public override void OnDestroy()
+    {
+        PetActionManager.Unregister(Player.PlayerId);
+    }
     private static OptionItem OptionCooldown;
-    private static OptionItem OptionOnlyAirship;
+    public static OptionItem OptionOnlyAirship;
+    public static OptionItem OptionTask;
+    public static OptionItem TaskCount;
     enum OptionName
     {
-        Cooldown,
-        OnlyAirship
+        OnlyAirship,
+        ToiletFanAllTaskIsToilet,
+        ToiletFanTaskCount
     }
     private static float Cooldown;
     int flug;
     private static void SetupOptionItem()
     {
-        OptionCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.Cooldown, new(1f, 30f, 1f), 5f, false)
+        OptionCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, new(1f, 30f, 1f), 5f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionOnlyAirship = BooleanOptionItem.Create(RoleInfo, 11, OptionName.OnlyAirship, false, false);
+        OptionTask = BooleanOptionItem.Create(RoleInfo, 12, OptionName.ToiletFanAllTaskIsToilet, false, false, OptionOnlyAirship)
+            .SetEnabled(() => Event.April || Event.Special).SetInfo(Translator.GetString("AprilfoolOnly"));
+        TaskCount = IntegerOptionItem.Create(RoleInfo, 13, OptionName.ToiletFanTaskCount, new(1, 255, 1), 15, false, OptionTask);
     }
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId)
+    public static (bool, int, int, int) TaskData => (false, 0, 0, TaskCount.GetInt());
+    public override bool CanClickUseVentButton => false;
+    /*public override bool OnEnterVent(PlayerPhysics physics, int ventId)
+    {
+        Open();
+        return false;
+    }*/
+    void Open()
     {
         //可哀想やから除染あけれるようにはしてあげる。
         flug = Main.NormalOptions.MapId is 4 ? 1 : 2;
@@ -65,7 +90,7 @@ public sealed class ToiletFan : RoleBase
         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 80);
         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 81);
         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 82);
-        return false;
+        Player.RpcResetAbilityCooldown();
     }
     public override string GetAbilityButtonText() => GetString("ToiletFanAbility");
     public override bool OverrideAbilityButton(out string text)

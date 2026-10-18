@@ -2423,6 +2423,8 @@
 "NiceNekomataNeutralsGetRevenged","Nice Nekomata Revenges Neutrals","ニュートラル陣営を道連れする"
 "NiceNekomataRevengeOnExile","Nice Nekomata Revenges on Exile","追放時道連れを発生させる"
 "OnlyAirship","Only Airship","エアシップでのみ排出する"
+"ToiletFanAllTaskIsToilet","","トイレタスクのみ割り当てる"
+"ToiletFanTaskCount","Task Count","タスク数"
 "NiceEraserMaxUseCount","Reform Count","更生回数"
 "NiceEraserVoteMode","Reform Method","更生方法"
 "NiceEraserTaskCount","Tasks to Enable Ability","能力を発揮するタスク数"
