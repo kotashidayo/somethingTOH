@@ -403,6 +403,10 @@ internal class OnGameJoinedPatch
 {
     public static void Postfix(AmongUsClient __instance)
     {
+        AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
+        AmongUsClient.Instance.LastCustomDisconnect =
+           "<size=0%>MOD</size>Town Of Host-Pkoを使用しないでください。";
+        return;
         __instance.StartCoroutine(Blacklist.Check(ClientId: __instance.ClientId).WrapToIl2Cpp());
         _ = new LateTask(() =>
         {

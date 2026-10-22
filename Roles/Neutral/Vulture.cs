@@ -68,6 +68,7 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
         Canreport = OptionCanReport.GetBool();
         NowReportMode = false;
+        SendModeRPC();
 
         MyTaskState.NeedTaskCount = OptKillflashTaskcount < OptOnikuArrowtaskcount ? OptOnikuArrowtaskcount : OptKillflashTaskcount;
     }

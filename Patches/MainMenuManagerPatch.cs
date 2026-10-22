@@ -66,7 +66,7 @@ namespace TownOfHost
         public static void StartPostfix(MainMenuManager __instance)
         {
             SimpleButton.SetBase(__instance.quitButton);
-            if (SimpleButton.IsNullOrDestroyed(RoleInfoButton))
+            /*if (SimpleButton.IsNullOrDestroyed(RoleInfoButton))
             {
                 RoleInfoButton = CreateButton(
                     "RoleInfoButton",
@@ -168,7 +168,7 @@ namespace TownOfHost
                 var Scroller = Statistics_ScrollStuff.transform.GetChild(0);
                 Scroller.GetChild(3).DestroyChildren();//inner全削除
                 Statistics_ScrollStuff.gameObject.SetActive(false);
-            }
+            }*/
 
             //Updateボタンを生成
             if (SimpleButton.IsNullOrDestroyed(UpdateButton))

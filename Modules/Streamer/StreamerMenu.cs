@@ -19,7 +19,7 @@ namespace TownOfHost
         public static void CreateMenu(MainMenuManager mainmenumanager)
         {
             var textbox = GameObject.Find("AccountManager/AccountTab/AccountWindow/SubWindows/EditName/NameText");
-            if (SimpleButton.IsNullOrDestroyed(OpenMenu))
+            /*if (SimpleButton.IsNullOrDestroyed(OpenMenu))
             {
                 // ロゴの子ではなく、固定アンカーの子として生成
                 OpenMenu = MainMenuManagerPatch.CreateButton(
@@ -83,7 +83,7 @@ namespace TownOfHost
                     transform: mainmenumanager.screenTint.transform
                     );
                 SetURL.Button.gameObject.SetActive(false);
-            }
+            }*/
 
             void SetOpenMenu()
             {

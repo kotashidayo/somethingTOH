@@ -223,7 +223,7 @@ namespace TownOfHost
                 {
                     MainMenuManagerPatch.Statistics_TMP.transform.localPosition = new Vector3(0.8f, 2f);
                 }
-                CreateStreameMenu.CreateText();
+                //CreateStreameMenu.CreateText();
             }
         }
 
