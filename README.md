@@ -1,11 +1,13 @@
-# 
-# 使用禁止
+# a
 #### クレジット
 [Town Of Host](https://github.com/tukasa0001/TownOfHost)<br>
-　Fork元の本家です。<br>TownOfHost様にある機能はTownOfHost-Pkoでも大体実装されています<br>
+　Fork元の本家です。<br>
 
 [Town Of Host_K](https://github.com/KYMario/TownOfHost-K)<br>
-　Fork元です。<br>TownOfHost_K様にある機能はTownOfHost-Pkoでも大体実装されています<br>
+　Fork元のFork元です。<br>
+
+[Town Of Host_Pko](https://github.com/satokazoku/TownOfHost-Pko)<br>
+　Fork元です。一部を除いたほぼ全ての機能/役職を参考/移植させていただきました。<br>
 
 [Town Of Host_Y](https://github.com/Yumenopai/TownOfHost_Y)<br>
 　会議時の役職表示、会議拡張、ワーカホリック,ラビット,チェイサー,ニムロッド,鬼,決闘者,海賊,属性名、一部役職を参考/移植させて頂きました！<br>
@@ -17,7 +19,7 @@
 　設定に関するバグの修正とモノクラーの対応の際に参考にさせていただきました！<br>
 
 [Town Of Host_Enhanced](https://github.com/EnhancedNetwork/TownofHost-Enhanced)<br>
-　Swooperを移植させて頂きました！<br>
+　スウーパーを移植させて頂きました！<br>
 
 [Endless Host Roles](https://github.com/Gurge44/EndlessHostRoles) <br>
 　ペットの自動付与、タスクターン中のチャット表示を参考にさせて頂きました！<br>
