@@ -7,7 +7,7 @@
 　Fork元のFork元です。<br>
 
 [Town Of Host_Pko](https://github.com/satokazoku/TownOfHost-Pko)<br>
-　Fork元です。一部を除いたほぼ全ての機能/役職を参考/移植させていただきました。<br>
+　Fork元です。一部を除いたほぼ全ての機能/役職を参考/移植させていただきました。(いただく予定)<br>
 
 [Town Of Host_Y](https://github.com/Yumenopai/TownOfHost_Y)<br>
 　会議時の役職表示、会議拡張、ワーカホリック,ラビット,チェイサー,ニムロッド,鬼,決闘者,海賊,属性名、一部役職を参考/移植させて頂きました！<br>
